@@ -125,6 +125,7 @@ namespace pjank.BossaAPI
                         HandleAsyncMessage(msg);
                         */
                         FixmlMsg msg = FixReceivedMessageType(m);
+                        if (AsyncMessageHandler != null) AsyncMessageHandler(msg);
                         GetType().InvokeMember("HandleAsyncMessage",
                             System.Reflection.BindingFlags.InvokeMethod | 
                             System.Reflection.BindingFlags.Instance | 
@@ -140,6 +141,14 @@ namespace pjank.BossaAPI
 
         #endregion
 
+
+        public event Action<FixmlMsg> AsyncMessageHandler;
+        public event Action<AppMessageReportMsg> AsyncAppReportHandler;
+        public event Action<ExecutionReportMsg> AsyncExecReportHandler;
+        public event Action<MarketDataIncRefreshMsg> AsyncMarketDataHandler;
+        public event Action<TradingSessionStatusMsg> AsyncSessStatusHandler;
+        public event Action<NewsMsg> AsyncNewsHandler;
+        public event Action<StatementMsg> AsyncStatementHandler;
 
         #region Asynchronous messages handling
 
@@ -169,12 +178,12 @@ namespace pjank.BossaAPI
 
         private void HandleAsyncMessage(AppMessageReportMsg msg)
         {
-            //Trace.WriteLine("-apprep-");
+            if (AsyncAppReportHandler != null) AsyncAppReportHandler(msg);
         }
 
         private void HandleAsyncMessage(ExecutionReportMsg msg)
         {
-            //Trace.WriteLine("-exec-");
+            if (AsyncExecReportHandler != null) AsyncExecReportHandler(msg);
         }
 
         private void HandleAsyncMessage(MarketDataIncRefreshMsg msg)
@@ -190,21 +199,22 @@ namespace pjank.BossaAPI
                 foreach (MDEntry entry in msg.Entries)
                     NewMarketDataEntry(entry);
             }
+            if (AsyncMarketDataHandler != null) AsyncMarketDataHandler(msg);
         }
 
         private void HandleAsyncMessage(TradingSessionStatusMsg msg)
         {
-            //Trace.WriteLine("-status-");
+            if (AsyncSessStatusHandler != null) AsyncSessStatusHandler(msg);
         }
 
         private void HandleAsyncMessage(NewsMsg msg)
         {
-            //Trace.WriteLine("-news-");
+            if (AsyncNewsHandler != null) AsyncNewsHandler(msg);
         }
 
         private void HandleAsyncMessage(StatementMsg msg)
         {
-            //Trace.WriteLine("-statement-");
+            if (AsyncStatementHandler != null) AsyncStatementHandler(msg);
         }
 
         private void HandleAsyncMessage(UserResponseMsg msg)

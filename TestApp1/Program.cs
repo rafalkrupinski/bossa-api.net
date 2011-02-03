@@ -108,21 +108,44 @@ namespace pjank.BossaAPI.TestApp1
 
         /// <summary>
         /// Proste zalogowanie i wylogowanie użytkownika z użyciem klasy "NolClient".
+        /// Przykład podpięcia zdarzenia pod wybrany rodzaj komunikatu asynchronicznego.
         /// </summary>
         private static void TestModule1()
         {
             // nawiązanie połączenia z NOL3 i zalogowanie użytkownika
             using (NolClient nol = new NolClient())
             {
-                Console.WriteLine("\nPress any key... (async connection thread working in background)\n\n");
+                // podpinamy się pod konkretny rodzaj komunikatów, tutaj - wyciąg z rachunku
+                nol.AsyncStatementHandler += new Action<StatementMsg>(nol_AsyncStatementHandler);
+
+                // po zalogowaniu NOL3 od razu przysyła info o złożonych zleceniach, komunikaty z wizjera itp.
+                Console.WriteLine("\n... async connection thread working in background ... \n");
+                Thread.Sleep(2000);
+
+                // czekamy na kolejne komunikaty, jakie mogą nadchodzić w trakcie sesji...
+                Console.WriteLine("\nPress any key... to exit   \n\n");
                 Console.ReadKey(true);
                 Console.WriteLine("\n\nThank you :)\n");
+
             }  // tu następuje wylogowanie
+        }
+        
+        /// <summary>
+        /// Przykład obsługi odebranego w klasie NolClient (TestModule1) komunikatu asynchronicznego.
+        /// </summary>
+        /// <param name="msg">Tutaj - obiekt komunikatu FIXML typu Statement</param>
+        static void nol_AsyncStatementHandler(StatementMsg msg)
+        {
+            decimal cash = 0;
+            foreach (var statement in msg.Statements)
+                if (statement.Funds.ContainsKey(StatementFundType.Cash))
+                    cash += statement.Funds[StatementFundType.Cash];
+            Console.WriteLine("\nCash summary from all accounts = " + cash + "\n");
         }
 
 
         /// <summary>
-        /// Bardziej zaawansowany przykład użycia "NolClient": tylko zalogowanie, 
+        /// Bardziej zaawansowany przykład użycia "NolClient": zalogowanie dopiero na żądanie, 
         /// bez uruchamiania wątku odbierającego komunikaty asynchroniczne (można go obsłużyć samemu).
         /// Samodzielne przygotowanie, wysyłka i odbiór przykładowego message'a.
         /// </summary>
