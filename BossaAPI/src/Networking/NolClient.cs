@@ -120,15 +120,16 @@ namespace pjank.BossaAPI
                     try
                     {
                         FixmlMsg m = new FixmlMsg(socket);
-                        /* wersja dla .NET 3.5 *
-                        FixmlMsg msg = FixReceivedMessageType(m);
-                        GetType().InvokeMember("HandleAsyncMessage",
-                            BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.NonPublic,
-                            null, this, new[] { msg });
-                        /* wersja dla .NET 4 */
+                        /* wersja dla .NET 4  +  "using Microsoft.CSharp;"
                         dynamic msg = FixReceivedMessageType(m);
                         HandleAsyncMessage(msg);
-                        /**/
+                        */
+                        FixmlMsg msg = FixReceivedMessageType(m);
+                        GetType().InvokeMember("HandleAsyncMessage",
+                            System.Reflection.BindingFlags.InvokeMethod | 
+                            System.Reflection.BindingFlags.Instance | 
+                            System.Reflection.BindingFlags.NonPublic,
+                            null, this, new[] { msg });
                     }
                     catch (FixmlSocketException e) { socket.Close(); e.PrintError(); }
                     catch (ThreadAbortException) { socket.Close(); }

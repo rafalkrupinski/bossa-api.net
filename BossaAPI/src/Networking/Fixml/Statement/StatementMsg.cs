@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace pjank.BossaAPI.Fixml
@@ -22,7 +23,8 @@ namespace pjank.BossaAPI.Fixml
 
         public override string ToString()
         {
-            return base.ToString() + "\n" + string.Join<StatementData>("\n", Statements);
+            var a = Statements.Select(s => s.ToString()).ToArray();
+            return base.ToString() + "\n" + string.Join("\n", a);
         }
 
     }

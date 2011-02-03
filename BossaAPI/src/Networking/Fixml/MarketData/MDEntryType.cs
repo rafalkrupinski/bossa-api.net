@@ -72,6 +72,13 @@ namespace pjank.BossaAPI.Fixml
             return true;
         }
 
+        public static string ToString(this MDEntryType[] array)
+        {
+            if (array.Compare(MDEntryTypes.All)) return "All";
+            var a = array.Select(t => t.ToString()).ToArray();
+            return string.Join("+", a);
+        }
+
     }
 
     internal static class MDEntryTypeUtil

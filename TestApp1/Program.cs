@@ -88,7 +88,7 @@ namespace pjank.BossaAPI.TestApp1
         private static bool SelectTestModule()
         {
             Console.WriteLine("\n\nSelect test module:   (Esc - exit)");
-            Console.WriteLine(" 1 - simple NolClient usage: Login and Logout");
+            Console.WriteLine(" 1 - basic NolClient usage: simple Login and Logout");
             Console.WriteLine(" 2 - advanced NolClient usage, custom message handling");
             Console.WriteLine(" 3 - MarketData and SessionStatus subscription using NolClient");
             Console.WriteLine(" 4 - low-level Order Requests handling using FixmlMsg subclasses");
@@ -259,11 +259,11 @@ namespace pjank.BossaAPI.TestApp1
 
                     // wydruk wszystkich zgromadzonych notowań
                     foreach (var x in nol.MarketDataResults())
-                        Debug.WriteLine("{0,-9}  {1}\n", x.Key, x.Value);
+                        Debug.WriteLine(string.Format("{0,-9}  {1}\n", x.Key, x.Value));
 
                     // wydruk wybranych danych konkretnego instrumentu
                     var fw20data = nol.MarketDataResults(fw20);
-                    Debug.WriteLine("{0} = {1,7}   LOP = {2}", fw20, fw20data.CurrentPrice, fw20data.Lop);
+                    Debug.WriteLine(string.Format("{0} = {1,7}   LOP = {2}", fw20, fw20data.CurrentPrice, fw20data.Lop));
 
                     if (Console.ReadKey(true).Key == ConsoleKey.Escape) return;
 
