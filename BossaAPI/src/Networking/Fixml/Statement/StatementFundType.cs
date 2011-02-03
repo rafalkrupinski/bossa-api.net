@@ -10,18 +10,18 @@ namespace pjank.BossaAPI.Fixml
         CashRecivables,         // należności niezablokowane, do dyspozycji
         Liabilities,            // ? zobowiązania
         LiabilitiesLimitMax,    // kwota, o jaką można zwiększać limit należności
-        MaxBuy,
-        MaxOtpBuy,              // maksymalne kupno z odroczonym term. płatności
+        MaxBuy,                 // maksymalne kupno 
+        MaxOtpBuy,              // maksymalne kupno na OTP (odroczony termin płatności)
         Recivables,             // ? należności
         RecivablesBlocked,
         SecuritiesValue,        // wartość papierów / wartość teoretyczna otwartych pozycji
         SecSafeties,
         SecSafetiesUsed,
         PortfolioValue,         // wartość całego portfela / wartość środków własnych
-        Deposit,
-        BlockedDeposit,
-        FreeDeposit,
-        DepositDeficit,
+        Deposit,                // depozyt razem
+        DepositBlocked,         // depozyt zablokowany
+        DepositFree,            // depozyt do dyspozycji
+        DepositDeficit,         // depozyt do uzupełnienia
     }
 
     internal class StatementFundUtil
@@ -42,8 +42,8 @@ namespace pjank.BossaAPI.Fixml
                 { "SecSafetiesUsed",        StatementFundType.SecSafetiesUsed },
                 { "PortfolioValue",         StatementFundType.PortfolioValue },
                 { "Deposit",                StatementFundType.Deposit },
-                { "BlockedDeposit",         StatementFundType.BlockedDeposit },
-                { "FreeDeposit",            StatementFundType.FreeDeposit },
+                { "BlockedDeposit",         StatementFundType.DepositBlocked },
+                { "FreeDeposit",            StatementFundType.DepositFree },
                 { "DepositDeficit",         StatementFundType.DepositDeficit },
             };
         public static StatementFundType Read(XmlElement xml, string name)

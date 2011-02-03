@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -39,7 +40,7 @@ namespace pjank.BossaAPI.Fixml
             sb.Append("- " + Account + " -");
             foreach (var p in Positions)
                 sb.Append(string.Format("\n  {1} x {0}", p.Key, p.Value));
-            foreach (var f in Funds)
+            foreach (var f in Funds.OrderBy(t => t.Key))
                 sb.Append(string.Format("\n {0,-20} {1,8}", f.Key, f.Value));
             return sb.ToString();
         }
