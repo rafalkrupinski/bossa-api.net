@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{4F4C0B7B-A55B-4189-8127-AA79A32AAE5B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>pjank.BossaAPI</RootNamespace>
+    <AssemblyName>pjank.BossaAPI</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\AccountData\BosAccount.cs" />
+    <Compile Include="src\AccountData\BosAccounts.cs" />
+    <Compile Include="src\AccountData\BosOrder.cs" />
+    <Compile Include="src\AccountData\BosOrders.cs" />
+    <Compile Include="src\AccountData\BosPaper.cs" />
+    <Compile Include="src\AccountData\BosPapers.cs" />
+    <Compile Include="src\Bossa.cs" />
+    <Compile Include="src\MarketData\BosInstrument.cs" />
+    <Compile Include="src\MarketData\BosInstruments.cs" />
+    <Compile Include="src\MarketData\BosOffer.cs" />
+    <Compile Include="src\MarketData\BosOffers.cs" />
+    <Compile Include="src\MarketData\BosTrade.cs" />
+    <Compile Include="src\MarketData\BosTrades.cs" />
+    <Compile Include="src\Networking\Fixml\AppMsgReport\AppMessageReportMsg.cs" />
+    <Compile Include="src\Networking\Fixml\BizMsgReject\BizMessageRejectException.cs" />
+    <Compile Include="src\Networking\Fixml\BizMsgReject\BizMessageRejectMsg.cs" />
+    <Compile Include="src\Networking\Fixml\BizMsgReject\BizMsgReferenceMsgType.cs" />
+    <Compile Include="src\Networking\Fixml\BizMsgReject\BizMsgRejectReason.cs" />
+    <Compile Include="src\Networking\Fixml\ExecReport\ExecReportStatus.cs" />
+    <Compile Include="src\Networking\Fixml\ExecReport\ExecReportType.cs" />
+    <Compile Include="src\Networking\Fixml\ExecReport\ExecutionReportMsg.cs" />
+    <Compile Include="src\Networking\Fixml\ExecReport\OrdCommisionType.cs" />
+    <Compile Include="src\Networking\Fixml\ExecReport\OrdRejectReason.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MarketDataFullRefreshMsg.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MarketDataIncRefreshMsg.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MarketDataReqRejectMsg.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MarketDataRequestMsg.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MDEntry.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MDEntryType.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MDRejectReason.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MDResults.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\MDUpdateAction.cs" />
+    <Compile Include="src\Networking\Fixml\MarketData\SubscriptionRequestType.cs" />
+    <Compile Include="src\Networking\Fixml\News\NewsMsg.cs" />
+    <Compile Include="src\Networking\Fixml\Orders\NewOrderSingleMsg.cs" />
+    <Compile Include="src\Networking\Fixml\Orders\OrderCancelRequestMsg.cs" />
+    <Compile Include="src\Networking\Fixml\Orders\OrderReplaceRequestMsg.cs" />
+    <Compile Include="src\Networking\Fixml\Orders\OrderSide.cs" />
+    <Compile Include="src\Networking\Fixml\Orders\OrderStatusRequestMsg.cs" />
+    <Compile Include="src\Networking\Fixml\Orders\OrderType.cs" />
+    <Compile Include="src\Networking\Fixml\Orders\OrdTimeInForce.cs" />
+    <Compile Include="src\Networking\Fixml\Session\TradingSessionPhase.cs" />
+    <Compile Include="src\Networking\Fixml\Session\TradingSessionStatus.cs" />
+    <Compile Include="src\Networking\Fixml\Session\TradingSessionStatusMsg.cs" />
+    <Compile Include="src\Networking\Fixml\Session\TrdSesStatRejectReason.cs" />
+    <Compile Include="src\Networking\Fixml\Session\TrdSesStatusRequestMsg.cs" />
+    <Compile Include="src\Networking\Fixml\Statement\StatementData.cs" />
+    <Compile Include="src\Networking\Fixml\Statement\StatementFundType.cs" />
+    <Compile Include="src\Networking\Fixml\Statement\StatementMsg.cs" />
+    <Compile Include="src\Networking\Fixml\User\UserRequestMsg.cs" />
+    <Compile Include="src\Networking\Fixml\User\UserRequestType.cs" />
+    <Compile Include="src\Networking\Fixml\User\UserResponseMsg.cs" />
+    <Compile Include="src\Networking\Fixml\User\UserStatus.cs" />
+    <Compile Include="src\Networking\Fixml\_Base\CustomMsg.cs" />
+    <Compile Include="src\Networking\Fixml\_Base\FixmlInstrument.cs" />
+    <Compile Include="src\Networking\Fixml\_Base\FixmlMsg.cs" />
+    <Compile Include="src\Networking\Fixml\_Base\FixmlUtil.cs" />
+    <Compile Include="src\Networking\Fixml\_Exceptions\FixmlErrorMsgException.cs" />
+    <Compile Include="src\Networking\Fixml\_Exceptions\FixmlException.cs" />
+    <Compile Include="src\Networking\Fixml\_Exceptions\FixmlSocketException.cs" />
+    <Compile Include="src\Networking\NolClient.cs" />
+    <Compile Include="src\Other\MyUtil.cs" />
+    <Compile Include="src\Networking\NolClientException.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
