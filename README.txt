@@ -1,9 +1,8 @@
 ﻿ "BossaAPI .NET Class Library"
 -------------------------------------------------------
 
-Biblioteka "pjank.BossaAPI.dll", napisana w C# (w VS2010 Express, .NET 4, 
-po drobnych korektach kompatybilna również z .NET 3.5), powstała by ułatwić 
-każdemu korzystanie z możliwości API udostępnionego niedawno przez DM BOSSA.
+Biblioteka "pjank.BossaAPI.dll" - napisana w C# (.NET 3.5) - powstała, by
+ułatwić korzystanie z możliwości API udostępnionego niedawno przez DM BOSSA.
 Docelowo biblioteka będzie udostępniała czytelne klasy reprezentujące m.in.:
 rachunek maklerski, poszczególne papiery na nim zgromadzone, ich notowania
 oraz aktywne zlecenia. Wszystko w takiej formie, by nawet laik, który dopiero
