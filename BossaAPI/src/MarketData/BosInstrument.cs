@@ -9,14 +9,37 @@ namespace pjank.BossaAPI
     /// Identyfikuje intrument (papier wartościowy), którego dotyczy jakaś oferta, zlecenie, transakcja.
     /// TODO: ...
     /// </summary>
-    class BosInstrument
+    public class BosInstrument
     {
-        // Symbol
-        // IsinCode
+        /// <summary>
+        /// kod ISIN instrumentu
+        /// </summary>
+        public string ISIN { get; private set; }
 
-        // BuyOffers
-        // SellOffers
-        // TradeHistory
+        /// <summary>
+        /// standardowy symbol instrumentu
+        /// </summary>
+        public string Symbol { get; private set; }
+
+        /// <summary>
+        /// skrócony symbol instrumentu
+        /// </summary>
+        public string Sym { get; private set; }
+
+        /// <summary>
+        /// tabela ofert kupna 
+        /// </summary>
+        public BosOffers BuyOffers { get; private set; }
+
+        /// <summary>
+        /// tabela ofert sprzedaży
+        /// </summary>
+        public BosOffers SellOffers { get; private set; }
+
+        /// <summary>
+        /// znana historia transakcji
+        /// </summary>
+        public BosTrades Trades { get; private set; }
 
         // IsIndex
         // IsFutures

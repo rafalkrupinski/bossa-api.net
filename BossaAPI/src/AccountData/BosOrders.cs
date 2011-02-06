@@ -5,7 +5,18 @@ using System.Text;
 
 namespace pjank.BossaAPI
 {
-    class BosOrders
+    public class BosOrders
     {
+        private List<BosOrder> list = new List<BosOrder>();
+
+        public int Count
+        {
+            get { return list.Count; }
+        }
+
+        public BosOrder this[int index]
+        {
+            get { return list[index]; }
+        }
     }
 }

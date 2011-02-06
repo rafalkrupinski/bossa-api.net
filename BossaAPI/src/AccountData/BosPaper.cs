@@ -9,7 +9,17 @@ namespace pjank.BossaAPI
     /// Reprezentuje jeden z papierów na rachunku użytkownika (jego ilość, bieżącą wycenę itd.)
     /// TODO: ...
     /// </summary>
-    class BosPaper
+    public class BosPaper
     {
+        /// <summary>
+        /// instrument, którego dotyczy ten wpis na rachunku użytkownika
+        /// </summary>
+        public BosInstrument Instrument { get; private set; }
+
+        /// <summary>
+        /// liczba sztuk tego instrumentu znajdujących się na rachunku
+        /// </summary>
+        public int Quantity { get; private set; }
+
     }
 }

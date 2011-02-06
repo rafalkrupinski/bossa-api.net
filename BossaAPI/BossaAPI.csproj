@@ -45,13 +45,17 @@
     <Compile Include="src\AccountData\BosAccounts.cs" />
     <Compile Include="src\AccountData\BosOrder.cs" />
     <Compile Include="src\AccountData\BosOrders.cs" />
+    <Compile Include="src\AccountData\BosOrderSide.cs" />
     <Compile Include="src\AccountData\BosPaper.cs" />
     <Compile Include="src\AccountData\BosPapers.cs" />
+    <Compile Include="src\AccountData\BosOrderStatus.cs" />
+    <Compile Include="src\AccountData\BosOrderReport.cs" />
     <Compile Include="src\Bossa.cs" />
     <Compile Include="src\MarketData\BosInstrument.cs" />
     <Compile Include="src\MarketData\BosInstruments.cs" />
     <Compile Include="src\MarketData\BosOffer.cs" />
     <Compile Include="src\MarketData\BosOffers.cs" />
+    <Compile Include="src\MarketData\BosPrice.cs" />
     <Compile Include="src\MarketData\BosTrade.cs" />
     <Compile Include="src\MarketData\BosTrades.cs" />
     <Compile Include="src\Networking\Fixml\AppMsgReport\AppMessageReportMsg.cs" />
