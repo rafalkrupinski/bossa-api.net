@@ -5,19 +5,19 @@ using System.Text;
 
 namespace pjank.BossaAPI
 {
-    public class BosPapers
-    {
-        private List<BosPaper> list = new List<BosPaper>();
+	public class BosPapers
+	{
+		private List<BosPaper> list = new List<BosPaper>();
 
-        public int Count
-        {
-            get { return list.Count; }
-        }
+		public int Count
+		{
+			get { return list.Count; }
+		}
 
-        public BosPaper this[int index]
-        {
-            get { return list[index]; }
-        }
+		public BosPaper this[int index]
+		{
+			get { return list[index]; }
+		}
 
-    }
+	}
 }

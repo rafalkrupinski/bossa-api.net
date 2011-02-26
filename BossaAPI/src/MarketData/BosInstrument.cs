@@ -5,43 +5,43 @@ using System.Text;
 
 namespace pjank.BossaAPI
 {
-    /// <summary>
-    /// Identyfikuje intrument (papier wartościowy), którego dotyczy jakaś oferta, zlecenie, transakcja.
-    /// TODO: ...
-    /// </summary>
-    public class BosInstrument
-    {
-        /// <summary>
-        /// kod ISIN instrumentu
-        /// </summary>
-        public string ISIN { get; private set; }
+	/// <summary>
+	/// Identyfikuje intrument (papier wartościowy), którego dotyczy jakaś oferta, zlecenie, transakcja.
+	/// TODO: ...
+	/// </summary>
+	public class BosInstrument
+	{
+		/// <summary>
+		/// kod ISIN instrumentu
+		/// </summary>
+		public string ISIN { get; private set; }
 
-        /// <summary>
-        /// standardowy symbol instrumentu
-        /// </summary>
-        public string Symbol { get; private set; }
+		/// <summary>
+		/// standardowy symbol instrumentu
+		/// </summary>
+		public string Symbol { get; private set; }
 
-        /// <summary>
-        /// skrócony symbol instrumentu
-        /// </summary>
-        public string Sym { get; private set; }
+		/// <summary>
+		/// skrócony symbol instrumentu
+		/// </summary>
+		public string Sym { get; private set; }
 
-        /// <summary>
-        /// tabela ofert kupna 
-        /// </summary>
-        public BosOffers BuyOffers { get; private set; }
+		/// <summary>
+		/// tabela ofert kupna 
+		/// </summary>
+		public BosOffers BuyOffers { get; private set; }
 
-        /// <summary>
-        /// tabela ofert sprzedaży
-        /// </summary>
-        public BosOffers SellOffers { get; private set; }
+		/// <summary>
+		/// tabela ofert sprzedaży
+		/// </summary>
+		public BosOffers SellOffers { get; private set; }
 
-        /// <summary>
-        /// znana historia transakcji
-        /// </summary>
-        public BosTrades Trades { get; private set; }
+		/// <summary>
+		/// znana historia transakcji
+		/// </summary>
+		public BosTrades Trades { get; private set; }
 
-        // IsIndex
-        // IsFutures
-    }
+		// IsIndex
+		// IsFutures
+	}
 }

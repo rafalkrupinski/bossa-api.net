@@ -5,15 +5,15 @@ using System.Text;
 
 namespace pjank.BossaAPI
 {
-    public enum BosOrderStatus
-    {
-        New,
-        Rejected,
-        PendingReplace,
-        PendingCancel,
-        Cancelled,
-        PartiallyFilled,
-        Filled,
-        Expired,
-    }
+	public enum BosOrderStatus
+	{
+		New,
+		Rejected,
+		PendingReplace,
+		PendingCancel,
+		Cancelled,
+		PartiallyFilled,
+		Filled,
+		Expired,
+	}
 }
