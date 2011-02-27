@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Threading;
 using Microsoft.Win32;
 using pjank.BossaAPI.Fixml;
+using pjank.BossaAPI.DTO;
 
 namespace pjank.BossaAPI
 {
@@ -17,7 +18,7 @@ namespace pjank.BossaAPI
 	/// - zbieranie bieżących notowań podczas sesji
 	/// - TODO: składanie zleceń (na razie korzystać z klas Networking/Fixml/*)
 	/// </summary>
-	public class NolClient : IDisposable
+	public class NolClient : IDisposable, IBosClient
 	{
 
 		public NolClient() : this(true) { }
@@ -44,6 +45,7 @@ namespace pjank.BossaAPI
 
 		public void Dispose()
 		{
+			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.Dispose...", FixmlMsg.DebugCategory);
 			try
 			{
 				if (thread != null) ThreadStop();
@@ -76,6 +78,7 @@ namespace pjank.BossaAPI
 
 		public static Socket GetSyncSocket()
 		{
+			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.GetSyncSocket...", FixmlMsg.DebugCategory);
 			Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			socket.Connect("localhost", getRegistryPort("psync"));
 			socket.ReceiveTimeout = 10000;  // <- nie mniej, niż max. czas odpowiedzi na request synchr.
@@ -85,6 +88,7 @@ namespace pjank.BossaAPI
 
 		public static Socket GetAsyncSocket()
 		{
+			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.GetAsyncSocket...", FixmlMsg.DebugCategory);
 			Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			socket.Connect("localhost", getRegistryPort("pasync"));
 			socket.ReceiveTimeout = 10000;  // <- nie mniej, niż odstęp między Heartbeat (zwykle co 1sek?)
@@ -99,6 +103,7 @@ namespace pjank.BossaAPI
 
 		private void ThreadStart()
 		{
+			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.ThreadStart...", FixmlMsg.DebugCategory);
 			thread = new Thread(ThreadProc);
 			thread.Name = "NOL3 async connection";
 			thread.IsBackground = true;
@@ -107,18 +112,20 @@ namespace pjank.BossaAPI
 
 		private void ThreadStop()
 		{
+			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.ThreadStop...", FixmlMsg.DebugCategory);
 			thread.Abort();
 			thread = null;
 		}
 
 		private void ThreadProc()
 		{
-			using (Socket socket = GetAsyncSocket())
+			try
 			{
-				while (socket.Connected)
+				using (Socket socket = GetAsyncSocket())
 				{
-					try
+					while (socket.Connected)
 					{
+						Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "");
 						FixmlMsg m = new FixmlMsg(socket);
 						/* wersja dla .NET 4  +  "using Microsoft.CSharp;"
 						dynamic msg = FixReceivedMessageType(m);
@@ -132,11 +139,11 @@ namespace pjank.BossaAPI
 							System.Reflection.BindingFlags.NonPublic,
 							null, this, new[] { msg });
 					}
-					catch (FixmlSocketException e) { socket.Close(); e.PrintError(); }
-					catch (ThreadAbortException) { socket.Close(); }
-					catch (Exception e) { e.PrintError(); }
 				}
 			}
+			//catch (FixmlSocketException e) { socket.Close(); e.PrintError(); }
+			catch (ThreadAbortException) { /*socket.Close();*/ }
+			catch (Exception e) { e.PrintError(); }
 		}
 
 		#endregion
@@ -149,6 +156,9 @@ namespace pjank.BossaAPI
 		public event Action<TradingSessionStatusMsg> AsyncSessStatusHandler;
 		public event Action<NewsMsg> AsyncNewsHandler;
 		public event Action<StatementMsg> AsyncStatementHandler;
+
+		public event Action<Account> AccountUpdateHandler;
+
 
 		#region Asynchronous messages handling
 
@@ -215,6 +225,20 @@ namespace pjank.BossaAPI
 		private void HandleAsyncMessage(StatementMsg msg)
 		{
 			if (AsyncStatementHandler != null) AsyncStatementHandler(msg);
+			if (AccountUpdateHandler != null)
+				foreach (var statement in msg.Statements)
+				{
+					var account = new Account();
+					account.Number = statement.Account;
+					account.Papers = statement.Positions.
+						Select(p => new Paper {
+							Instrument = new Instrument { 
+								Symbol = p.Key.Symbol, ISIN = p.Key.SecurityId },
+							Quantity = p.Value
+						}).ToArray();
+					account.Cash = statement.Funds[StatementFundType.Cash];
+					AccountUpdateHandler(account);
+				}
 		}
 
 		private void HandleAsyncMessage(UserResponseMsg msg)

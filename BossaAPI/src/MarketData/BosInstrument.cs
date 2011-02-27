@@ -43,5 +43,32 @@ namespace pjank.BossaAPI
 
 		// IsIndex
 		// IsFutures
+
+		public override string ToString()
+		{
+			return Symbol ?? ISIN;
+		}
+
+		public static BosInstrument FindByIsin(string isin)
+		{
+			return null;
+		}
+
+		public static BosInstrument FindBySymbol(string symbol)
+		{
+			return null;
+		}
+
+		internal static BosInstrument Find(string isin, string symbol)
+		{
+			//TODO: globalna lista instrumentów 
+			//return (isin != null) ? FindByIsin(isin) : FindBySymbol(symbol);
+			return new BosInstrument { ISIN = isin, Symbol = symbol };
+		}
+
+		internal static BosInstrument Find(DTO.Instrument dtoInstrument)
+		{
+			return Find(dtoInstrument.ISIN, dtoInstrument.Symbol);
+		}
 	}
 }

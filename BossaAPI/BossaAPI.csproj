@@ -58,6 +58,9 @@
     <Compile Include="src\MarketData\BosPrice.cs" />
     <Compile Include="src\MarketData\BosTrade.cs" />
     <Compile Include="src\MarketData\BosTrades.cs" />
+    <Compile Include="src\Networking\DTO\Account.cs" />
+    <Compile Include="src\Networking\DTO\Instrument.cs" />
+    <Compile Include="src\Networking\DTO\Paper.cs" />
     <Compile Include="src\Networking\Fixml\AppMsgReport\AppMessageReportMsg.cs" />
     <Compile Include="src\Networking\Fixml\BizMsgReject\BizMessageRejectException.cs" />
     <Compile Include="src\Networking\Fixml\BizMsgReject\BizMessageRejectMsg.cs" />
@@ -105,6 +108,7 @@
     <Compile Include="src\Networking\Fixml\_Exceptions\FixmlErrorMsgException.cs" />
     <Compile Include="src\Networking\Fixml\_Exceptions\FixmlException.cs" />
     <Compile Include="src\Networking\Fixml\_Exceptions\FixmlSocketException.cs" />
+    <Compile Include="src\Networking\IBosClient.cs" />
     <Compile Include="src\Networking\NolClient.cs" />
     <Compile Include="src\Other\MyUtil.cs" />
     <Compile Include="src\Networking\NolClientException.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using pjank.BossaAPI.DTO;
 
 namespace pjank.BossaAPI
 {
@@ -10,15 +11,95 @@ namespace pjank.BossaAPI
 	/// TODO: obecnie to sam szkielet przyszłej klasy
 	///        (na razie korzystać z klasy Networking/NolClient)
 	/// </summary>
-	public class Bossa
+	public static class Bossa
 	{
-		public BosAccounts Accounts { get; private set; }
-		public BosInstruments Instruments { get; private set; }
+		/// <summary>
+		/// Czy jesteśmy połączeni z serwerem (wywołano wcześniej "Connect")?
+		/// Jeśli nie, wszelkie operacje które wymagają tego połączenia, zwrócą teraz wyjątek.
+		/// </summary>
+		public static bool IsConnected
+		{
+			get { return (client != null); }
+		}
 
-		public Bossa()
+		/// <summary>
+		/// Dostęp do naszych rachunków w biurze maklerskim Bossa
+		/// (ich saldo, obecne papiery wartościowe, bieżące zlecenia)
+		/// </summary>
+		public static BosAccounts Accounts { get; private set; }
+
+		/// <summary>
+		/// Dostęp do informacji o notowaniach poszczególnych instrumentów na rynku
+		/// (historia ostatnich transakcji, bieżąca tabela ofert kupna/sprzedaży)
+		/// </summary>
+		public static BosInstruments Instruments { get; private set; }
+
+
+		// inicjalizacja klasy
+		static Bossa()
 		{
 			Accounts = new BosAccounts();
 			Instruments = new BosInstruments();
+		}
+
+		// obiekt realizujący komunikację z serwerem
+		static IBosClient client;
+
+		// aktualizacja stanu jednego z rachunków
+		static void client_AccountUpdateHandler(Account acccountData)
+		{
+			Accounts[acccountData.Number].Update(acccountData);
+			Update();
+		}
+
+		/// <summary>
+		/// Zdarzenie wywoływane po każdej aktualizacji danych
+		/// </summary>
+		public static event Action Updated;
+
+		private static void Update()
+		{
+			if (Updated != null) Updated();
+		}
+
+		/// <summary>
+		/// Podłączenie wskazanego obiektu komunikującego się z serwerem.
+		/// </summary>
+		/// <param name="client">Obiekt realizujący konkretną formę komunikacji.
+		/// Jedyna dostępna na tę chwilę implementacja tego interfejsu to klasa "NolClient".
+		/// </param>
+		public static void Connect(IBosClient client)
+		{
+			Bossa.client = client;
+			client.AccountUpdateHandler += new Action<Account>(client_AccountUpdateHandler);
+		}
+
+		/// <summary>
+		/// Otwarcie połączenia  lokalnie uruchomioną aplikacją NOL3(Bossa)
+		/// </summary>
+		public static void ConnectNOL3()
+		{
+			Connect(new NolClient());
+		}
+
+		/// <summary>
+		/// Zamknięcie bieżącego połączenia.
+		/// Wszelkie dane (stan rachunku, notowania) jakie zdążyliśmy zebrać, zostają nadal w pamięci...
+		/// i można z nich korzystać (tylko odczyt). Aby wyczyścić wszystkie dane, używamy metody "Reset".
+		/// </summary>
+		public static void Disconnect()
+		{
+			Bossa.client.Dispose();
+			Bossa.client = null;
+		}
+
+		/// <summary>
+		/// Wyczyszczenie zebranych dotąd informacji o stanie naszych rachunków, historii notowań itd.
+		/// </summary>
+		public static void Reset()
+		{
+			Accounts.Clear();
+			Instruments.Clear();
 		}
 	}
 }

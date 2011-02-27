@@ -21,5 +21,11 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public int Quantity { get; private set; }
 
+		// konstruktor, wywoływany spod BosPapers.Update()
+		internal BosPaper(DTO.Paper dtoPaper)
+		{
+			Instrument = BosInstrument.Find(dtoPaper.Instrument);
+			Quantity = dtoPaper.Quantity;
+		}
 	}
 }

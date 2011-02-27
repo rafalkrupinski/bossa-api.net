@@ -53,7 +53,7 @@ namespace pjank.BossaAPI.Fixml
 		// (tutaj tylko bazowe <FIXML/>, reszta w klasach pochodnych).
 		protected virtual void PrepareXmlMessage(string name)
 		{
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " - preparing message", DebugCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + ".PrepareXml...", DebugCategory);
 			xmlDoc = new XmlDocument();
 			xmlDoc.AppendChild(xmlDoc.CreateElement("FIXML"));
 			xmlDoc.DocumentElement.SetAttribute("v", "5.0");
@@ -69,7 +69,7 @@ namespace pjank.BossaAPI.Fixml
 		/// <param name="socket">Socket, z którego chcemy odebrać komunikat.</param>
 		public FixmlMsg(Socket socket)
 		{
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " constructor (from socket)", DebugCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, string.Format("new {0} from socket", GetType().Name), DebugCategory);
 			string text = Receive(socket);
 			Debug.WriteLineIf(DebugOriginalXml.Enabled, "'" + text + "'", DebugRecvCategory);
 			if (text == "") throw new FixmlException("Received empty message!");
@@ -78,23 +78,25 @@ namespace pjank.BossaAPI.Fixml
 			Debug.WriteLineIf(DebugFormattedXml.Enabled, "\n" + xmlDoc.FormattedXml(), DebugRecvCategory);
 			ParseXmlMessage(null);
 			Debug.WriteLineIf(DebugParsedMessage.Enabled && (GetType() != typeof(FixmlMsg)), this.ToString(), DebugRecvCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, string.Format("new {0} ok", GetType().Name), DebugCategory);
 		}
 
 		// Konstruktor używany wewnętrznie dla komunikatów przychodzących - 
 		// "opakowywuje" odebrany komunikat w inną, bardziej precyzyjną klasę pochodną. 
 		protected FixmlMsg(FixmlMsg msg)
 		{
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " constructor (msg copy)", DebugCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, string.Format("new {0} from FixmlMsg", GetType().Name), DebugCategory);
 			xmlDoc = msg.xmlDoc;
 			ParseXmlMessage(null);
 			Debug.WriteLineIf(DebugParsedMessage.Enabled, this.ToString(), DebugRecvCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, string.Format("new {0} ok", GetType().Name), DebugCategory);
 		}
 
 		// Analiza treści XML odebranego komunikatu
 		// (tutaj tylko bazowe <FIXML> i ewentualnie nazwa komunikatu, reszta w klasach pochodnych).
 		protected virtual void ParseXmlMessage(string name)
 		{
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " - parsing message", DebugCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + ".ParseXml...", DebugCategory);
 			if (xmlDoc.DocumentElement == null) throw new FixmlException("XML data missing!");
 			if (xmlDoc.DocumentElement.Name != "FIXML") throw new FixmlException("FIXML root element missing!");
 			if (xmlDoc.DocumentElement.GetAttribute("v") != "5.0") throw new FixmlException("Unknown FIXML protocol version!");
@@ -116,7 +118,7 @@ namespace pjank.BossaAPI.Fixml
 		/// <param name="socket">Socket, przez który chcemy wysłać komunikat.</param>
 		public void Send(Socket socket)
 		{
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " - sending message...", DebugCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + ".Send...", DebugCategory);
 			if (xmlDoc == null) PrepareXmlMessage(null);
 			Debug.WriteLineIf(DebugParsedMessage.Enabled, this.ToString(), DebugSendCategory);
 			Debug.WriteLineIf(DebugFormattedXml.Enabled, "\n" + xmlDoc.FormattedXml(), DebugSendCategory);
@@ -125,20 +127,18 @@ namespace pjank.BossaAPI.Fixml
 			byte[] size_buf = BitConverter.GetBytes(data_buf.Length);
 			if (socket.Send(size_buf) < size_buf.Length) throw new FixmlSocketException();
 			if (socket.Send(data_buf) < data_buf.Length) throw new FixmlSocketException();
-			Debug.WriteLineIf(DebugOriginalXml.Enabled, "'" + text + "'", DebugSendCategory);
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " - message sent", DebugCategory);
+			Debug.WriteLineIf(DebugOriginalXml.Enabled, "'" + xmlDoc.InnerXml + "'", DebugSendCategory);
 		}
 
 		// Odbiór treści kolejnego komunikatu od serwera.
 		private string Receive(Socket socket)
 		{
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " - receiving message...", DebugCategory);
+			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + ".Receive...", DebugCategory);
 			byte[] size_buf = new byte[4];
 			if (socket.Receive(size_buf) < size_buf.Length) throw new FixmlSocketException();
 			byte[] data_buf = new byte[BitConverter.ToInt32(size_buf, 0)];
 			if (socket.Receive(data_buf) < data_buf.Length) throw new FixmlSocketException();
 			string text = Encoding.Default.GetString(data_buf);
-			Debug.WriteLineIf(DebugInternals.Enabled, GetType().Name + " - message received", DebugCategory);
 			return text.TrimEnd('\0');   // znak '\0' na końcu nam by tylko przeszkadzał (np. w okienku Output)
 		}
 

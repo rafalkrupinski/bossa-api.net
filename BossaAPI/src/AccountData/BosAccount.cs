@@ -41,9 +41,15 @@ namespace pjank.BossaAPI
 		protected internal BosAccount(string number)
 		{
 			Number = number;
-			UpdateTime = DateTime.Now;
 			Papers = new BosPapers();
 			Orders = new BosOrders();
+		}
+
+		internal void Update(DTO.Account dtoAccount)
+		{
+			Cash = dtoAccount.Cash;
+			Papers.Update(dtoAccount.Papers);
+			UpdateTime = DateTime.Now;
 		}
 	}
 }

@@ -19,5 +19,9 @@ namespace pjank.BossaAPI
 			get { return list[index]; }
 		}
 
+		internal void Clear()
+		{
+			list.Clear();
+		}
 	}
 }
