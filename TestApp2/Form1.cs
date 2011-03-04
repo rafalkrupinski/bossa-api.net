@@ -25,7 +25,7 @@ namespace pjank.BossaAPI.TestApp2
 			debugCheck4.Checked = FixmlMsg.DebugParsedMessage.Enabled = true;
 			myTraceListener = new RichTextBoxTraceListener(debugBox);
 			Debug.Listeners.Add(myTraceListener);
-			Bossa.Updated += new Action(Bossa_Updated);
+			Bossa.OnUpdate += new EventHandler(Bossa_OnUpdate);
 		}
 
 		private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -108,15 +108,39 @@ namespace pjank.BossaAPI.TestApp2
 		}
 
 
-		// ----- listview z informacjami o rachunkach ----- 
+		// ----- ustawianie listview z informacjami o rachunkach ----- 
 
-		private void AddAccountGroup(BosAccount account)
+		private void UpdateAccountInfo(BosAccount account)
 		{
-			var group = new ListViewGroup("Account: " + account.Number);
-			accountsView.Groups.Add(group);
-			foreach (var paper in account.Papers)
-				AddAccountPaperItem(group, paper);
-			AddAccountFundItem(group, "Cash:", account.Cash);
+			accountsView.BeginUpdate();
+			try
+			{
+				var group = GetAccountGroup(account);
+				foreach (var paper in account.Papers)
+					AddAccountPaperItem(group, paper);
+				AddAccountFundItem(group, "Cash:", account.Cash);
+			}
+			finally
+			{
+				accountsView.EndUpdate();
+			}
+		}
+
+		private ListViewGroup GetAccountGroup(BosAccount account)
+		{
+			var group = accountsView.Groups[account.Number];
+			if (group == null)
+			{
+				group = new ListViewGroup(account.Number, "Account: " + account.Number);
+				accountsView.Groups.Add(group);
+			}
+			else
+			{
+				var oldItems = group.Items.OfType<ListViewItem>().ToArray();
+				foreach (var item in oldItems)
+					accountsView.Items.Remove(item);
+			}
+			return group;
 		}
 
 		private void AddAccountPaperItem(ListViewGroup group, BosPaper paper)
@@ -146,24 +170,12 @@ namespace pjank.BossaAPI.TestApp2
 			accountsView.Items.Add(item);
 		}
 
-		void Bossa_Updated()
+
+		// ----- odczyt modyfikacji jednego z obiektów w klasie Bossa ----- 
+
+		void Bossa_OnUpdate(object obj, EventArgs e)
 		{
-			if (InvokeRequired)
-				Invoke(new MethodInvoker(Bossa_Updated));
-			else
-			{
-				accountsView.BeginUpdate();
-				try
-				{
-					accountsView.Items.Clear();
-					foreach (var account in Bossa.Accounts)
-						AddAccountGroup(account);
-				}
-				finally
-				{
-					accountsView.EndUpdate();
-				}
-			}
+			if (obj is BosAccount) UpdateAccountInfo((BosAccount)obj);
 		}
 	}
 }

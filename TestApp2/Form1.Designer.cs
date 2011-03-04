@@ -194,8 +194,6 @@
 			// 
 			// accountsView
 			// 
-			this.accountsView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
 			this.accountsView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             columnHeader1,
             this.columnHeader2,
@@ -230,6 +228,8 @@
 			// 
 			// instrumentsView
 			// 
+			this.instrumentsView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
 			this.instrumentsView.Location = new System.Drawing.Point(325, 41);
 			this.instrumentsView.Name = "instrumentsView";
 			this.instrumentsView.Size = new System.Drawing.Size(347, 247);

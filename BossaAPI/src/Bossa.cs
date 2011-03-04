@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using pjank.BossaAPI.DTO;
+using System.ComponentModel;
 
 namespace pjank.BossaAPI
 {
@@ -48,18 +49,33 @@ namespace pjank.BossaAPI
 		// aktualizacja stanu jednego z rachunków
 		static void client_AccountUpdateHandler(Account acccountData)
 		{
-			Accounts[acccountData.Number].Update(acccountData);
-			Update();
+			var account = Accounts[acccountData.Number];
+			account.Update(acccountData);
+			DoUpdate(account);
 		}
 
 		/// <summary>
-		/// Zdarzenie wywoływane po każdej aktualizacji danych
+		/// Zdarzenie wywoływane po każdej aktualizacji danych.
+		/// Automatycznie przenosi zdarzenie do wątku odbiorcy, jeśli zajdzie taka potrzeba (BeginInvoke).
+		/// Jako parametr "source" przekazywany jest obiekt, który uległ zaktualizowaniu.
 		/// </summary>
-		public static event Action Updated;
+		public static event EventHandler OnUpdate;
 
-		private static void Update()
+		// wywołanie handlerów podpiętych pod zdarzenie OnUpdate
+		private static void DoUpdate(object updatedObject)
 		{
-			if (Updated != null) Updated();
+			if (OnUpdate != null)
+			{
+				var args = new[] { updatedObject };
+				foreach (var handler in OnUpdate.GetInvocationList())
+				{
+					ISynchronizeInvoke invokeTarget = handler.Target as ISynchronizeInvoke;
+					if (invokeTarget != null)
+						invokeTarget.BeginInvoke(handler, args);
+					else
+						handler.DynamicInvoke(args);
+				}
+			}
 		}
 
 		/// <summary>
