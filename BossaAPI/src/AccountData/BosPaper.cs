@@ -17,15 +17,24 @@ namespace pjank.BossaAPI
 		public BosInstrument Instrument { get; private set; }
 
 		/// <summary>
-		/// liczba sztuk tego instrumentu znajdujących się na rachunku
+		/// łączna liczba sztuk tego instrumentu znajdujących się na rachunku (wolne + zablokowane)
 		/// </summary>
-		public int Quantity { get; private set; }
+		public int Quantity { get { return Quantity110 + Quantity120; } }
+		/// <summary>
+		/// liczba sztuk znajdujących się na koncie "110" - wolne do dyspozycji (sprzedaży)
+		/// </summary>
+		public int Quantity110 { get; private set; }
+		/// <summary>
+		/// liczba sztuk znajdujących się na koncie "120" - zablokowane (wystawione na sprzedaż)
+		/// </summary>
+		public int Quantity120 { get; private set; }
 
 		// konstruktor, wywoływany spod BosPapers.Update()
 		internal BosPaper(DTO.Paper dtoPaper)
 		{
 			Instrument = BosInstrument.Find(dtoPaper.Instrument);
-			Quantity = dtoPaper.Quantity;
+			Quantity110 = dtoPaper.Account110;
+			Quantity120 = dtoPaper.Account120;
 		}
 	}
 }

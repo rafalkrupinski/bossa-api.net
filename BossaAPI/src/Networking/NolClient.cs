@@ -7,6 +7,7 @@ using System.Threading;
 using Microsoft.Win32;
 using pjank.BossaAPI.Fixml;
 using pjank.BossaAPI.DTO;
+using System.Reflection;
 
 namespace pjank.BossaAPI
 {
@@ -127,22 +128,27 @@ namespace pjank.BossaAPI
 					{
 						Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "");
 						FixmlMsg m = new FixmlMsg(socket);
-						/* wersja dla .NET 4  +  "using Microsoft.CSharp;"
-						dynamic msg = FixReceivedMessageType(m);
-						HandleAsyncMessage(msg);
-						*/
-						FixmlMsg msg = FixReceivedMessageType(m);
-						if (AsyncMessageHandler != null) AsyncMessageHandler(msg);
-						GetType().InvokeMember("HandleAsyncMessage",
-							System.Reflection.BindingFlags.InvokeMethod |
-							System.Reflection.BindingFlags.Instance |
-							System.Reflection.BindingFlags.NonPublic,
-							null, this, new[] { msg });
+						try
+						{
+							/* wersja dla .NET 4  +  "using Microsoft.CSharp;"
+							dynamic msg = FixReceivedMessageType(m);
+							HandleAsyncMessage(msg);
+							*/
+							FixmlMsg msg = FixReceivedMessageType(m);
+							if (AsyncMessageHandler != null) AsyncMessageHandler(msg);
+							GetType().InvokeMember("HandleAsyncMessage",
+												System.Reflection.BindingFlags.InvokeMethod |
+												System.Reflection.BindingFlags.Instance |
+												System.Reflection.BindingFlags.NonPublic,
+												null, this, new[] { msg });
+						}
+						catch (TargetInvocationException e) { e.InnerException.PrintError(); }
+						catch (ThreadAbortException) { break; }
+						catch (Exception e) { e.PrintError(); }
 					}
 				}
 			}
-			//catch (FixmlSocketException e) { socket.Close(); e.PrintError(); }
-			catch (ThreadAbortException) { /*socket.Close();*/ }
+			catch (ThreadAbortException) { }
 			catch (Exception e) { e.PrintError(); }
 		}
 
@@ -229,14 +235,27 @@ namespace pjank.BossaAPI
 				foreach (var statement in msg.Statements)
 				{
 					var account = new Account();
-					account.Number = statement.Account;
+					account.Number = statement.AccountNumber;
 					account.Papers = statement.Positions.
 						Select(p => new Paper {
 							Instrument = new Instrument { 
 								Symbol = p.Key.Symbol, ISIN = p.Key.SecurityId },
-							Quantity = p.Value
+							Account110 = p.Value.Acc110,
+							Account120 = p.Value.Acc120,
 						}).ToArray();
-					account.Cash = statement.Funds[StatementFundType.Cash];
+					account.PortfolioValue = statement.Funds[StatementFundType.PortfolioValue];
+					account.AvailableCash = statement.Funds[StatementFundType.Cash];
+					if (!statement.Funds.ContainsKey(StatementFundType.Deposit))
+					{
+						account.AvailableFunds = statement.Funds[StatementFundType.CashReceivables];
+					}
+					else
+					{
+						account.AvailableFunds = account.AvailableCash + statement.Funds[StatementFundType.DepositFree];
+						if (statement.Funds.ContainsKey(StatementFundType.DepositDeficit))
+							account.DepositDeficit = statement.Funds[StatementFundType.DepositDeficit];
+						account.DepositValue = statement.Funds[StatementFundType.Deposit];
+					}
 					AccountUpdateHandler(account);
 				}
 		}

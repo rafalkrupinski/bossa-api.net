@@ -22,9 +22,26 @@ namespace pjank.BossaAPI
 		public DateTime UpdateTime { get; private set; }
 
 		/// <summary>
-		/// stan wolnych środków na rachunku
+		/// środki dostępne do wypłaty
 		/// </summary>
-		public decimal Cash { get; protected internal set; }
+		public decimal AvailableCash { get; private set; }
+		/// <summary>
+		/// środki dostępne dla nowych zleceń (wolna gotówka + należności lub niewykorzystany depozyt)
+		/// </summary>
+		public decimal AvailableFunds { get; private set; }
+		/// <summary>
+		/// wymagana dopłata depozytu (tylko przy rachunku kontraktowym)
+		/// </summary>
+		public decimal? DepositDeficit { get; private set; }
+		/// <summary>
+		/// całkowita wartość depozytu (tylko przy rachunku kontraktowym)
+		/// </summary>
+		public decimal? DepositValue { get; private set; }
+		/// <summary>
+		/// aktualna wycena wszystkich papierów wartościowych plus gotówka
+		/// (dla kontraktów - liczymy wartość środków własnych, bez dźwigni)
+		/// </summary>
+		public decimal PortfolioValue { get; private set; }
 
 		/// <summary>
 		/// lista papierów wartościowych na rachunku (otwartych pozycji)
@@ -47,7 +64,11 @@ namespace pjank.BossaAPI
 
 		internal void Update(DTO.Account dtoAccount)
 		{
-			Cash = dtoAccount.Cash;
+			AvailableCash = dtoAccount.AvailableCash;
+			AvailableFunds = dtoAccount.AvailableFunds;
+			DepositDeficit = dtoAccount.DepositDeficit;
+			DepositValue = dtoAccount.DepositValue;
+			PortfolioValue = dtoAccount.PortfolioValue;
 			Papers.Update(dtoAccount.Papers);
 			UpdateTime = DateTime.Now;
 		}

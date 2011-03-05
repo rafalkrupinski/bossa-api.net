@@ -118,7 +118,14 @@ namespace pjank.BossaAPI.TestApp2
 				var group = GetAccountGroup(account);
 				foreach (var paper in account.Papers)
 					AddAccountPaperItem(group, paper);
-				AddAccountFundItem(group, "Cash:", account.Cash);
+				AddAccountFundItem(group, "Available Cash:", account.AvailableCash);
+				AddAccountFundItem(group, "Available Funds:", account.AvailableFunds);
+				if (account.DepositValue != null)
+				{
+					AddAccountFundItem(group, "Deposit Deficit:", account.DepositDeficit ?? 0);
+					AddAccountFundItem(group, "Deposit Value:", (decimal)account.DepositValue);
+				}
+				AddAccountFundItem(group, "Portfolio Value:", account.PortfolioValue);
 			}
 			finally
 			{

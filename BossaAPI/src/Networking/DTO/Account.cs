@@ -9,6 +9,10 @@ namespace pjank.BossaAPI.DTO
 	{
 		public string Number;
 		public Paper[] Papers;
-		public decimal Cash;
+		public decimal AvailableCash;
+		public decimal AvailableFunds;
+		public decimal? DepositDeficit;
+		public decimal? DepositValue;
+		public decimal PortfolioValue;
 	}
 }

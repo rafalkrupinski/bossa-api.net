@@ -8,6 +8,7 @@ namespace pjank.BossaAPI.DTO
 	public class Paper
 	{
 		public Instrument Instrument;
-		public int Quantity;
+		public int Account110;
+		public int Account120;
 	}
 }
