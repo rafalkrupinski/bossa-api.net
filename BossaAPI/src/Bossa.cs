@@ -43,17 +43,6 @@ namespace pjank.BossaAPI
 			Instruments = new BosInstruments();
 		}
 
-		// obiekt realizujący komunikację z serwerem
-		static IBosClient client;
-
-		// aktualizacja stanu jednego z rachunków
-		static void client_AccountUpdateHandler(Account acccountData)
-		{
-			var account = Accounts[acccountData.Number];
-			account.Update(acccountData);
-			DoUpdate(account);
-		}
-
 		/// <summary>
 		/// Zdarzenie wywoływane po każdej aktualizacji danych.
 		/// Automatycznie przenosi zdarzenie do wątku odbiorcy, jeśli zajdzie taka potrzeba (BeginInvoke).
@@ -78,6 +67,17 @@ namespace pjank.BossaAPI
 			}
 		}
 
+		// obiekt realizujący komunikację z serwerem
+		static IBosClient client;
+
+		// aktualizacja stanu jednego z rachunków
+		static void AccountUpdateHandler(Account acccountData)
+		{
+			var account = Accounts[acccountData.Number];
+			account.Update(acccountData);
+			DoUpdate(account);
+		}
+
 		/// <summary>
 		/// Podłączenie wskazanego obiektu komunikującego się z serwerem.
 		/// </summary>
@@ -87,7 +87,7 @@ namespace pjank.BossaAPI
 		public static void Connect(IBosClient client)
 		{
 			Bossa.client = client;
-			client.AccountUpdateHandler += new Action<Account>(client_AccountUpdateHandler);
+			client.AccountUpdateEvent += new Action<Account>(AccountUpdateHandler);
 		}
 
 		/// <summary>

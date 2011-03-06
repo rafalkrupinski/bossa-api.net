@@ -45,7 +45,7 @@ namespace pjank.BossaAPI.Fixml
 			StringBuilder sb = new StringBuilder();
 			sb.Append(string.Format("[{0}:{1}] {2}", Xml.Name, Id, Type));
 			if (EntryTypes != null)
-				sb.Append(string.Format(" (EntryTypes: {0})", EntryTypes.ToString()));
+				sb.Append(string.Format(" (EntryTypes: {0})", MDEntryTypes.ToString(EntryTypes)));
 			if (Instruments != null)
 				foreach (FixmlInstrument instr in Instruments)
 					sb.Append("\n " + instr);

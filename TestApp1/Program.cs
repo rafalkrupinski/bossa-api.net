@@ -116,7 +116,7 @@ namespace pjank.BossaAPI.TestApp1
 			using (NolClient nol = new NolClient())
 			{
 				// podpinamy się pod konkretny rodzaj komunikatów, tutaj - wyciąg z rachunku
-				nol.AsyncStatementHandler += new Action<StatementMsg>(nol_AsyncStatementHandler);
+				nol.StatementMsgEvent += new Action<StatementMsg>(nol_StatementMsgHandler);
 
 				// po zalogowaniu NOL3 od razu przysyła info o złożonych zleceniach, komunikaty z wizjera itp.
 				Console.WriteLine("\n... async connection thread working in background ... \n");
@@ -134,7 +134,7 @@ namespace pjank.BossaAPI.TestApp1
 		/// Przykład obsługi odebranego w klasie NolClient (TestModule1) komunikatu asynchronicznego.
 		/// </summary>
 		/// <param name="msg">Tutaj - obiekt komunikatu FIXML typu Statement</param>
-		static void nol_AsyncStatementHandler(StatementMsg msg)
+		static void nol_StatementMsgHandler(StatementMsg msg)
 		{
 			decimal cash = 0;
 			foreach (var statement in msg.Statements)

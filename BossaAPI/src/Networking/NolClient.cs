@@ -22,17 +22,38 @@ namespace pjank.BossaAPI
 	public class NolClient : IDisposable, IBosClient
 	{
 
+		#region Constructors
+
+		/// <summary>
+		/// Domyślny konstruktor. Automatycznie loguje się do NOL'a i otwiera połączenie asynchroniczne. 
+		/// </summary>
 		public NolClient() : this(true) { }
 
+		/// <summary>
+		/// Dodatkowy konstruktor pozwalający wyłaczyć automatyczne zalogowanie (i obsługę kanału asynchronicznego).
+		/// </summary>
+		/// <param name="login">Podając "false" wyłączamy automatyczną próbę zalogowania... 
+		/// możemy się zalogować potem sami wywołując jawnie metodę "Login". </param>
 		public NolClient(bool login) : this(login, login) { }
 
+		/// <summary>
+		/// Dodatkowy konstruktor pozwalający wciąż automatycznie zalogować się do NOL'a 
+		/// ale z ewentualnym pominięciem automatycznego otwierania kanału asynchronicznego.
+		/// </summary>
+		/// <param name="login">Czy ma się od razu zalogować? Jeśli "false", należy potem jawnie wywołać metodę "Login".</param>
+		/// <param name="thread">Czy ma uruchomić wewnętrzną obsługę kanału asynchronicznego? Jeśli "false" (tutaj, lub przy
+		/// pierwszym argumencie - oba są wymagane), o otwarcie socketu i odbiór komunikatów tam wysyłanych musimy zadbać sami.</param>
 		public NolClient(bool login, bool thread)
 		{
+			StatementMsgEvent += new Action<StatementMsg>(StatementMsgHandler);
+			MarketDataMsgEvent += new Action<MarketDataIncRefreshMsg>(MarketDataMsgHandler);
+			UserResponseMsgEvent += new Action<UserResponseMsg>(AsyncUserResponseMsgHandler);
 			FixmlInstrument.DictionaryLoad();
 			if (login) Login();
 			if (login && thread) ThreadStart();
 		}
 
+		#endregion
 
 		#region IDisposable support
 
@@ -63,8 +84,11 @@ namespace pjank.BossaAPI
 		#endregion
 
 
+
 		#region NOL3 connection sockets
 
+		// ustalenie numeru portu, na którym nasłuchuje aplikacja NOL3
+		// parametr "name" określa, który z dwóch portów nas interesuje: psync, pasync
 		private static int getRegistryPort(String name)
 		{
 			string regname = "Software\\COMARCH S.A.\\NOL3\\7\\Settings";
@@ -77,6 +101,12 @@ namespace pjank.BossaAPI
 			return int.Parse(value.ToString());
 		}
 
+		/// <summary>
+		/// Otwarcie nowego połączenia z aplikacją NOL3 na porcie do komunikacji *synchronicznej*.
+		/// </summary>
+		/// <returns>Zwraca nowy "socket", do którego zapisujemy/odczytujemy komunikaty synchroniczne.
+		/// UWAGA: NOL3 wymaga, by dla każdej nowej operacji otworzyć nowe połączenie synchroniczne.
+		/// </returns>
 		public static Socket GetSyncSocket()
 		{
 			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.GetSyncSocket...", FixmlMsg.DebugCategory);
@@ -87,6 +117,12 @@ namespace pjank.BossaAPI
 			return socket;
 		}
 
+		/// <summary>
+		/// Otwarcie nowego połączenia z aplikacją NOL3 na porcie do komunikacji *asynchronicznej*.
+		/// </summary>
+		/// <returns>Zwraca nowy "socket", z którego możemy odbierać przesyłane asynchronicznie komunikaty.
+		/// UWAGA: Kanał asynchroniczny otwieramy tylko raz, *po* zalogowaniu się w aplikacji.
+		/// </returns>
 		public static Socket GetAsyncSocket()
 		{
 			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.GetAsyncSocket...", FixmlMsg.DebugCategory);
@@ -102,6 +138,7 @@ namespace pjank.BossaAPI
 
 		#region Asynchronous connection thread
 
+		// uruchomienie wątku obsługującego odbiór komunikatów z kanału asynchronicznego
 		private void ThreadStart()
 		{
 			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.ThreadStart...", FixmlMsg.DebugCategory);
@@ -111,6 +148,7 @@ namespace pjank.BossaAPI
 			thread.Start();
 		}
 
+		// zakończenie wątku obsługującego kanał asynchroniczny
 		private void ThreadStop()
 		{
 			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.ThreadStop...", FixmlMsg.DebugCategory);
@@ -118,6 +156,7 @@ namespace pjank.BossaAPI
 			thread = null;
 		}
 
+		// procedura wątku z obsługą kanału asynchronicznego
 		private void ThreadProc()
 		{
 			try
@@ -127,161 +166,102 @@ namespace pjank.BossaAPI
 					while (socket.Connected)
 					{
 						Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "");
-						FixmlMsg m = new FixmlMsg(socket);
+						FixmlMsg msg;
+						// odbiór komunikatu, na razie w "bezimiennej" klasie bazowej FixmlMsg
+						try { msg = new FixmlMsg(socket); }
+						catch (ThreadAbortException) { throw; }
+						catch (FixmlSocketException) { throw; }
+						catch (Exception e) { e.PrintError(); continue; }
+						// rozpoznanie typu komunikatu i przetworzenie na konkretną klasę pochodną z FixmlMsg
+						try { msg = FixmlMsg.GetParsedMsg(msg); }
+						catch (ThreadAbortException) { throw; }
+						catch (Exception e) { e.PrintError(); }
+						// wywołanie podpiętych metod obsługi danego komunikatu
 						try
 						{
-							/* wersja dla .NET 4  +  "using Microsoft.CSharp;"
-							dynamic msg = FixReceivedMessageType(m);
-							HandleAsyncMessage(msg);
-							*/
-							FixmlMsg msg = FixReceivedMessageType(m);
-							if (AsyncMessageHandler != null) AsyncMessageHandler(msg);
-							GetType().InvokeMember("HandleAsyncMessage",
-												System.Reflection.BindingFlags.InvokeMethod |
-												System.Reflection.BindingFlags.Instance |
-												System.Reflection.BindingFlags.NonPublic,
-												null, this, new[] { msg });
+							if (AsyncMessageEvent != null) AsyncMessageEvent(msg);
+							if (msg is AppMessageReportMsg) 
+								if (AppReportMsgEvent != null) AppReportMsgEvent((AppMessageReportMsg)msg);
+							if (msg is ExecutionReportMsg)
+								if (ExecReportMsgEvent != null) ExecReportMsgEvent((ExecutionReportMsg)msg);
+							if (msg is MarketDataIncRefreshMsg)
+								if (MarketDataMsgEvent != null) MarketDataMsgEvent((MarketDataIncRefreshMsg)msg);
+							if (msg is TradingSessionStatusMsg)
+								if (SessionStatusMsgEvent != null) SessionStatusMsgEvent((TradingSessionStatusMsg)msg);
+							if (msg is NewsMsg)
+								if (NewsMsgEvent != null) NewsMsgEvent((NewsMsg)msg);
+							if (msg is StatementMsg)
+								if (StatementMsgEvent != null) StatementMsgEvent((StatementMsg)msg);
+							if (msg is UserResponseMsg)
+								if (UserResponseMsgEvent != null) UserResponseMsgEvent((UserResponseMsg)msg);
 						}
-						catch (TargetInvocationException e) { e.InnerException.PrintError(); }
-						catch (ThreadAbortException) { break; }
+						catch (ThreadAbortException) { throw; }
 						catch (Exception e) { e.PrintError(); }
 					}
 				}
 			}
-			catch (ThreadAbortException) { }
+			catch (ThreadAbortException) { Thread.ResetAbort(); }
 			catch (Exception e) { e.PrintError(); }
+			Debug.WriteLineIf(FixmlMsg.DebugInternals.Enabled, "NolClient.ThreadProc stop", FixmlMsg.DebugCategory);
 		}
 
 		#endregion
 
 
-		public event Action<FixmlMsg> AsyncMessageHandler;
-		public event Action<AppMessageReportMsg> AsyncAppReportHandler;
-		public event Action<ExecutionReportMsg> AsyncExecReportHandler;
-		public event Action<MarketDataIncRefreshMsg> AsyncMarketDataHandler;
-		public event Action<TradingSessionStatusMsg> AsyncSessStatusHandler;
-		public event Action<NewsMsg> AsyncNewsHandler;
-		public event Action<StatementMsg> AsyncStatementHandler;
 
-		public event Action<Account> AccountUpdateHandler;
+		#region Events
 
+		/// <summary>
+		/// Zdarzenie odbioru dowolnego komunikatu w kanale asynchronicznym
+		/// </summary>
+		public event Action<FixmlMsg> AsyncMessageEvent;
 
-		#region Asynchronous messages handling
+		/// <summary>
+		/// Zdarzenie odbioru komunikatu "ApplMsgRpt"
+		/// </summary>
+		public event Action<AppMessageReportMsg> AppReportMsgEvent;
+		/// <summary>
+		/// Zdarzenie odbioru komunikatu "ExecRpt"
+		/// </summary>
+		public event Action<ExecutionReportMsg> ExecReportMsgEvent;
+		/// <summary>
+		/// Zdarzenie odbioru komunikatu "MktDataInc"
+		/// </summary>
+		public event Action<MarketDataIncRefreshMsg> MarketDataMsgEvent;
+		/// <summary>
+		/// Zdarzenie odbioru komunikatu "TrdgSesStat"
+		/// </summary>
+		public event Action<TradingSessionStatusMsg> SessionStatusMsgEvent;
+		/// <summary>
+		/// Zdarzenie odbioru komunikatu "News"
+		/// </summary>
+		public event Action<NewsMsg> NewsMsgEvent;
+		/// <summary>
+		/// Zdarzenie odbioru komunikatu "Statement"
+		/// </summary>
+		public event Action<StatementMsg> StatementMsgEvent;
+		/// <summary>
+		/// Zdarzenie odbioru asynchronicznego(!) komunikatu "UserRsp" 
+		/// (np. info o utracie połączenia, nie dotyczy normalnej odpowiedzi po UserRequestMsg)
+		/// </summary>
+		public event Action<UserResponseMsg> UserResponseMsgEvent;
 
-		private FixmlMsg FixReceivedMessageType(FixmlMsg msg)
-		{
-			if (msg.GetType() != typeof(FixmlMsg))
-				throw new ArgumentException("Recurrency warning - base 'FixmlMsg' class object required", "msg");
-			switch (msg.Xml.Name)
-			{
-				case AppMessageReportMsg.MsgName: return new AppMessageReportMsg(msg);
-				case ExecutionReportMsg.MsgName: return new ExecutionReportMsg(msg);
-				case MarketDataIncRefreshMsg.MsgName: return new MarketDataIncRefreshMsg(msg);
-				case TradingSessionStatusMsg.MsgName: return new TradingSessionStatusMsg(msg);
-				case NewsMsg.MsgName: return new NewsMsg(msg);
-				case StatementMsg.MsgName: return new StatementMsg(msg);
-				case UserResponseMsg.MsgName: return new UserResponseMsg(msg);
-				case "Heartbeat": return msg;
-				default:
-					string txt = string.Format("Unexpected async message '{0}'", msg.Xml.Name);
-					MyUtil.PrintWarning(txt);
-					if (!FixmlMsg.DebugOriginalXml.Enabled && !FixmlMsg.DebugFormattedXml.Enabled)
-						Trace.WriteLine(string.Format("'{0}'", MyUtil.FormattedXml(msg.Xml.OwnerDocument)));
-					return msg;
-			}
-		}
-
-
-		private void HandleAsyncMessage(AppMessageReportMsg msg)
-		{
-			if (AsyncAppReportHandler != null) AsyncAppReportHandler(msg);
-		}
-
-		private void HandleAsyncMessage(ExecutionReportMsg msg)
-		{
-			if (AsyncExecReportHandler != null) AsyncExecReportHandler(msg);
-		}
-
-		private void HandleAsyncMessage(MarketDataIncRefreshMsg msg)
-		{
-			// blokada/synchronizacja tutaj głównie po to, by opóźnić obsługę tego komunikatu 
-			// aż zakończymy metodę MarketDataStart(), gdzie m.in. dopiero jest ustawiany nowy mdReqId
-			// (asynchroniczne MktDataInc zaczynają tu przychodzić jeszcze zanim tam odbierzemy MktDataFull)
-			lock (mdResults)
-			{
-				// bezpośrednio po zmianie subskrypcji (co jest w innym wątku) może nam tu jeszcze dotrzeć
-				// komunikat z poprzednim Id - ignorujemy, by nie powstały duplikaty w historii transakcji
-				if (msg.RequestId != mdReqId) return;
-				foreach (MDEntry entry in msg.Entries)
-					NewMarketDataEntry(entry);
-			}
-			if (AsyncMarketDataHandler != null) AsyncMarketDataHandler(msg);
-		}
-
-		private void HandleAsyncMessage(TradingSessionStatusMsg msg)
-		{
-			if (AsyncSessStatusHandler != null) AsyncSessStatusHandler(msg);
-		}
-
-		private void HandleAsyncMessage(NewsMsg msg)
-		{
-			if (AsyncNewsHandler != null) AsyncNewsHandler(msg);
-		}
-
-		private void HandleAsyncMessage(StatementMsg msg)
-		{
-			if (AsyncStatementHandler != null) AsyncStatementHandler(msg);
-			if (AccountUpdateHandler != null)
-				foreach (var statement in msg.Statements)
-				{
-					var account = new Account();
-					account.Number = statement.AccountNumber;
-					account.Papers = statement.Positions.
-						Select(p => new Paper {
-							Instrument = new Instrument { 
-								Symbol = p.Key.Symbol, ISIN = p.Key.SecurityId },
-							Account110 = p.Value.Acc110,
-							Account120 = p.Value.Acc120,
-						}).ToArray();
-					account.PortfolioValue = statement.Funds[StatementFundType.PortfolioValue];
-					account.AvailableCash = statement.Funds[StatementFundType.Cash];
-					if (!statement.Funds.ContainsKey(StatementFundType.Deposit))
-					{
-						account.AvailableFunds = statement.Funds[StatementFundType.CashReceivables];
-					}
-					else
-					{
-						account.AvailableFunds = account.AvailableCash + statement.Funds[StatementFundType.DepositFree];
-						if (statement.Funds.ContainsKey(StatementFundType.DepositDeficit))
-							account.DepositDeficit = statement.Funds[StatementFundType.DepositDeficit];
-						account.DepositValue = statement.Funds[StatementFundType.Deposit];
-					}
-					AccountUpdateHandler(account);
-				}
-		}
-
-		private void HandleAsyncMessage(UserResponseMsg msg)
-		{
-			// (msg.Status == UserStatus.Other)
-			// msg.StatusText:
-			// 1 - zamkniecie aplikacji NOL3 
-			// 2 - NOL3 jest offline 
-			// 3 - NOL3 jest online 
-			// 4 - aplikacja NOL3 nie jest uruchomiona
-			Trace.WriteLine(" connection terminated ?! ");
-			ThreadStop();
-		}
-
-		private void HandleAsyncMessage(FixmlMsg msg)
-		{
-			//Trace.WriteLine("-fixml-");
-		}
+		/// <summary>
+		/// Zdarzenie (IBosClient) informujące o aktualizacji danych rachunku. 
+		/// </summary>
+		public event Action<Account> AccountUpdateEvent;
 
 		#endregion
+
 
 
 		#region User login, logout
 
+		/// <summary>
+		/// Próba zalogowania się w aplikacji NOL3. 
+		/// Normalnie metoda ta jest wywoływana automatycznie już przy utworzeniu obiektu NolClient...
+		/// chyba że skorzystaliśmy z jednego z dodatkowych konstruktorów, pomijając automatyczne zalogowanie.
+		/// </summary>
 		public void Login()
 		{
 			Debug.WriteLine("\nLogin...");
@@ -316,6 +296,11 @@ namespace pjank.BossaAPI
 			Debug.WriteLine("Login OK\n");
 		}
 
+		/// <summary>
+		/// Próba wylogowania się z aplikacji NOL3. 
+		/// Normalnie metoda ta jest wywoływana automatycznie przy zwalnianiu obiektu NolClient...
+		/// ale nic nie szkodzi wywołać ją wcześniej jawnie (poza tym, że połączenie przestanie działać).
+		/// </summary>
 		public void Logout()
 		{
 			Debug.WriteLine("\nLogout...");
@@ -333,6 +318,19 @@ namespace pjank.BossaAPI
 			Debug.WriteLine("Logout OK\n");
 		}
 
+		// wewnętrzna obsługa asynchronicznego komunikatu "UserRsp"
+		private void AsyncUserResponseMsgHandler(UserResponseMsg msg)
+		{
+			// (msg.Status == UserStatus.Other)
+			// msg.StatusText:
+			// 1 - zamkniecie aplikacji NOL3 
+			// 2 - NOL3 jest offline 
+			// 3 - NOL3 jest online 
+			// 4 - aplikacja NOL3 nie jest uruchomiona
+			Trace.WriteLine(" connection terminated ?! ");
+			ThreadStop();
+		}
+
 		#endregion
 
 
@@ -343,6 +341,10 @@ namespace pjank.BossaAPI
 		private HashSet<FixmlInstrument> mdInstruments = new HashSet<FixmlInstrument>();
 		private Dictionary<FixmlInstrument, MDResults> mdResults = new Dictionary<FixmlInstrument, MDResults>();
 
+		/// <summary>
+		/// Aktywacja odbioru (subskrypcji) informacji o bieżących notowaniach giełdowych.
+		/// Treść tych informacji ustalamy (najlepiej wcześniej) korzystając z metod "MarketDataSubscription*".
+		/// </summary>
 		public void MarketDataStart()
 		{
 			if (mdReqId != null) MarketDataStop();
@@ -367,6 +369,10 @@ namespace pjank.BossaAPI
 			}
 		}
 
+		/// <summary>
+		/// Deaktywacja odbioru (subskrypcji) informacji o bieżących notowaniach giełdowych.
+		/// To, co się udało do tej pory zebrać, pozostaje nadal w pamięci - dostępne przez "MarketDataResults".
+		/// </summary>
 		public void MarketDataStop()
 		{
 			if (mdReqId == null) return;
@@ -387,16 +393,37 @@ namespace pjank.BossaAPI
 			}
 		}
 
-		private void NewMarketDataEntry(MDEntry entry)
+		// wewnętrzna obsługa komunikatu "MktDataInc"
+		// - dopisuje nowe informacje do struktury "mdResults"
+		private void MarketDataMsgHandler(MarketDataIncRefreshMsg msg)
 		{
-			MarketDataResults(entry.Instrument).AddEntry(entry);
+			// blokada/synchronizacja tutaj głównie po to, by opóźnić obsługę tego komunikatu 
+			// aż zakończymy metodę MarketDataStart(), gdzie m.in. dopiero jest ustawiany nowy mdReqId
+			// (asynchroniczne MktDataInc zaczynają tu przychodzić jeszcze zanim tam odbierzemy MktDataFull)
+			lock (mdResults)
+			{
+				// bezpośrednio po zmianie subskrypcji (co jest w innym wątku) może nam tu jeszcze dotrzeć
+				// komunikat z poprzednim Id - ignorujemy, by nie powstały duplikaty w historii transakcji
+				if (msg.RequestId != mdReqId) return;
+				foreach (MDEntry entry in msg.Entries)
+					MarketDataResults(entry.Instrument).AddEntry(entry);
+			}
 		}
 
+		/// <summary>
+		/// Odczyt wszystkich zebranych informacji o bieżących notowaniach giełdowych.
+		/// </summary>
+		/// <returns></returns>
 		public IEnumerable<KeyValuePair<FixmlInstrument, MDResults>> MarketDataResults()
 		{
 			return mdResults;
 		}
 
+		/// <summary>
+		/// Odczyt zebranych informacji o bieżących notowaniach wskazanego instrumentu.
+		/// </summary>
+		/// <param name="instrument"></param>
+		/// <returns></returns>
 		public MDResults MarketDataResults(FixmlInstrument instrument)
 		{
 			if (!mdResults.ContainsKey(instrument))
@@ -404,11 +431,17 @@ namespace pjank.BossaAPI
 			return mdResults[instrument];
 		}
 
+		/// <summary>
+		/// Odczyt zebranych informacji o bieżących notowaniach wskazanego instrumentu (po symbolu).
+		/// </summary>
+		/// <param name="symbol"></param>
+		/// <returns></returns>
 		public MDResults MarketDataResults(string symbol)
 		{
 			return MarketDataResults(FixmlInstrument.FindBySym(symbol));
 		}
 
+		// wewnętrzna metoda aktualizująca bieżący zakres subskrybowanych informacji
 		private void MarketDataSubscriptionChange(IEnumerable<MDEntryType> types, IEnumerable<FixmlInstrument> instr)
 		{
 			bool wasActive = (mdReqId != null);
@@ -418,6 +451,10 @@ namespace pjank.BossaAPI
 			if (wasActive && types.Any() && instr.Any()) MarketDataStart();
 		}
 
+		/// <summary>
+		/// Całkowite wyczyszczenie zakresu subskrypcji. 
+		/// Po tej operacji wszystko (typ informacji oraz listę instrumentów) ustawiamy od nowa.
+		/// </summary>
 		public void MarketDataSubscriptionClear()
 		{
 			MarketDataStop();
@@ -425,32 +462,56 @@ namespace pjank.BossaAPI
 			mdInstruments.Clear();
 		}
 
+		/// <summary>
+		/// Dodanie do subskrypcji wskazanych typów rekordów.
+		/// </summary>
+		/// <param name="types"></param>
 		public void MarketDataSubscriptionAdd(params MDEntryType[] types)
 		{
 			MarketDataSubscriptionChange(mdEntryTypes.Union(types), mdInstruments);
 		}
 
+		/// <summary>
+		/// Usunięcie z subskrypcji wskazanych typów rekordów.
+		/// </summary>
+		/// <param name="types"></param>
 		public void MarketDataSubscriptionRemove(params MDEntryType[] types)
 		{
 			MarketDataSubscriptionChange(mdEntryTypes.Except(types), mdInstruments);
 		}
 
+		/// <summary>
+		/// Dodanie do subskrypcji wskazanych instrumentów.
+		/// </summary>
+		/// <param name="instruments"></param>
 		public void MarketDataSubscriptionAdd(params FixmlInstrument[] instruments)
 		{
 			MarketDataSubscriptionChange(mdEntryTypes, mdInstruments.Union(instruments));
 		}
 
+		/// <summary>
+		/// Usunięcie z subskrypcji wskazanych instrumentów.
+		/// </summary>
+		/// <param name="instruments"></param>
 		public void MarketDataSubscriptionRemove(params FixmlInstrument[] instruments)
 		{
 			MarketDataSubscriptionChange(mdEntryTypes, mdInstruments.Except(instruments));
 		}
 
+		/// <summary>
+		/// Dodanie do subskrypcji wskazanych instrumentów (po ich symbolach). 
+		/// </summary>
+		/// <param name="symbols"></param>
 		public void MarketDataSubscriptionAdd(params string[] symbols)
 		{
 			IEnumerable<FixmlInstrument> instruments = symbols.Select(sym => FixmlInstrument.FindBySym(sym));
 			MarketDataSubscriptionChange(mdEntryTypes, mdInstruments.Union(instruments));
 		}
 
+		/// <summary>
+		/// Usunięcie z subskrypcji wskazanych instrumentów (po ich symbolach).
+		/// </summary>
+		/// <param name="symbols"></param>
 		public void MarketDataSubscriptionRemove(params string[] symbols)
 		{
 			IEnumerable<FixmlInstrument> instruments = symbols.Select(sym => FixmlInstrument.FindBySym(sym));
@@ -462,6 +523,11 @@ namespace pjank.BossaAPI
 
 		#region TradingSessionStatus subscription
 
+		/// <summary>
+		/// Aktywacja odbioru informacji o statusie sesji (komunikat "TrdgSesStat": 
+		/// informuje o zmianie fazy sesji, równoważeniu subskrybowanych instrumentów itp.).
+		/// Aby na te zmiany reagować, należy się podłączyć pod zdarzenie "SessionStatusMsgEvent".
+		/// </summary>
 		public void TradingSessionStatusStart()
 		{
 			Debug.WriteLine("\nTradingSessionStatusStart...");
@@ -480,6 +546,9 @@ namespace pjank.BossaAPI
 			Debug.WriteLine("TradingSessionStatusStart OK\n");
 		}
 
+		/// <summary>
+		/// Deaktywacja odbioru informacji o statusie sesji.
+		/// </summary>
 		public void TradingSessionStatusStop()
 		{
 			Debug.WriteLine("\nTradingSessionStatusStop...");
@@ -496,6 +565,46 @@ namespace pjank.BossaAPI
 					throw new FixmlException("TrdgSesStat rejected, reason = " + response.RejectReason);
 			}
 			Debug.WriteLine("TradingSessionStatusStop OK\n");
+		}
+
+		#endregion
+
+
+		#region Other events handling
+
+		// wewnętrzna obsługa komunikatu "Statement"
+		// - wywołuje zdarzenia "AccountUpdateEvent", po jednym na każdy rachunek
+		private void StatementMsgHandler(StatementMsg msg)
+		{
+			if (AccountUpdateEvent != null)
+				foreach (var statement in msg.Statements)
+				{
+					var account = new Account();
+					account.Number = statement.AccountNumber;
+					account.Papers = statement.Positions.
+						Select(p => new Paper {
+							Instrument = new Instrument {
+								Symbol = p.Key.Symbol,
+								ISIN = p.Key.SecurityId
+							},
+							Account110 = p.Value.Acc110,
+							Account120 = p.Value.Acc120,
+						}).ToArray();
+					account.PortfolioValue = statement.Funds[StatementFundType.PortfolioValue];
+					account.AvailableCash = statement.Funds[StatementFundType.Cash];
+					if (!statement.Funds.ContainsKey(StatementFundType.Deposit))
+					{
+						account.AvailableFunds = statement.Funds[StatementFundType.CashReceivables];
+					}
+					else
+					{
+						account.AvailableFunds = account.AvailableCash + statement.Funds[StatementFundType.DepositFree];
+						if (statement.Funds.ContainsKey(StatementFundType.DepositDeficit))
+							account.DepositDeficit = statement.Funds[StatementFundType.DepositDeficit];
+						account.DepositValue = statement.Funds[StatementFundType.Deposit];
+					}
+					AccountUpdateEvent(account);
+				}
 		}
 
 		#endregion

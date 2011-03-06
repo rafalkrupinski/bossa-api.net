@@ -81,6 +81,39 @@ namespace pjank.BossaAPI.Fixml
 			Debug.WriteLineIf(DebugInternals.Enabled, string.Format("new {0} ok", GetType().Name), DebugCategory);
 		}
 
+		/// <summary>
+		/// Funkcja zamieniająca komunikat odebrany z socketa (klasy bazowej FixmlMsg)
+		/// na konkretną klasę pochodną FixmlMsg - odpowiednią dla typu danego komunikatu.
+		/// Obecnie przystosowane tylko dla komunikatów nadsyłanych w kanale asynchronicznym
+		/// (raczej tylko tam ma to sens, normalnie wiemy jakiego komunikatu się spodziewać).
+		/// </summary>
+		/// <param name="msg">Obiekt klasy bazowej FixmlMsg</param>
+		/// <returns>Obiekt konkretnej klasy pochodnej FixmlMsg, zależnej od typu komunikatu.
+		/// Jeśli trafi na nieznany komunikat, zwraca ten sam obiekt bazowy FixmlMsg.
+		/// </returns>
+		public static FixmlMsg GetParsedMsg(FixmlMsg msg)
+		{
+			if (msg.GetType() != typeof(FixmlMsg))
+				throw new ArgumentException("Base 'FixmlMsg' class object required", "msg");
+			switch (msg.Xml.Name)
+			{
+				case AppMessageReportMsg.MsgName: return new AppMessageReportMsg(msg);
+				case ExecutionReportMsg.MsgName: return new ExecutionReportMsg(msg);
+				case MarketDataIncRefreshMsg.MsgName: return new MarketDataIncRefreshMsg(msg);
+				case TradingSessionStatusMsg.MsgName: return new TradingSessionStatusMsg(msg);
+				case NewsMsg.MsgName: return new NewsMsg(msg);
+				case StatementMsg.MsgName: return new StatementMsg(msg);
+				case UserResponseMsg.MsgName: return new UserResponseMsg(msg);
+				case "Heartbeat": return msg;  // <- dla tego szkoda oddzielnej klasy ;-)
+				default:
+					string txt = string.Format("Unexpected async message '{0}'", msg.Xml.Name);
+					MyUtil.PrintWarning(txt);
+					if (!FixmlMsg.DebugOriginalXml.Enabled && !FixmlMsg.DebugFormattedXml.Enabled)
+						Trace.WriteLine(string.Format("'{0}'", MyUtil.FormattedXml(msg.Xml.OwnerDocument)));
+					return msg;
+			}
+		}
+
 		// Konstruktor używany wewnętrznie dla komunikatów przychodzących - 
 		// "opakowywuje" odebrany komunikat w inną, bardziej precyzyjną klasę pochodną. 
 		protected FixmlMsg(FixmlMsg msg)
@@ -163,7 +196,5 @@ namespace pjank.BossaAPI.Fixml
 			parent.AppendChild(elem);
 			return elem;
 		}
-
-
 	}
 }
