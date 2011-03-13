@@ -7,23 +7,23 @@ using System.Collections;
 namespace pjank.BossaAPI
 {
 	/// <summary>
-	/// Lista bieżących zleceń na danym rachunku.
+	/// Lista raportów z wykonania kolejnych transakcji dla naszego zlecenia.
 	/// </summary>
-	public class BosOrders : IEnumerable<BosOrder>
+	public class BosOrderTradeReports : IEnumerable<BosOrderTradeReport>
 	{
-		private List<BosOrder> list = new List<BosOrder>();
+		private List<BosOrderTradeReport> list = new List<BosOrderTradeReport>();
 
 		public int Count
 		{
 			get { return list.Count; }
 		}
 
-		public BosOrder this[int index]
+		public BosOrderTradeReport this[int index]
 		{
 			get { return list[index]; }
 		}
 
-		public IEnumerator<BosOrder> GetEnumerator()
+		public IEnumerator<BosOrderTradeReport> GetEnumerator()
 		{
 			for (int i = 0; i < Count; i++)
 				yield return this[i];
@@ -35,13 +35,9 @@ namespace pjank.BossaAPI
 		}
 
 		// aktualizacja danych na liście po odebraniu ich z sieci
-		internal void Update(DTO.OrderData data)
+		internal void Update(DTO.OrderTradeData data)
 		{
-			var order = list.Where(o => o.Id == data.BrokerId).SingleOrDefault();
-			if (order != null)
-				order.Update(data);
-			else 
-				list.Add(new BosOrder(data));
+			list.Add(new BosOrderTradeReport(data));
 		}
 	}
 }

@@ -5,6 +5,10 @@ using System.Text;
 
 namespace pjank.BossaAPI
 {
+	/// <summary>
+	/// Klasa reprezentująca cenę podaną w naszym zleceniu lub w arkuszu ofert
+	/// (tj. po prostu zwykła kwota *albo* wartość specjalna, jak: PKC, PCR, PCRO)
+	/// </summary>
 	public class BosPrice
 	{
 		// pozwala łatwo przypisać do obiektu zwykłą liczbę
@@ -30,6 +34,18 @@ namespace pjank.BossaAPI
 		{
 			this.numValue = null;
 			this.txtValue = value;
+		}
+
+		// konstruktor używany przy odczycie danych z obiektów transportowych
+		internal static BosPrice Create(DTO.PriceType priceType, decimal? value)
+		{
+			switch (priceType)
+			{
+				case DTO.PriceType.PKC: return PKC;
+				case DTO.PriceType.PCR: return PCR;
+				case DTO.PriceType.PCRO: return PCRO;
+				default: return value;
+			}
 		}
 
 		private decimal? numValue;

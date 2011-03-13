@@ -5,7 +5,11 @@ using System.Text;
 
 namespace pjank.BossaAPI.DTO
 {
-	public class Account
+	/// <summary>
+	/// Obiekt transportowy do przekazywania (między modułami biblioteki)
+	/// podstawowych danych nt. konkretnego rachunku klienta. 
+	/// </summary>
+	public class AccountData
 	{
 		public string Number;
 		public Paper[] Papers;

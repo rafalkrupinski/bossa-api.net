@@ -66,9 +66,10 @@ namespace pjank.BossaAPI
 			return new BosInstrument { ISIN = isin, Symbol = symbol };
 		}
 
-		internal static BosInstrument Find(DTO.Instrument dtoInstrument)
+		// zwraca instancję dla konkretnego instrumentu - używane wewnętrznie po odebraniu danych z sieci
+		internal static BosInstrument Find(DTO.Instrument data)
 		{
-			return Find(dtoInstrument.ISIN, dtoInstrument.Symbol);
+			return Find(data.ISIN, data.Symbol);
 		}
 	}
 }

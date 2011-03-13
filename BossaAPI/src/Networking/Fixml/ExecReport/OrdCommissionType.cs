@@ -4,7 +4,7 @@ using System.Xml;
 namespace pjank.BossaAPI.Fixml
 {
 	// typ prowizji
-	public enum OrdCommisionType
+	public enum OrdCommissionType
 	{
 		PerUnit = '1',  // na jednostkę
 		Percent = '2',  // procent
@@ -13,13 +13,13 @@ namespace pjank.BossaAPI.Fixml
 
 	internal static class OrdCommTypeUtil
 	{
-		public static OrdCommisionType? Read(XmlElement xml, string name, bool optional)
+		public static OrdCommissionType? Read(XmlElement xml, string name, bool optional)
 		{
 			char? ch = FixmlUtil.ReadChar(xml, name, optional);
 			if (ch == null) return null;
-			if (!Enum.IsDefined(typeof(OrdCommisionType), (OrdCommisionType)ch))
+			if (!Enum.IsDefined(typeof(OrdCommissionType), (OrdCommissionType)ch))
 				FixmlUtil.Error(xml, name, ch, "- unknown OrdCommisionType");
-			return (OrdCommisionType)ch;
+			return (OrdCommissionType)ch;
 		}
 	}
 }

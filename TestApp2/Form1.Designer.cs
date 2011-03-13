@@ -52,6 +52,11 @@
 			this.debugOptions.SuspendLayout();
 			this.SuspendLayout();
 			// 
+			// columnHeader1
+			// 
+			columnHeader1.Text = "Item";
+			columnHeader1.Width = 90;
+			// 
 			// DisconnectBtn
 			// 
 			this.DisconnectBtn.Location = new System.Drawing.Point(93, 12);
@@ -203,36 +208,34 @@
 			this.accountsView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.accountsView.Location = new System.Drawing.Point(12, 41);
 			this.accountsView.Name = "accountsView";
-			this.accountsView.Size = new System.Drawing.Size(307, 247);
+			this.accountsView.Size = new System.Drawing.Size(360, 247);
 			this.accountsView.TabIndex = 10;
 			this.accountsView.UseCompatibleStateImageBehavior = false;
 			this.accountsView.View = System.Windows.Forms.View.Details;
-			// 
-			// columnHeader1
-			// 
-			columnHeader1.Text = "Item";
-			columnHeader1.Width = 100;
 			// 
 			// columnHeader2
 			// 
 			this.columnHeader2.Text = "SubItem1";
 			this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.columnHeader2.Width = 70;
 			// 
 			// columnHeader3
 			// 
 			this.columnHeader3.Text = "SubItem2";
+			this.columnHeader3.Width = 96;
 			// 
 			// columnHeader4
 			// 
 			this.columnHeader4.Text = "SubItem3";
+			this.columnHeader4.Width = 80;
 			// 
 			// instrumentsView
 			// 
 			this.instrumentsView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.instrumentsView.Location = new System.Drawing.Point(325, 41);
+			this.instrumentsView.Location = new System.Drawing.Point(378, 41);
 			this.instrumentsView.Name = "instrumentsView";
-			this.instrumentsView.Size = new System.Drawing.Size(347, 247);
+			this.instrumentsView.Size = new System.Drawing.Size(294, 247);
 			this.instrumentsView.TabIndex = 12;
 			this.instrumentsView.UseCompatibleStateImageBehavior = false;
 			// 

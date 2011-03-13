@@ -39,6 +39,5 @@ namespace pjank.BossaAPI.Fixml
 				throw new FixmlException(string.Format("Unknown OrderStatus: '{0}'", str));
 			return dict[str];
 		}
-
 	}
 }

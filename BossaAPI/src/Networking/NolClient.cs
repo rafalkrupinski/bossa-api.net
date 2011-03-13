@@ -46,6 +46,7 @@ namespace pjank.BossaAPI
 		public NolClient(bool login, bool thread)
 		{
 			StatementMsgEvent += new Action<StatementMsg>(StatementMsgHandler);
+			ExecReportMsgEvent += new Action<ExecutionReportMsg>(ExecReportMsgHandler);
 			MarketDataMsgEvent += new Action<MarketDataIncRefreshMsg>(MarketDataMsgHandler);
 			UserResponseMsgEvent += new Action<UserResponseMsg>(AsyncUserResponseMsgHandler);
 			FixmlInstrument.DictionaryLoad();
@@ -249,7 +250,11 @@ namespace pjank.BossaAPI
 		/// <summary>
 		/// Zdarzenie (IBosClient) informujące o aktualizacji danych rachunku. 
 		/// </summary>
-		public event Action<Account> AccountUpdateEvent;
+		public event Action<AccountData> AccountUpdateEvent;
+		/// <summary>
+		/// Zdarzenie (IBosClient) informujące o aktualizacji informacji o zleceniu na rachunku.
+		/// </summary>
+		public event Action<OrderData> OrderUpdateEvent;
 
 		#endregion
 
@@ -577,10 +582,12 @@ namespace pjank.BossaAPI
 		private void StatementMsgHandler(StatementMsg msg)
 		{
 			if (AccountUpdateEvent != null)
+			{
 				foreach (var statement in msg.Statements)
 				{
-					var account = new Account();
+					var account = new AccountData();
 					account.Number = statement.AccountNumber;
+					// otwarte pozycje...
 					account.Papers = statement.Positions.
 						Select(p => new Paper {
 							Instrument = new Instrument {
@@ -590,25 +597,131 @@ namespace pjank.BossaAPI
 							Account110 = p.Value.Acc110,
 							Account120 = p.Value.Acc120,
 						}).ToArray();
-					account.PortfolioValue = statement.Funds[StatementFundType.PortfolioValue];
+					// najważniejsze kwoty...
 					account.AvailableCash = statement.Funds[StatementFundType.Cash];
 					if (!statement.Funds.ContainsKey(StatementFundType.Deposit))
 					{
+						// rachunek akcyjny
 						account.AvailableFunds = statement.Funds[StatementFundType.CashReceivables];
 					}
 					else
 					{
+						// rachunek kontraktowy
 						account.AvailableFunds = account.AvailableCash + statement.Funds[StatementFundType.DepositFree];
 						if (statement.Funds.ContainsKey(StatementFundType.DepositDeficit))
 							account.DepositDeficit = statement.Funds[StatementFundType.DepositDeficit];
 						account.DepositValue = statement.Funds[StatementFundType.Deposit];
 					}
+					account.PortfolioValue = statement.Funds[StatementFundType.PortfolioValue];
+
+					// wywołanie zdarzenia z przygotowanymi danymi
 					AccountUpdateEvent(account);
 				}
+			}
+		}
+
+		// wewnętrzna obsługa komunikatu "ExecRpt"
+		// - wywołuje zdarzenie "OrderUpdateEvent"
+		private void ExecReportMsgHandler(ExecutionReportMsg msg)
+		{
+			if (OrderUpdateEvent != null)
+			{
+				var order = new OrderData();
+				order.AccountNumber = msg.Account;
+				order.BrokerId = msg.BrokerOrderId2;
+				order.ClientId = msg.ClientOrderId;
+
+				// UWAGA: odczyt danych z komunikatu ExecRpt odbywa się "na czuja"... bo dostarczoną 
+				// z Bossy/Comarchu dokumentacją na ten temat to można sobie najwyżej w kominku podpalić.
+				// Generalnie wszystko jest rozjechane, ale te statusy zleceń to już chyba po pijaku pisali.
+				//   Tyle - musiałem to tu napisać !!!  ;-P
+				// Bo mnie już krew zalewa, jak widzę co ten NOL3 wysyła i gdzie (w których polach)... 
+				// I że w ogóle musiałem te wszystkie możliwe przypadki samodzielnie analizować...
+				// A jak za miesiąc przestanie działać, bo coś tam "naprawią", to chyba kogoś postrzelę ;-(
+
+
+				// raport o wykonaniu - być może cząstkowym - danego zlecenia
+				// (z praktyki wynika, że zawsze wcześniej dostaniemy "pełen" ExecRpt z pozostałymi
+				// informacjami o tym zleceniu... dlatego teraz odbieramy sobie tylko raport z tej transakcji)
+				if (msg.ExecType == ExecReportType.Trade)
+				{
+					order.TradeReport = new OrderTradeData();
+					order.TradeReport.Time = (DateTime)msg.TransactionTime;
+					order.TradeReport.Price = (decimal)msg.Price;  // LastPrice !?
+					order.TradeReport.Quantity = (uint)msg.Quantity;  // LastQuantity !?
+					order.TradeReport.NetValue = (decimal)msg.NetMoney;
+					order.TradeReport.Commission = (decimal)msg.CommissionValue;
+				}
+				else
+				{
+					// w pozostałych przypadkach wygląda na to, że lepiej się oprzeć na polu "Status"
+					// (bo ExecType czasem jest, czasem nie ma - różnie to z nim bywa... a Status jest chyba zawsze)
+					order.StatusUpdate = new OrderStatusData();
+					order.StatusUpdate.Status = ExecReport_GetStatus(msg);
+					order.StatusUpdate.Quantity = (uint)msg.CumulatedQuantity;
+					order.StatusUpdate.NetValue = (decimal)msg.NetMoney;
+					order.StatusUpdate.Commission = (decimal)msg.CommissionValue;  // czasem == 0, ale dlaczego!? kto to wie... 
+
+					// pozostałe dane - żeby się nie rozdrabniać - też aktualizujemy za każdym razem
+					// (teoretycznie wystarczyłoby przy "new" i "replace"... ale czasem jako pierwsze
+					// przychodzi np. "filled" i kto wie co jeszcze innego, więc tak będzie bezpieczniej)
+					order.DataUpdate = new OrderMainData();
+					order.DataUpdate.CreateTime = (DateTime)msg.TransactionTime;
+					order.DataUpdate.Instrument = new Instrument {
+						Symbol = msg.Instrument.Symbol,
+						ISIN = msg.Instrument.SecurityId
+					};
+					order.DataUpdate.Side = (msg.Side == Fixml.OrderSide.Buy) ? BosOrderSide.Buy : BosOrderSide.Sell;
+					order.DataUpdate.PriceType = ExecReport_GetPriceType(msg);
+					if (order.DataUpdate.PriceType == PriceType.Limit)
+						order.DataUpdate.PriceLimit = msg.Price;
+					if ((msg.Type == OrderType.StopLimit) || (msg.Type == OrderType.StopLoss))
+						order.DataUpdate.ActivationPrice = msg.StopPrice;
+					order.DataUpdate.Quantity = (uint)msg.Quantity;
+					order.DataUpdate.MinimumQuantity = (msg.TimeInForce == OrdTimeInForce.WuA) ? msg.Quantity : msg.MinimumQuantity;
+					order.DataUpdate.VisibleQuantity = msg.DisplayQuantity;
+					order.DataUpdate.ImmediateOrCancel = (msg.TimeInForce == OrdTimeInForce.WiA);
+					order.DataUpdate.ExpirationDate = (msg.TimeInForce == OrdTimeInForce.Date) ? msg.ExpireDate : null;
+				}
+
+				// wywołanie zdarzenia z przygotowanymi danymi
+				OrderUpdateEvent(order);
+			}
+		}
+
+		private static BosOrderStatus ExecReport_GetStatus(ExecutionReportMsg msg)
+		{
+			switch (msg.Status)
+			{
+				case ExecReportStatus.New: return BosOrderStatus.Active;
+				case ExecReportStatus.PartiallyFilled: return BosOrderStatus.ActiveFilled;
+				case ExecReportStatus.Canceled: return ((msg.CumulatedQuantity ?? 0) > 0) ? BosOrderStatus.CancelledFilled : BosOrderStatus.Cancelled;
+				case ExecReportStatus.Filled: return BosOrderStatus.Filled;
+				case ExecReportStatus.Expired: return BosOrderStatus.Expired;
+				case ExecReportStatus.Rejected: return BosOrderStatus.Rejected;
+				case ExecReportStatus.PendingReplace: return BosOrderStatus.PendingReplace;
+				case ExecReportStatus.PendingCancel: return BosOrderStatus.PendingCancel;
+				default: throw new ArgumentException("Unknown ExecReport-Status");
+			}
+		}
+
+		private static PriceType ExecReport_GetPriceType(ExecutionReportMsg msg)
+		{
+			switch (msg.Type)
+			{
+				case OrderType.Limit:
+				case OrderType.StopLimit: return PriceType.Limit;
+				case OrderType.PKC:
+				case OrderType.StopLoss: return PriceType.PKC;
+				case OrderType.PCR_PCRO:
+					var time = msg.TimeInForce;
+					var pcro = ((time == OrdTimeInForce.Opening) || (time == OrdTimeInForce.Closing));
+					return pcro ? PriceType.PCRO : PriceType.PCR;
+				default: throw new ArgumentException("Unknown ExecReport-OrderType");
+			}
 		}
 
 		#endregion
-
 
 	}
 }

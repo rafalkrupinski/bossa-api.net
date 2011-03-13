@@ -118,6 +118,8 @@ namespace pjank.BossaAPI.TestApp2
 				var group = GetAccountGroup(account);
 				foreach (var paper in account.Papers)
 					AddAccountPaperItem(group, paper);
+				foreach (var order in account.Orders)
+					if (order.IsActive) AddAccountOrderItem(group, order);
 				AddAccountFundItem(group, "Available Cash:", account.AvailableCash);
 				AddAccountFundItem(group, "Available Funds:", account.AvailableFunds);
 				if (account.DepositValue != null)
@@ -174,6 +176,7 @@ namespace pjank.BossaAPI.TestApp2
 			item.Text = order.Side.ToString() + " " + order.Instrument.ToString();
 			item.SubItems.Add(order.Quantity.ToString());
 			item.SubItems.Add(string.Format("x {0:0.00} {1:(0.00)}", order.Price, order.ActivationPrice));
+			item.SubItems.Add(order.StatusReport.Status.ToString());
 			accountsView.Items.Add(item);
 		}
 

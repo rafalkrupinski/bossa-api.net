@@ -49,7 +49,9 @@
     <Compile Include="src\AccountData\BosPaper.cs" />
     <Compile Include="src\AccountData\BosPapers.cs" />
     <Compile Include="src\AccountData\BosOrderStatus.cs" />
-    <Compile Include="src\AccountData\BosOrderReport.cs" />
+    <Compile Include="src\AccountData\BosOrderStatusReport.cs" />
+    <Compile Include="src\AccountData\BosOrderTradeReport.cs" />
+    <Compile Include="src\AccountData\BosOrderTradeReports.cs" />
     <Compile Include="src\Bossa.cs" />
     <Compile Include="src\MarketData\BosInstrument.cs" />
     <Compile Include="src\MarketData\BosInstruments.cs" />
@@ -58,9 +60,14 @@
     <Compile Include="src\MarketData\BosPrice.cs" />
     <Compile Include="src\MarketData\BosTrade.cs" />
     <Compile Include="src\MarketData\BosTrades.cs" />
-    <Compile Include="src\Networking\DTO\Account.cs" />
+    <Compile Include="src\Networking\DTO\AccountData.cs" />
+    <Compile Include="src\Networking\DTO\OrderMainData.cs" />
+    <Compile Include="src\Networking\DTO\OrderTradeData.cs" />
+    <Compile Include="src\Networking\DTO\OrderData.cs" />
+    <Compile Include="src\Networking\DTO\OrderStatusData.cs" />
     <Compile Include="src\Networking\DTO\Instrument.cs" />
     <Compile Include="src\Networking\DTO\Paper.cs" />
+    <Compile Include="src\Networking\DTO\PriceType.cs" />
     <Compile Include="src\Networking\Fixml\AppMsgReport\AppMessageReportMsg.cs" />
     <Compile Include="src\Networking\Fixml\BizMsgReject\BizMessageRejectException.cs" />
     <Compile Include="src\Networking\Fixml\BizMsgReject\BizMessageRejectMsg.cs" />
@@ -69,7 +76,7 @@
     <Compile Include="src\Networking\Fixml\ExecReport\ExecReportStatus.cs" />
     <Compile Include="src\Networking\Fixml\ExecReport\ExecReportType.cs" />
     <Compile Include="src\Networking\Fixml\ExecReport\ExecutionReportMsg.cs" />
-    <Compile Include="src\Networking\Fixml\ExecReport\OrdCommisionType.cs" />
+    <Compile Include="src\Networking\Fixml\ExecReport\OrdCommissionType.cs" />
     <Compile Include="src\Networking\Fixml\ExecReport\OrdRejectReason.cs" />
     <Compile Include="src\Networking\Fixml\MarketData\MarketDataFullRefreshMsg.cs" />
     <Compile Include="src\Networking\Fixml\MarketData\MarketDataIncRefreshMsg.cs" />

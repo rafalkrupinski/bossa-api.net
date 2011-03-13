@@ -9,8 +9,12 @@ namespace pjank.BossaAPI
 	public interface IBosClient : IDisposable
 	{
 		/// <summary>
-		/// Zdarzenie informujące o aktualizacji danych rachunku. 
+		/// Zdarzenie informujące o aktualizacji danych rachunku.
 		/// </summary>
-		event Action<Account> AccountUpdateEvent;
+		event Action<AccountData> AccountUpdateEvent;
+		/// <summary>
+		/// Zdarzenie informujące o aktualizacji informacji o zleceniu na rachunku.
+		/// </summary>
+		event Action<OrderData> OrderUpdateEvent;
 	}
 }

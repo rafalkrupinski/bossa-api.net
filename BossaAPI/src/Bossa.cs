@@ -9,8 +9,7 @@ namespace pjank.BossaAPI
 {
 	/// <summary>
 	/// Podstawowa klasa biblioteki oferująca łatwy dostęp do większości funkcji API.
-	/// TODO: obecnie to sam szkielet przyszłej klasy
-	///        (na razie korzystać z klasy Networking/NolClient)
+	/// TODO: wiele rzeczy tu jeszcze brakuje, na razie lepiej korzystać z klasy Networking/NolClient
 	/// </summary>
 	public static class Bossa
 	{
@@ -68,13 +67,21 @@ namespace pjank.BossaAPI
 		}
 
 		// obiekt realizujący komunikację z serwerem
-		static IBosClient client;
+		private static IBosClient client;
 
 		// aktualizacja stanu jednego z rachunków
-		static void AccountUpdateHandler(Account acccountData)
+		private static void AccountUpdateHandler(AccountData acccountData)
 		{
 			var account = Accounts[acccountData.Number];
 			account.Update(acccountData);
+			DoUpdate(account);
+		}
+
+		// aktualizacja informacji o bieżących zleceniach
+		private static void OrderUpdateHandler(OrderData orderData)
+		{
+			var account = Accounts[orderData.AccountNumber];
+			account.Orders.Update(orderData);
 			DoUpdate(account);
 		}
 
@@ -87,7 +94,8 @@ namespace pjank.BossaAPI
 		public static void Connect(IBosClient client)
 		{
 			Bossa.client = client;
-			client.AccountUpdateEvent += new Action<Account>(AccountUpdateHandler);
+			client.AccountUpdateEvent += new Action<AccountData>(AccountUpdateHandler);
+			client.OrderUpdateEvent += new Action<OrderData>(OrderUpdateHandler);
 		}
 
 		/// <summary>

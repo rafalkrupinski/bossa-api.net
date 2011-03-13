@@ -33,7 +33,7 @@ namespace pjank.BossaAPI.Fixml
 		public uint? CumulatedQuantity { get; private set; }        // dotychczas zrealizowana ilość
 		public DateTime? TransactionTime { get; private set; }      // czas transakcji
 		public decimal? Commission { get; private set; }            // wartość prowizji
-		public OrdCommisionType? CommisionType { get; private set; }// typ prowizji
+		public OrdCommissionType? CommissionType { get; private set; }// typ prowizji
 		public decimal? NetMoney { get; private set; }              // wartość netto transakcji
 		public uint? MinimumQuantity { get; private set; }          // ilość minimalna
 		public uint? DisplayQuantity { get; private set; }          // ilość ujawniona
@@ -74,7 +74,7 @@ namespace pjank.BossaAPI.Fixml
 			CumulatedQuantity = FixmlUtil.ReadUInt(xml, "CumQty", true);
 			TransactionTime = FixmlUtil.ReadDateTime(xml, "TxnTm", true);
 			Commission = FixmlUtil.ReadDecimal(xml, "Comm/Comm", true);
-			CommisionType = OrdCommTypeUtil.Read(xml, "Comm/CommTyp", true);
+			CommissionType = OrdCommTypeUtil.Read(xml, "Comm/CommTyp", true);
 			NetMoney = FixmlUtil.ReadDecimal(xml, "NetMny", true);
 			MinimumQuantity = FixmlUtil.ReadUInt(xml, "MinQty", true);
 			DisplayQuantity = FixmlUtil.ReadUInt(xml, "DsplyInstr/DisplayQty", true);
@@ -99,6 +99,20 @@ namespace pjank.BossaAPI.Fixml
 						default: return "PCR";
 					}
 				return Price.ToString();
+			}
+		}
+
+		public decimal? CommissionValue
+		{
+			get
+			{
+				switch (CommissionType)
+				{
+					case OrdCommissionType.PerUnit: return Commission * Quantity;  // LastQuantity?
+					case OrdCommissionType.Percent: return Commission * NetMoney;
+					case OrdCommissionType.Absolute: return Commission;
+					default: return null;
+				}
 			}
 		}
 
