@@ -48,10 +48,10 @@ namespace pjank.BossaAPI.Fixml
 			// (i czy ja w ogóle słusznie zakładam, jakie powinny być zależności między tymi wartościami)
 			// - dla rachunku akcyjnego:
 			if (CheckFundsSum(StatementFundType.CashReceivables, StatementFundType.Cash, StatementFundType.Receivables))
-				CheckFundsSum(StatementFundType.PortfolioValue, StatementFundType.Cash, StatementFundType.SecuritiesValue);
+				CheckFundsSum(StatementFundType.PortfolioValue, StatementFundType.CashReceivables, StatementFundType.SecuritiesValue);
 			// - dla rachunku kontraktowego:
 			if (CheckFundsSum(StatementFundType.Deposit, StatementFundType.DepositBlocked, StatementFundType.DepositFree))
-				CheckFundsSum(StatementFundType.PortfolioValue, StatementFundType.Cash, StatementFundType.Deposit);
+				CheckFundsSum(StatementFundType.PortfolioValue, StatementFundType.Cash, StatementFundType.CashBlocked, StatementFundType.Deposit);
 		}
 
 		// sprawdza, czy podane "Fundy" w ogóle istnieją... i jeśli tak - czy pierwszy jest równy sumie pozostałych
