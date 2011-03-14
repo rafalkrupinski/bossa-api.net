@@ -32,6 +32,11 @@ namespace pjank.BossaAPI.Fixml
 			if (isin != null) isinDict.Add(isin, this);
 		}
 
+		public static FixmlInstrument Find(DTO.Instrument instr)
+		{
+			return Find(instr.Symbol, instr.ISIN);
+		}
+
 		public static FixmlInstrument Find(string symb, string isin)
 		{
 			if (isin == null) return FindBySym(symb);

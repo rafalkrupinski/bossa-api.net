@@ -15,8 +15,8 @@ namespace pjank.BossaAPI.DTO
 		public string AccountNumber;
 		public string BrokerId;
 		public string ClientId;
-		public OrderMainData DataUpdate;
-		public OrderStatusData StatusUpdate;
+		public OrderMainData MainData;
+		public OrderStatusData StatusReport;
 		public OrderTradeData TradeReport;
 	}
 }

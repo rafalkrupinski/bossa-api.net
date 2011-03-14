@@ -103,8 +103,8 @@ namespace pjank.BossaAPI
 		// aktualizacja danych obiektu po odebraniu ich z sieci
 		internal void Update(DTO.OrderData data)
 		{
-			if (data.DataUpdate != null) Update(data.DataUpdate);
-			if (data.StatusUpdate != null) Update(data.StatusUpdate);
+			if (data.MainData != null) Update(data.MainData);
+			if (data.StatusReport != null) Update(data.StatusReport);
 			if (data.TradeReport != null) Update(data.TradeReport);
 		}
 
