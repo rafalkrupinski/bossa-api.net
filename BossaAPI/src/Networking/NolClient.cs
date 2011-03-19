@@ -75,7 +75,7 @@ namespace pjank.BossaAPI
 				if (loggedIn) Logout();
 				FixmlInstrument.DictionarySave();
 			}
-			catch (FixmlException e)
+			catch (Exception e)
 			{
 				e.PrintError();
 			}
@@ -94,6 +94,7 @@ namespace pjank.BossaAPI
 		{
 			string regname = "Software\\COMARCH S.A.\\NOL3\\7\\Settings";
 			RegistryKey regkey = Registry.CurrentUser.OpenSubKey(regname);
+			if (regkey == null) throw new NolClientException("NOL3 registry key missing!");
 			Object value = regkey.GetValue("ncaset_" + name);
 			if (value == null) throw new NolClientException("NOL3 registry settings missing!");
 			if (value.ToString() == "0") throw new NolClientException("NOL3 port '" + name + "' not ready!");
