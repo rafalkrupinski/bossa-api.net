@@ -121,7 +121,7 @@ namespace pjank.BossaAPI
 		private void Update(OrderMainData data)
 		{
 			CreateTime = data.CreateTime;
-			Instrument = BosInstrument.Find(data.Instrument);
+			Instrument = BosInstrument.Create(data.Instrument);
 			Side = data.Side;
 			Price = BosPrice.Create(data.PriceType, data.PriceLimit);
 			ActivationPrice = data.ActivationPrice;
@@ -156,7 +156,7 @@ namespace pjank.BossaAPI
 			data.MainData.CreateTime = CreateTime;
 			data.MainData.Instrument = Instrument.Convert();
 			data.MainData.Side = Side;
-			data.MainData.PriceType = Price.GetType();
+			data.MainData.PriceType = Price.Type;
 			data.MainData.PriceLimit = Price.NumValue;
 			data.MainData.ActivationPrice = ActivationPrice;
 			data.MainData.Quantity = Quantity;
@@ -185,7 +185,7 @@ namespace pjank.BossaAPI
 		public void Modify(BosPrice newPrice, DateTime? newExpirationDate)
 		{
 			var data = GetData();
-			data.MainData.PriceType = newPrice.GetType();
+			data.MainData.PriceType = newPrice.Type;
 			data.MainData.PriceLimit = newPrice.NumValue;
 			data.MainData.ExpirationDate = newExpirationDate;
 			Bossa.client.OrderReplace(data);

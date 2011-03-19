@@ -39,7 +39,7 @@ namespace pjank.BossaAPI
 		internal BosPaper(BosAccount account, DTO.Paper data)
 		{
 			Account = account;
-			Instrument = BosInstrument.Find(data.Instrument);
+			Instrument = BosInstrument.Create(data.Instrument);
 			Quantity110 = data.Account110;
 			Quantity120 = data.Account120;
 		}

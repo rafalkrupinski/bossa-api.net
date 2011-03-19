@@ -22,6 +22,8 @@ namespace pjank.BossaAPI
 		public static readonly BosPrice PCR = new BosPrice("PCR");
 		public static readonly BosPrice PCRO = new BosPrice("PCRO");
 
+		#region Internal stuff
+
 		// prywatny konstruktor używany przy przypisaniu zwykłej liczby
 		private BosPrice(decimal value)
 		{
@@ -49,16 +51,21 @@ namespace pjank.BossaAPI
 		}
 
 		// konwersja tego obiektu na typ transportowy (poza samym limitem ceny)
-		internal DTO.PriceType GetType()
+		internal DTO.PriceType Type
 		{
-			if (this == PKC) return DTO.PriceType.PKC;
-			if (this == PCR) return DTO.PriceType.PCR;
-			if (this == PCRO) return DTO.PriceType.PCRO;
-			return DTO.PriceType.Limit;
+			get
+			{
+				if (this == PKC) return DTO.PriceType.PKC;
+				if (this == PCR) return DTO.PriceType.PCR;
+				if (this == PCRO) return DTO.PriceType.PCRO;
+				return DTO.PriceType.Limit;
+			}
 		}
 
 		private decimal? numValue;
 		private string txtValue;
+
+		#endregion
 
 		/// <summary>
 		/// Kwota w standardowej postaci liczbowej.
@@ -78,7 +85,9 @@ namespace pjank.BossaAPI
 			get { return txtValue ?? numValue.ToString(); }
 		}
 
-
+		/// <summary>
+		/// Standardowa konwersja na string -> dokładnie, jak "TxtValue".
+		/// </summary>
 		public override string ToString()
 		{
 			return TxtValue;
