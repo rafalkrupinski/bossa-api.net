@@ -12,8 +12,6 @@ namespace pjank.BossaAPI
 	/// </summary>
 	public class BosAccounts : IEnumerable<BosAccount>
 	{
-		private List<BosAccount> list = new List<BosAccount>();
-
 		/// <summary>
 		/// Liczba dostępnych na tę chwilę rachunków.
 		/// </summary>
@@ -43,6 +41,10 @@ namespace pjank.BossaAPI
 			get { return GetAccount(number); }
 		}
 
+		#region Generic list stuff
+
+		private List<BosAccount> list = new List<BosAccount>();
+
 		// IEnumerable<BosAccount>
 		public IEnumerator<BosAccount> GetEnumerator()
 		{
@@ -56,6 +58,18 @@ namespace pjank.BossaAPI
 			return GetEnumerator();
 		}
 
+		#endregion
+
+		#region Internal library stuff
+
+		// wywoływane z Bossa.Reset() - usuwa z pamięci wszystkie rachunki i ich zawartość
+		internal void Clear()
+		{
+			list.Clear();
+		}
+
+		#endregion
+
 		// odszukanie rachunku o podanym numerze, ewentualne utworzenie nowego
 		private BosAccount GetAccount(string number)
 		{
@@ -68,12 +82,6 @@ namespace pjank.BossaAPI
 				list.Add(account);
 			}
 			return account;
-		}
-
-		// wywoływane z Bossa.Reset() - usuwa z pamięci wszystkie rachunki i ich zawartość
-		internal void Clear()
-		{
-			list.Clear();
 		}
 	}
 }

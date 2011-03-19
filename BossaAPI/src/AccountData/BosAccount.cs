@@ -53,12 +53,14 @@ namespace pjank.BossaAPI
 		public BosOrders Orders { get; private set; }
 
 
+		#region Internal library stuff
+
 		// konstruktor wywoływany w klasie BosAccounts, gdy pojawia się nowy numer rachunku 
 		internal BosAccount(string number)
 		{
 			Number = number;
-			Papers = new BosPapers();
-			Orders = new BosOrders();
+			Papers = new BosPapers(this);
+			Orders = new BosOrders(this);
 		}
 
 		// aktualizacja danych obiektu po odebraniu ich z sieci
@@ -72,5 +74,7 @@ namespace pjank.BossaAPI
 			Papers.Update(data.Papers);
 			UpdateTime = DateTime.Now;
 		}
+
+		#endregion
 	}
 }

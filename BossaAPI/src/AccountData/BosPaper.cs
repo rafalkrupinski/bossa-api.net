@@ -11,6 +11,11 @@ namespace pjank.BossaAPI
 	public class BosPaper
 	{
 		/// <summary>
+		/// Rachunek, na którym znajdują się te papiery.
+		/// </summary>
+		public readonly BosAccount Account;
+
+		/// <summary>
 		/// Instrument, którego dotyczy ten wpis na rachunku użytkownika.
 		/// </summary>
 		public BosInstrument Instrument { get; private set; }
@@ -28,12 +33,17 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public int Quantity120 { get; private set; }
 
+		#region Internal library stuff
+
 		// konstruktor, wywoływany spod BosPapers.Update()
-		internal BosPaper(DTO.Paper data)
+		internal BosPaper(BosAccount account, DTO.Paper data)
 		{
+			Account = account;
 			Instrument = BosInstrument.Find(data.Instrument);
 			Quantity110 = data.Account110;
 			Quantity120 = data.Account120;
 		}
+
+		#endregion
 	}
 }

@@ -67,7 +67,7 @@ namespace pjank.BossaAPI
 		}
 
 		// obiekt realizujący komunikację z serwerem
-		private static IBosClient client;
+		internal static IBosClient client;
 
 		// aktualizacja stanu jednego z rachunków
 		private static void AccountUpdateHandler(AccountData acccountData)

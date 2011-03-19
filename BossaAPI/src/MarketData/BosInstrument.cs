@@ -71,5 +71,11 @@ namespace pjank.BossaAPI
 		{
 			return Find(data.ISIN, data.Symbol);
 		}
+
+		// konwersja tego obiektu na obiekt transportowy
+		internal DTO.Instrument Convert()
+		{
+			return new DTO.Instrument { Symbol = Symbol, ISIN = ISIN };
+		}
 	}
 }

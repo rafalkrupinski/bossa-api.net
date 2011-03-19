@@ -48,6 +48,15 @@ namespace pjank.BossaAPI
 			}
 		}
 
+		// konwersja tego obiektu na typ transportowy (poza samym limitem ceny)
+		internal DTO.PriceType GetType()
+		{
+			if (this == PKC) return DTO.PriceType.PKC;
+			if (this == PCR) return DTO.PriceType.PCR;
+			if (this == PCRO) return DTO.PriceType.PCRO;
+			return DTO.PriceType.Limit;
+		}
+
 		private decimal? numValue;
 		private string txtValue;
 

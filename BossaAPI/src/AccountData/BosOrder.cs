@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using pjank.BossaAPI.DTO;
 
 namespace pjank.BossaAPI
 {
@@ -12,6 +13,11 @@ namespace pjank.BossaAPI
 	/// </summary>
 	public class BosOrder
 	{
+		/// <summary>
+		/// Rachunek, na którym złożono to zlecenie.
+		/// </summary>
+		public readonly BosAccount Account;
+
 		/// <summary>
 		/// Identyfikator (numer) zlecenia nadany przez Dom Maklerski.
 		/// Jeśli to nowe, wysyłane stąd zlecenie - null, dopóki nie zostanie przyjęte w DM.
@@ -93,15 +99,18 @@ namespace pjank.BossaAPI
 			}
 		}
 
+		#region Internal library stuff
+
 		// konstruktor wywoływany w klasie BosOrders, gdy pojawia się nowy numer zlecenia
-		internal BosOrder(DTO.OrderData data)
+		internal BosOrder(BosAccount account, OrderData data)
 		{
+			Account = account;
 			Id = data.BrokerId;
 			Update(data);
 		}
 
 		// aktualizacja danych obiektu po odebraniu ich z sieci
-		internal void Update(DTO.OrderData data)
+		internal void Update(OrderData data)
 		{
 			if (data.MainData != null) Update(data.MainData);
 			if (data.StatusReport != null) Update(data.StatusReport);
@@ -109,7 +118,7 @@ namespace pjank.BossaAPI
 		}
 
 		// aktualizacja danych z sieci - podstawowe dane zlecenia
-		private void Update(DTO.OrderMainData data)
+		private void Update(OrderMainData data)
 		{
 			CreateTime = data.CreateTime;
 			Instrument = BosInstrument.Find(data.Instrument);
@@ -124,17 +133,80 @@ namespace pjank.BossaAPI
 		}
 
 		// aktualizacja danych z sieci - nowy status zlecenia
-		private void Update(DTO.OrderStatusData data)
+		private void Update(OrderStatusData data)
 		{
 			StatusReport = new BosOrderStatusReport(data);
 		}
 
 		// aktualizacja danych z sieci - nowa transakcja do tego zlecenia
-		private void Update(DTO.OrderTradeData data)
+		private void Update(OrderTradeData data)
 		{
 			if (TradeReports == null)
 				TradeReports = new BosOrderTradeReports();
 			TradeReports.Update(data);
+		}
+
+		// przygotowanie obiektu transportowego na podstawie bieżącego obiektu
+		private OrderData GetData()
+		{
+			var data = new OrderData();
+			data.AccountNumber = Account.Number;
+			data.BrokerId = Id;
+			data.MainData = new OrderMainData();
+			data.MainData.CreateTime = CreateTime;
+			data.MainData.Instrument = Instrument.Convert();
+			data.MainData.Side = Side;
+			data.MainData.PriceType = Price.GetType();
+			data.MainData.PriceLimit = Price.NumValue;
+			data.MainData.ActivationPrice = ActivationPrice;
+			data.MainData.Quantity = Quantity;
+			data.MainData.MinimumQuantity = MinimumQuantity;
+			data.MainData.VisibleQuantity = VisibleQuantity;
+			data.MainData.ImmediateOrCancel = ImmediateOrCancel;
+			data.MainData.ExpirationDate = ExpirationDate;
+			return data;
+		}
+
+		#endregion
+
+		/// <summary>
+		/// Wysłanie do systemu prośby o anulowanie tego zlecenia.
+		/// </summary>
+		public void Cancel()
+		{
+			Bossa.client.OrderCancel(GetData());
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu prośby o modyfikację tego zlecenia (wszystkie możliwe do zmiany parametry).
+		/// </summary>
+		/// <param name="newPrice">nowy limit ceny</param>
+		/// <param name="newExpirationDate">nowa data ważności</param>
+		public void Modify(BosPrice newPrice, DateTime? newExpirationDate)
+		{
+			var data = GetData();
+			data.MainData.PriceType = newPrice.GetType();
+			data.MainData.PriceLimit = newPrice.NumValue;
+			data.MainData.ExpirationDate = newExpirationDate;
+			Bossa.client.OrderReplace(data);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu prośby o modyfikację tego zlecenia (tylko limit ceny).
+		/// </summary>
+		/// <param name="newPrice">nowy limit ceny</param>
+		public void Modify(BosPrice newPrice)
+		{
+			Modify(newPrice, ExpirationDate);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu prośby o modyfikację tego zlecenia (tylko data ważności).
+		/// </summary>
+		/// <param name="newExpirationDate">nowa data ważności</param>
+		public void Modify(DateTime? newExpirationDate)
+		{
+			Modify(Price, newExpirationDate);
 		}
 	}
 }
