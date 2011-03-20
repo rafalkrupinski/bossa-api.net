@@ -579,14 +579,15 @@ namespace pjank.BossaAPI
 		#region Orders
 
 		// Metoda IBosClient do składania nowego zlecenia.
-		public void OrderCreate(OrderData data)
+		public string OrderCreate(OrderData data)
 		{
+			string clientId;
 			Debug.WriteLine("\nOrderCreate...");
 			using (Socket socket = NolClient.GetSyncSocket())
 			{
 				NewOrderSingleMsg request = new NewOrderSingleMsg();
+				clientId = request.ClientOrderId;  // automatycznie przydzielone kolejne Id
 				request.Account = data.AccountNumber;
-				request.ClientOrderId = data.ClientId;
 				request.CreateTime = data.MainData.CreateTime;
 				request.Instrument = FixmlInstrument.Find(data.MainData.Instrument);
 				request.Side = (data.MainData.Side == BosOrderSide.Buy) ? OrderSide.Buy : OrderSide.Sell;
@@ -602,6 +603,7 @@ namespace pjank.BossaAPI
 				ExecutionReportMsg response = new ExecutionReportMsg(socket);
 			}
 			Debug.WriteLine("OrderCreate OK\n");
+			return clientId;
 		}
 
 		// Metoda IBosClient do modyfikacji istniejącego zlecenia.

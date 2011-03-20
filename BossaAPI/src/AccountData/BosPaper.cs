@@ -45,5 +45,22 @@ namespace pjank.BossaAPI
 		}
 
 		#endregion
+
+		#region Order create methods...
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na "oddanie" wszystkich dostępnych na rachunku papierów po wskazanej cenie
+		/// (sprzedaż, jeśli to akcje lub otwarte długie pozycje... lub przeciwstawne zlecenie kupna, jeśli to otwarte krótkie pozycje).
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		public void Release(BosPrice price)
+		{
+			if (Quantity110 > 0)
+				Instrument.Sell(price, (uint)Quantity110);
+			else
+				Instrument.Buy(price, (uint)-Quantity110);
+		}
+
+		#endregion
 	}
 }

@@ -85,14 +85,7 @@ namespace pjank.BossaAPI
 
 		#endregion
 
-		/// <summary>
-		/// Standardowa konwersja na stringa.
-		/// Zwraca Symbol albo kod ISIN, jeśli nie znamy tego pierwszego.
-		/// </summary>
-		public override string ToString()
-		{
-			return Symbol ?? ISIN;
-		}
+		#region Private stuff...
 
 		// ustalenie skróconego symbolu instrumentu
 		private string GetInstrumentSym()
@@ -119,6 +112,125 @@ namespace pjank.BossaAPI
 				if (Symbol.Contains("WIG")) return BosInstrumentType.Index;
 			}
 			return BosInstrumentType.Default;
+		}
+
+		#endregion
+
+
+		#region Order create methods...
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na zakup/sprzedaż bieżącego instrumentu.
+		/// <para>Preferowana metoda - zamiast "BosOrder.Create(...)" - bo od razu określa, jakiego instrumentu dotyczy.
+		/// Nr rachunku, na który zostaje przeznaczone to zlecenie, wybierany jest automatycznie na podstawie typu instrumentu.</para>
+		/// <para>Zobacz też sąsiednie metody: "Buy(...)" i "Sell(...)" - które od razu precyzują, czy ma to być zlecenie kupna, czy sprzedaży.</para>
+		/// </summary>
+		/// <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+		/// <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+		/// <param name="minimumQuantity">Minimalna liczba walorów, jaka musi się zrealizować, albo zlecenie będzie anulowane.
+		/// Podając tutaj to samo, co w polu "quantity", uzyskujemy zlecenie typu "WuA".</param>
+		/// <param name="visibleQuantity">Liczba walorów ujawniana w arkuszu ofert ("WUJ").</param>
+		/// <param name="immediateOrCancel">Czy to zlecenie typu "WiA" (to, co nie wykona się natychmiast, jest od razu anulowane).</param>
+		/// <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+		public void Order(BosOrderSide side, BosPrice price, decimal? activationPrice,
+			uint quantity, uint? minimumQuantity, uint? visibleQuantity, bool immediateOrCancel, DateTime? expirationDate)
+		{
+			BosOrder.Create(this, side, price, activationPrice,
+				quantity, minimumQuantity, visibleQuantity, immediateOrCancel, expirationDate);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na zakup/sprzedaż bieżącego instrumentu.
+		/// Skrócona wersja głównej metody "Order(...)", gdzie pozostałe parametry przyjmują wartość null/false.
+		/// <para>Zobacz też sąsiednie metody: "Buy(...)" i "Sell(...)" - które od razu precyzują, czy ma to być zlecenie kupna, czy sprzedaży.</para>
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+		/// <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+		public void Order(BosOrderSide side, BosPrice price, decimal? activationPrice, uint quantity, DateTime? expirationDate)
+		{
+			Order(side, price, activationPrice, quantity, null, null, false, expirationDate);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na zakup bieżącego instrumentu.
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić.</param>
+		/// <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+		public void Buy(BosPrice price, decimal? activationPrice, uint quantity, DateTime? expirationDate)
+		{
+			Order(BosOrderSide.Buy, price, activationPrice, quantity, expirationDate);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na sprzedaż bieżącego instrumentu.
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy sprzedać.</param>
+		/// <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+		public void Sell(BosPrice price, decimal? activationPrice, uint quantity, DateTime? expirationDate)
+		{
+			Order(BosOrderSide.Sell, price, activationPrice, quantity, expirationDate);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na zakup bieżącego instrumentu.
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić.</param>
+		public void Buy(BosPrice price, decimal? activationPrice, uint quantity)
+		{
+			Buy(price, activationPrice, quantity, null);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na sprzedaż bieżącego instrumentu.
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy sprzedać.</param>
+		public void Sell(BosPrice price, decimal? activationPrice, uint quantity)
+		{
+			Sell(price, activationPrice, quantity, null);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na zakup bieżącego instrumentu.
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić.</param>
+		public void Buy(BosPrice price, uint quantity)
+		{
+			Buy(price, null, quantity, null);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia na sprzedaż bieżącego instrumentu.
+		/// </summary>
+		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy sprzedać.</param>
+		public void Sell(BosPrice price, uint quantity)
+		{
+			Sell(price, null, quantity, null);
+		}
+
+		#endregion
+
+
+		/// <summary>
+		/// Standardowa konwersja na stringa.
+		/// Zwraca Symbol albo kod ISIN, jeśli nie znamy tego pierwszego.
+		/// </summary>
+		public override string ToString()
+		{
+			return Symbol ?? ISIN;
 		}
 	}
 }

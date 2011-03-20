@@ -169,6 +169,8 @@ namespace pjank.BossaAPI
 
 		#endregion
 
+		#region Order cancel method...
+
 		/// <summary>
 		/// Wysłanie do systemu prośby o anulowanie tego zlecenia.
 		/// </summary>
@@ -176,6 +178,10 @@ namespace pjank.BossaAPI
 		{
 			Bossa.client.OrderCancel(GetData());
 		}
+
+		#endregion
+
+		#region Order replace methods...
 
 		/// <summary>
 		/// Wysłanie do systemu prośby o modyfikację tego zlecenia (wszystkie możliwe do zmiany parametry).
@@ -208,5 +214,125 @@ namespace pjank.BossaAPI
 		{
 			Modify(Price, newExpirationDate);
 		}
+
+		#endregion
+
+		#region Order create methods...
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia z podanymi parametrami. 
+		/// <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+		/// którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+		/// </summary>
+		/// <param name="account">Rachunek, na który zostaje przeznaczone to zlecenie.</param>
+		/// <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+		/// <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+		/// <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+		/// <param name="minimumQuantity">Minimalna liczba walorów, jaka musi się zrealizować, albo zlecenie będzie anulowane.
+		/// Podając tutaj to samo, co w polu "quantity", uzyskujemy zlecenie typu "WuA".</param>
+		/// <param name="visibleQuantity">Liczba walorów ujawniana w arkuszu ofert ("WUJ").</param>
+		/// <param name="immediateOrCancel">Czy to zlecenie typu "WiA" (to, co nie wykona się natychmiast, jest od razu anulowane).</param>
+		/// <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+		public static void Create(BosAccount account, BosInstrument instrument, 
+			BosOrderSide side, BosPrice price, decimal? activationPrice,
+			uint quantity, uint? minimumQuantity, uint? visibleQuantity, bool immediateOrCancel, DateTime? expirationDate)
+		{
+			var data = new OrderData();
+			data.AccountNumber = account.Number;
+			data.MainData = new OrderMainData();
+			data.MainData.CreateTime = DateTime.Now;
+			data.MainData.Instrument = instrument.Convert();
+			data.MainData.Side = side;
+			data.MainData.PriceType = price.Type;
+			data.MainData.PriceLimit = price.NumValue;
+			data.MainData.ActivationPrice = activationPrice;
+			data.MainData.Quantity = quantity;
+			data.MainData.MinimumQuantity = minimumQuantity;
+			data.MainData.VisibleQuantity = visibleQuantity;
+			data.MainData.ImmediateOrCancel = immediateOrCancel;
+			data.MainData.ExpirationDate = expirationDate;
+			Bossa.client.OrderCreate(data);
+			// TODO: Zastanawiam się jeszczcze m.in. co z ClientId, TradeDate... i czy w ogóle byłby sens
+			// od razu tworzyć taki nowy obiekt BosOrder (zamiast zaczekać aż sam się doda przy OrderUpdate).
+			// A ponieważ teraz nawet nie mogę tego przetestować (weekend), na razie zostawiam w takiej formie.
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia z podanymi parametrami. W tej wersji metody numer rachunku,
+		/// na który zostaje przeznaczone to zlecenie, wybierany jest automatycznie na podstawie typu instrumentu.
+		/// <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+		/// którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+		/// </summary>
+		/// <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+		/// <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+		/// <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+		/// <param name="minimumQuantity">Minimalna liczba walorów, jaka musi się zrealizować, albo zlecenie będzie anulowane.
+		/// Podając tutaj to samo, co w polu "quantity", uzyskujemy zlecenie typu "WuA".</param>
+		/// <param name="visibleQuantity">Liczba walorów ujawniana w arkuszu ofert ("WUJ").</param>
+		/// <param name="immediateOrCancel">Czy to zlecenie typu "WiA" (to, co nie wykona się natychmiast, jest od razu anulowane).</param>
+		/// <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+		public static void Create(BosInstrument instrument,
+			BosOrderSide side, BosPrice price, decimal? activationPrice,
+			uint quantity, uint? minimumQuantity, uint? visibleQuantity, bool immediateOrCancel, DateTime? expirationDate)
+		{
+			var account = Bossa.Accounts[instrument.Type];
+			Create(account, instrument, side, price, activationPrice,
+				quantity, minimumQuantity, visibleQuantity, immediateOrCancel, expirationDate);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia z podanymi parametrami (pozostałe przyjmują 
+		/// domyślną wartość null/false, a numer rachunku wyznaczany jest na podstawie typu instrumentu).
+		/// <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+		/// którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+		/// </summary>
+		/// <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+		/// <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+		/// <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+		/// <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+		public static void Create(BosInstrument instrument,
+			BosOrderSide side, BosPrice price, decimal? activationPrice, uint quantity, DateTime? expirationDate)
+		{
+			Create(instrument, side, price, activationPrice, quantity, null, null, false, expirationDate);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia z podanymi parametrami (pozostałe przyjmują 
+		/// domyślną wartość null/false, a numer rachunku wyznaczany jest na podstawie typu instrumentu).
+		/// <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+		/// którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+		/// </summary>
+		/// <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+		/// <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+		/// <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+		/// <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+		public static void Create(BosInstrument instrument, BosOrderSide side, BosPrice price, decimal? activationPrice, uint quantity)
+		{
+			Create(instrument, side, price, activationPrice, quantity, null, null, false, null);
+		}
+
+		/// <summary>
+		/// Wysłanie do systemu nowego zlecenia z podanymi parametrami (pozostałe przyjmują 
+		/// domyślną wartość null/false, a numer rachunku wyznaczany jest na podstawie typu instrumentu).
+		/// <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+		/// którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+		/// </summary>
+		/// <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+		/// <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+		/// <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+		public static void Create(BosInstrument instrument, BosOrderSide side, BosPrice price, uint quantity)
+		{
+			Create(instrument, side, price, null, quantity, null, null, false, null);
+		}
+
+		#endregion
 	}
 }
