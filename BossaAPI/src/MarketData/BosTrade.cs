@@ -7,21 +7,33 @@ namespace pjank.BossaAPI
 {
 	/// <summary>
 	/// Reprezentuje konkretną transakcję w historii notowań instrumentu. 
-	/// TODO: ...
 	/// </summary>
 	public class BosTrade
 	{
+		/// <summary>
+		/// Czas realizacji danej transakcji.
+		/// </summary>
 		public DateTime Time { get; private set; }
+		/// <summary>
+		/// Cena, po jakiej zrealizowano transakcję.
+		/// </summary>
 		public decimal Price { get; private set; }
+		/// <summary>
+		/// Liczba walorów, jakie zmieniły właściciela w tej transakcji.
+		/// </summary>
 		public uint Quantity { get; private set; }
+		/// <summary>
+		/// Liczba otwartych pozycji - LOP (dotyczy tylko instrumentów pochodnych).
+		/// TODO: Na razie nie jest wcale odbierane.
+		/// </summary>
 		public uint? OpenInt { get; internal set; }
 
-		internal BosTrade(DateTime time, decimal price, uint volume, uint? lop)
+		// konstruktor, wywoływany spod BosTrades.Update()
+		internal BosTrade(DTO.MarketTradeData data)
 		{
-			this.Time = time;
-			this.Price = price;
-			this.Quantity = volume;
-			this.OpenInt = lop;
+			Time = data.Time;
+			Price = data.Price;
+			Quantity = data.Quantity;
 		}
 
 		public override string ToString()

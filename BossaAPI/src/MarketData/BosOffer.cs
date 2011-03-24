@@ -7,23 +7,28 @@ namespace pjank.BossaAPI
 {
 	/// <summary>
 	/// Reprezentuje konkretną ofertę w tabeli ofert bieżących notowań instrumentu.
-	/// TODO: ...
 	/// </summary>
 	public class BosOffer
 	{
+		/// <summary>
+		/// Cena danej oferty.
+		/// </summary>
 		public BosPrice Price { get; private set; }
+		/// <summary>
+		/// Liczba walorów po danej cenie.
+		/// </summary>
 		public uint Volume { get; private set; }
+		/// <summary>
+		/// Liczba różnych zleceń po danej cenie.
+		/// </summary>
 		public uint Count { get; private set; }
 
-		internal BosOffer(decimal? price, string pricestr, uint volume, uint count)
+		// konstruktor, wywoływany spod BosOffers.Update()
+		internal BosOffer(DTO.MarketOfferData data)
 		{
-			if (price != null) this.Price = price;
-			else if (pricestr == "PKC") this.Price = BosPrice.PKC;
-			else if (pricestr == "PCR") this.Price = BosPrice.PCR;
-			else if (pricestr == "PCRO") this.Price = BosPrice.PCRO;
-			else throw new ArgumentException("Unexpected price value", "pricestr");
-			this.Volume = volume;
-			this.Count = count;
+			Price = BosPrice.Create(data.PriceType, data.PriceLimit);
+			Volume = data.Volume;
+			Count = data.Count;
 		}
 
 		public override string ToString()

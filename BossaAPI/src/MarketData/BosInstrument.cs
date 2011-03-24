@@ -48,6 +48,17 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public BosTrades Trades { get; private set; }
 
+		/// <summary>
+		/// Czy instrument ten uwzględniamy w subskrypcji aktualnych notowań rynkowych
+		/// (domyślnie "true" - włącza aktualizację list "BuyOffers", "SellOffers" oraz "Trades").
+		/// </summary>
+		public bool UpdatesEnabled
+		{
+			get { return updatesEnabled; }
+			set { SetUpdatesEnabled(value); }
+		}
+		private bool updatesEnabled;
+
 
 		#region Internal library stuff
 
@@ -58,7 +69,10 @@ namespace pjank.BossaAPI
 			Symbol = symbol;
 			Sym = GetInstrumentSym();
 			Type = GetInstrumentType();
-			//TODO: BuyOffers, SellOffers, Trades
+			BuyOffers = new BosOffers();
+			SellOffers = new BosOffers();
+			Trades = new BosTrades();
+			updatesEnabled = true;
 		}
 
 		// dołącza dane z innego obiektu tego samego typu, wywoływane z klasy BosInstruments
@@ -81,6 +95,14 @@ namespace pjank.BossaAPI
 		internal DTO.Instrument Convert()
 		{
 			return new DTO.Instrument { Symbol = Symbol, ISIN = ISIN };
+		}
+
+		// aktualizacja danych obiektu po odebraniu ich z sieci
+		internal void Update(DTO.MarketData data)
+		{
+			if (data.BuyOffer != null) BuyOffers.Update(data.BuyOffer);
+			if (data.SellOffer != null) SellOffers.Update(data.SellOffer);
+			if (data.Trade != null) Trades.Update(data.Trade);
 		}
 
 		#endregion
@@ -112,6 +134,16 @@ namespace pjank.BossaAPI
 				if (Symbol.Contains("WIG")) return BosInstrumentType.Index;
 			}
 			return BosInstrumentType.Default;
+		}
+
+		// włączenie/wyłączenie subskrypcji notowań dla tego instrumentu
+		private void SetUpdatesEnabled(bool value)
+		{
+			if (updatesEnabled != value)
+			{
+				updatesEnabled = value;
+				Bossa.Instruments.UpdateSubscription();
+			}
 		}
 
 		#endregion

@@ -16,6 +16,10 @@ namespace pjank.BossaAPI
 		/// Zdarzenie informujące o aktualizacji informacji o zleceniu na rachunku.
 		/// </summary>
 		event Action<OrderData> OrderUpdateEvent;
+		/// <summary>
+		/// Zdarzenie informujące o aktualizacji stanu notowań rynkowych.
+		/// </summary>
+		event Action<MarketData> MarketUpdateEvent;
 
 		/// <summary>
 		/// Utworzenie nowego zlecenia.
@@ -36,5 +40,11 @@ namespace pjank.BossaAPI
 		/// <param name="data">Obiekt z danymi zlecenia do anulowania.
 		/// Wypełnić należy: Nr rachunku, obecne Id zlecenia i jego podstawowe dane (instrument, strona, ilość).</param>
 		void OrderCancel(OrderData data);
+
+		/// <summary>
+		/// Ustawienie "filtra" papierów wartościowych, dla których chcemy otrzymywać bieżące notowania rynkowe.
+		/// </summary>
+		/// <param name="instruments">Wykaz interesujących nas papierów wartościowych, null - wyłącza subskrypcję.</param>
+		void MarketUpdatesSubscription(Instrument[] instruments);
 	}
 }

@@ -85,6 +85,14 @@ namespace pjank.BossaAPI
 			DoUpdate(account);
 		}
 
+		// aktualizacja informacji o bieżących notowaniach
+		private static void MarketUpdateHandler(MarketData marketData)
+		{
+			var instrument = BosInstrument.Create(marketData.Instrument);
+			instrument.Update(marketData);
+			DoUpdate(instrument);
+		}
+
 		/// <summary>
 		/// Podłączenie wskazanego obiektu komunikującego się z serwerem.
 		/// </summary>
@@ -96,6 +104,8 @@ namespace pjank.BossaAPI
 			Bossa.client = client;
 			client.AccountUpdateEvent += new Action<AccountData>(AccountUpdateHandler);
 			client.OrderUpdateEvent += new Action<OrderData>(OrderUpdateHandler);
+			client.MarketUpdateEvent += new Action<MarketData>(MarketUpdateHandler);
+			Instruments.UpdateSubscription();
 		}
 
 		/// <summary>

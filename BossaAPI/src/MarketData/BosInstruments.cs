@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using pjank.BossaAPI.DTO;
 
 namespace pjank.BossaAPI
 {
@@ -53,12 +54,32 @@ namespace pjank.BossaAPI
 
 		#endregion
 
+		#region Subscription stuff
+
+		private BosInstrument[] subscription;
+
+		// wywoływane po każdej zmianie listy utworzonych instrumentów
+		internal void UpdateSubscription()
+		{
+			if (Bossa.client == null) return;
+			var tmp = list.Where(i => i.UpdatesEnabled).ToArray();
+			if (subscription == null || tmp.Except(subscription).Any() || subscription.Except(tmp).Any())
+			{
+				var dtoInstruments = tmp.Select(i => i.Convert()).ToArray();
+				Bossa.client.MarketUpdatesSubscription(dtoInstruments);
+				subscription = tmp;
+			}
+		}
+
+		#endregion
+
 		#region Internal library stuff
 
 		// wywoływane z Bossa.Reset() - usuwa z pamięci wszystkie instrumenty, historię transakcji itp.
 		internal void Clear()
 		{
 			list.Clear();
+			UpdateSubscription();
 		}
 
 		// odszukanie pasującego instrumentu na liście lub utworzenie nowego
@@ -101,6 +122,7 @@ namespace pjank.BossaAPI
 				if (instrA != null && instrB != null) list.Remove(instrB);
 				if (instrA == null && instrB == null) list.Add(instrument);
 				else instrument = instrA ?? instrB;
+				UpdateSubscription();
 			}
 			return instrument;
 		}
@@ -118,6 +140,7 @@ namespace pjank.BossaAPI
 			{
 				instrument = new BosInstrument(null, symbol);
 				list.Add(instrument);
+				UpdateSubscription();
 			}
 			return instrument;
 		}
@@ -133,6 +156,7 @@ namespace pjank.BossaAPI
 			{
 				instrument = new BosInstrument(isin, null);
 				list.Add(instrument);
+				UpdateSubscription();
 			}
 			return instrument;
 		}

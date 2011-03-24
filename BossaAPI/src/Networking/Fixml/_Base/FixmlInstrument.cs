@@ -37,6 +37,11 @@ namespace pjank.BossaAPI.Fixml
 			return Find(instr.Symbol, instr.ISIN);
 		}
 
+		internal DTO.Instrument Convert()
+		{
+			return new DTO.Instrument { Symbol = Symbol, ISIN = SecurityId };
+		}
+
 		public static FixmlInstrument Find(string symb, string isin)
 		{
 			if (isin == null) return FindBySym(symb);

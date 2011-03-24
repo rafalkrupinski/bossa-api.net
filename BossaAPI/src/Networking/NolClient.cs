@@ -17,7 +17,6 @@ namespace pjank.BossaAPI
 	/// - nawiązywanie połączenia, logowanie, wylogowanie
 	/// - odbiór komunikatów w kanale asynchronicznym
 	/// - zbieranie bieżących notowań podczas sesji
-	/// - TODO: składanie zleceń (na razie korzystać z klas Networking/Fixml/*)
 	/// </summary>
 	public class NolClient : IDisposable, IBosClient
 	{
@@ -256,6 +255,10 @@ namespace pjank.BossaAPI
 		/// Zdarzenie (IBosClient) informujące o aktualizacji informacji o zleceniu na rachunku.
 		/// </summary>
 		public event Action<OrderData> OrderUpdateEvent;
+		/// <summary>
+		/// Zdarzenie (IBosClient) informujące o aktualizacji stanu notowań rynkowych.
+		/// </summary>
+		public event Action<MarketData> MarketUpdateEvent;
 
 		#endregion
 
@@ -411,6 +414,15 @@ namespace pjank.BossaAPI
 				// bezpośrednio po zmianie subskrypcji (co jest w innym wątku) może nam tu jeszcze dotrzeć
 				// komunikat z poprzednim Id - ignorujemy, by nie powstały duplikaty w historii transakcji
 				if (msg.RequestId != mdReqId) return;
+
+				MarketData data;
+				if (MarketUpdateEvent != null)
+					foreach (MDEntry entry in msg.Entries)
+						if (MarketData_GetData(entry, out data)) MarketUpdateEvent(data);
+
+				// TODO: MDResults zastąpić nowymi klasami DTO(?) albo całkiem wyrzucić...
+				// a na razie pomijamy, jeśli włączono "MarketUpdates" - żeby nie dublować danych w pamięci
+				if (MarketUpdateEvent == null)
 				foreach (MDEntry entry in msg.Entries)
 					MarketDataResults(entry.Instrument).AddEntry(entry);
 			}
@@ -576,6 +588,73 @@ namespace pjank.BossaAPI
 		#endregion
 
 
+		#region MarketUpdates subscription
+
+		// metoda IBosClient do ustawiania "filtra" subskrybowanych notowań.
+		public void MarketUpdatesSubscription(Instrument[] instruments)
+		{
+			TradingSessionStatusStop();
+			MarketDataSubscriptionClear();
+			if (instruments != null && instruments.Length > 0)
+			{
+				var fixmlInstruments = instruments.Select(i => FixmlInstrument.Find(i)).ToArray();
+				MarketDataSubscriptionAdd(fixmlInstruments);
+				MarketDataSubscriptionAdd(MDEntryTypes.BasicBook);
+				MarketDataSubscriptionAdd(MDEntryTypes.BasicTrade);
+				MarketDataStart();
+				TradingSessionStatusStart();
+			}
+		}
+
+		// funkcja pomocnicza konwertująca obiekt Fixml.MDEntry na DTO.MarketData
+		private static bool MarketData_GetData(MDEntry entry, out MarketData data)
+		{
+			data = new MarketData();
+			data.Instrument = entry.Instrument.Convert();
+			switch (entry.EntryType)
+			{
+				case MDEntryType.Buy: data.BuyOffer = MarketData_GetOfferData(entry); break;
+				case MDEntryType.Sell: data.SellOffer = MarketData_GetOfferData(entry); break;
+				case MDEntryType.Trade: data.Trade = MarketData_GetTradeData(entry); break;
+				default: return false;   // pozostałe na razie pomijamy
+			}
+			return true;
+		}
+
+		// funkcja pomocnicza konwertująca dane z Fixml.MDEntry na DTO.MarketOfferData
+		private static MarketOfferData MarketData_GetOfferData(MDEntry entry)
+		{
+			var offer = new MarketOfferData();
+			offer.Level = (int)entry.Level;
+			offer.Update = (entry.UpdateAction != MDUpdateAction.New);
+			if (entry.UpdateAction != MDUpdateAction.Delete)
+			{
+				switch (entry.PriceStr)
+				{
+					case "PKC": offer.PriceType = PriceType.PKC; break;
+					case "PCR": offer.PriceType = PriceType.PCR; break;
+					case "PCRO": offer.PriceType = PriceType.PCRO; break;
+				}
+				offer.PriceLimit = entry.Price;
+				offer.Volume = (uint)entry.Size;
+				offer.Count = (uint)entry.Orders;
+			}
+			return offer;
+		}
+
+		// funkcja pomocnicza konwertująca dane z Fixml.MDEntry na DTO.MarketTradeData
+		private static MarketTradeData MarketData_GetTradeData(MDEntry entry)
+		{
+			var trade = new MarketTradeData();
+			trade.Time = entry.DateTime;
+			trade.Price = (decimal)entry.Price;
+			trade.Quantity = (uint)entry.Size;
+			return trade;
+		}
+
+		#endregion
+
+
 		#region Orders
 
 		// Metoda IBosClient do składania nowego zlecenia.
@@ -719,10 +798,7 @@ namespace pjank.BossaAPI
 					// przychodzi np. "filled" i kto wie co jeszcze innego, więc tak będzie bezpieczniej)
 					order.MainData = new OrderMainData();
 					order.MainData.CreateTime = (DateTime)msg.TransactionTime;
-					order.MainData.Instrument = new Instrument {
-						Symbol = msg.Instrument.Symbol,
-						ISIN = msg.Instrument.SecurityId
-					};
+					order.MainData.Instrument = msg.Instrument.Convert();
 					order.MainData.Side = (msg.Side == Fixml.OrderSide.Buy) ? BosOrderSide.Buy : BosOrderSide.Sell;
 					order.MainData.PriceType = ExecReport_GetPriceType(msg);
 					if (order.MainData.PriceType == PriceType.Limit)
@@ -793,10 +869,7 @@ namespace pjank.BossaAPI
 					// otwarte pozycje...
 					account.Papers = statement.Positions.
 						Select(p => new Paper {
-							Instrument = new Instrument {
-								Symbol = p.Key.Symbol,
-								ISIN = p.Key.SecurityId
-							},
+							Instrument = p.Key.Convert(),
 							Account110 = p.Value.Acc110,
 							Account120 = p.Value.Acc120,
 						}).ToArray();

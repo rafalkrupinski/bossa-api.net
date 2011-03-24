@@ -62,6 +62,9 @@
     <Compile Include="src\MarketData\BosTrades.cs" />
     <Compile Include="src\MarketData\BosInstrumentType.cs" />
     <Compile Include="src\Networking\DTO\AccountData.cs" />
+    <Compile Include="src\Networking\DTO\MarketTradeData.cs" />
+    <Compile Include="src\Networking\DTO\MarketOfferData.cs" />
+    <Compile Include="src\Networking\DTO\MarketData.cs" />
     <Compile Include="src\Networking\DTO\OrderMainData.cs" />
     <Compile Include="src\Networking\DTO\OrderTradeData.cs" />
     <Compile Include="src\Networking\DTO\OrderData.cs" />
