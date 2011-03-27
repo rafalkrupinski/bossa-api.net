@@ -16,9 +16,10 @@ namespace pjank.BossaAPI.TestApp2
 			InitializeComponent();
 		}
 
-		public static string GetString(string title)
+		public static string GetString(string title, string startValue)
 		{
 			var form = new InputForm { Text = title };
+			form.TextBox.Text = startValue;
 			if (form.ShowDialog() != DialogResult.OK)
 				return null;
 			return form.TextBox.Text;
@@ -28,6 +29,20 @@ namespace pjank.BossaAPI.TestApp2
 		{
 			if (e.KeyCode == Keys.Escape)
 				DialogResult = DialogResult.Cancel;
+		}
+
+		public static BosPrice GetPrice(string title, BosPrice startValue)
+		{
+			var str = GetString(title, startValue.ToString());
+			if (str == null) return null;
+			return BosPrice.Parse(str);
+		}
+
+		public static uint? GetInt(string title, uint startValue)
+		{
+			var str = GetString(title, startValue.ToString());
+			if (str == null) return null;
+			return uint.Parse(str);
 		}
 	}
 }

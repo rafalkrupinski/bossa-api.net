@@ -109,11 +109,80 @@ namespace pjank.BossaAPI.TestApp2
 
 		private void AddInstrumentBtn_Click(object sender, EventArgs e)
 		{
-			var symbol = InputForm.GetString("Instrument Symbol");
-			if (symbol != null && symbol != "")
+			try
 			{
-				var instrument = Bossa.Instruments[symbol];
-				UpdateInstrumentInfo(instrument);
+				var symbol = InputForm.GetString("Instrument Symbol", "");
+				if (symbol != null && symbol != "")
+				{
+					var instrument = Bossa.Instruments[symbol];
+					UpdateInstrumentInfo(instrument);
+				}
+			}
+			catch (Exception ex)
+			{
+				ex.PrintError();
+			}
+		}
+
+		private void OrderModifyBtn_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				var order = GetSelectedOrder();
+				var price = InputForm.GetPrice("New Price", order.Price);
+				if (price != null)
+					order.Modify(price);
+			}
+			catch (Exception ex)
+			{
+				ex.PrintError();
+			}
+		}
+
+		private void OrderCancelBtn_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				var order = GetSelectedOrder();
+				order.Cancel();
+			}
+			catch (Exception ex)
+			{
+				ex.PrintError();
+			}
+}
+
+		private void OrderBuyBtn_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				var instr = GetSelectedInstrument();
+				var price = InputForm.GetPrice("Buy order Price", instr.SellOffers.BestPrice);
+				if (price == null) return;
+				var quantity = InputForm.GetInt("Buy order Quantity", 1);
+				if (quantity == null) return;
+				if (price != null) instr.Buy(price, (uint)quantity);
+			}
+			catch (Exception ex)
+			{
+				ex.PrintError();
+			}
+		}
+
+		private void OrderSellBtn_Click(object sender, EventArgs e)
+		{
+			try
+			{
+				var instr = GetSelectedInstrument();
+				var price = InputForm.GetPrice("Sell order Price", instr.BuyOffers.BestPrice);
+				if (price == null) return;
+				var quantity = InputForm.GetInt("Sell order Quantity", 1);
+				if (quantity == null) return;
+				if (price != null) instr.Sell(price, (uint)quantity);
+			}
+			catch (Exception ex)
+			{
+				ex.PrintError();
 			}
 		}
 
@@ -160,6 +229,7 @@ namespace pjank.BossaAPI.TestApp2
 		private void AddAccountPaperItem(ListViewGroup group, BosPaper paper)
 		{
 			var item = new ListViewItem(group);
+			item.Tag = paper;
 			item.Text = paper.Instrument.ToString();
 			item.SubItems.Add(paper.Quantity.ToString());
 			accountsView.Items.Add(item);
@@ -180,6 +250,7 @@ namespace pjank.BossaAPI.TestApp2
 		private void AddAccountOrderItem(ListViewGroup group, BosOrder order)
 		{
 			var item = new ListViewItem(group);
+			item.Tag = order;
 			item.ForeColor = Color.Blue;
 			item.Text = order.Instrument.ToString();
 			item.SubItems.Add(string.Format("{0}{1}  x", 
@@ -188,8 +259,7 @@ namespace pjank.BossaAPI.TestApp2
 			item.SubItems.Add(order.StatusReport.Status.ToString());
 			accountsView.Items.Add(item);
 		}
-
-
+		
 
 		// ----- ustawianie listview z notowaniami instrumentów ----- 
 
@@ -227,12 +297,43 @@ namespace pjank.BossaAPI.TestApp2
 		}
 
 
-		// ----- odczyt modyfikacji jednego z obiektów w klasie Bossa ----- 
+		// ----- ustalenie wybranego aktualnie wiersza -----
+
+		private BosOrder GetSelectedOrder()
+		{
+			var item = (accountsView.SelectedItems.Count == 1) ? accountsView.SelectedItems[0] : null;
+			return (item != null) ? item.Tag as BosOrder : null;
+		}
+
+		private BosInstrument GetSelectedInstrument()
+		{
+			var item = (instrumentsView.SelectedItems.Count == 1) ? instrumentsView.SelectedItems[0] : null;
+			return (item != null) ? item.Tag as BosInstrument : null;
+		}
+
+
+		// ----- aktualizacja bieżącego stanu ----- 
 
 		void Bossa_OnUpdate(object obj, EventArgs e)
 		{
 			if (obj is BosAccount) UpdateAccountInfo((BosAccount)obj);
 			if (obj is BosInstrument) UpdateInstrumentInfo((BosInstrument)obj);
+		}
+
+		private void accountsView_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			var order = GetSelectedOrder();
+			var ok = (order != null) && order.IsActive;
+			OrderModifyBtn.Enabled = ok;
+			OrderCancelBtn.Enabled = ok;
+		}
+
+		private void instrumentsView_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			var instr = GetSelectedInstrument();
+			var ok = (instr != null) && (instr.Type != BosInstrumentType.Index);
+			OrderBuyBtn.Enabled = ok;
+			OrderSellBtn.Enabled = ok;
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Globalization;
 
 namespace pjank.BossaAPI
 {
@@ -93,5 +94,20 @@ namespace pjank.BossaAPI
 			return TxtValue;
 		}
 
+		/// <summary>
+		/// Zamienia podanego stringa na odpowiedni obiekt klasy BosPrice.
+		/// Rozpoznaje: "PKC", "PCR", "PCRO", jak i dowolną liczbę (decimal)
+		/// zapisaną zgodnie z formatowaniem dla danego systemu.
+		/// </summary>
+		public static BosPrice Parse(string s)
+		{
+			switch (s)
+			{
+				case "PKC": return PKC;
+				case "PCR": return PCR;
+				case "PCRO": return PCRO;
+				default: return decimal.Parse(s);
+			}
+		}
 	}
 }

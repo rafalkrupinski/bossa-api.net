@@ -56,6 +56,10 @@
 			this.accountsView = new System.Windows.Forms.ListView();
 			this.instrumentsView = new System.Windows.Forms.ListView();
 			this.AddInstrumentBtn = new System.Windows.Forms.Button();
+			this.OrderBuyBtn = new System.Windows.Forms.Button();
+			this.OrderSellBtn = new System.Windows.Forms.Button();
+			this.OrderCancelBtn = new System.Windows.Forms.Button();
+			this.OrderModifyBtn = new System.Windows.Forms.Button();
 			this.debugPanel.SuspendLayout();
 			this.debugOptions.SuspendLayout();
 			this.SuspendLayout();
@@ -127,7 +131,7 @@
 			this.DisconnectBtn.Location = new System.Drawing.Point(93, 12);
 			this.DisconnectBtn.Name = "DisconnectBtn";
 			this.DisconnectBtn.Size = new System.Drawing.Size(75, 23);
-			this.DisconnectBtn.TabIndex = 5;
+			this.DisconnectBtn.TabIndex = 2;
 			this.DisconnectBtn.Text = "Disconnect";
 			this.DisconnectBtn.UseVisualStyleBackColor = true;
 			this.DisconnectBtn.Click += new System.EventHandler(this.DisconnectBtn_Click);
@@ -137,7 +141,7 @@
 			this.ConnectBtn.Location = new System.Drawing.Point(12, 12);
 			this.ConnectBtn.Name = "ConnectBtn";
 			this.ConnectBtn.Size = new System.Drawing.Size(75, 23);
-			this.ConnectBtn.TabIndex = 4;
+			this.ConnectBtn.TabIndex = 1;
 			this.ConnectBtn.Text = "Connect";
 			this.ConnectBtn.UseVisualStyleBackColor = true;
 			this.ConnectBtn.Click += new System.EventHandler(this.ConnectBtn_Click);
@@ -257,7 +261,7 @@
 			this.debugBox.Location = new System.Drawing.Point(0, 0);
 			this.debugBox.Name = "debugBox";
 			this.debugBox.Size = new System.Drawing.Size(683, 155);
-			this.debugBox.TabIndex = 8;
+			this.debugBox.TabIndex = 10;
 			this.debugBox.Text = "Welcome! Make sure NOL3 application is running and press \"Connect\"...\n";
 			this.debugBox.MouseEnter += new System.EventHandler(this.debugBox_MouseEnter);
 			this.debugBox.MouseLeave += new System.EventHandler(this.debugBox_MouseLeave);
@@ -271,13 +275,15 @@
             this.accStatusColumn});
 			this.accountsView.FullRowSelect = true;
 			this.accountsView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
+			this.accountsView.HideSelection = false;
 			this.accountsView.Location = new System.Drawing.Point(12, 41);
 			this.accountsView.MultiSelect = false;
 			this.accountsView.Name = "accountsView";
 			this.accountsView.Size = new System.Drawing.Size(265, 240);
-			this.accountsView.TabIndex = 10;
+			this.accountsView.TabIndex = 3;
 			this.accountsView.UseCompatibleStateImageBehavior = false;
 			this.accountsView.View = System.Windows.Forms.View.Details;
+			this.accountsView.SelectedIndexChanged += new System.EventHandler(this.accountsView_SelectedIndexChanged);
 			// 
 			// instrumentsView
 			// 
@@ -294,30 +300,84 @@
             this.insTradeTimeColumn});
 			this.instrumentsView.FullRowSelect = true;
 			this.instrumentsView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.instrumentsView.HideSelection = false;
 			this.instrumentsView.Location = new System.Drawing.Point(283, 41);
 			this.instrumentsView.MultiSelect = false;
 			this.instrumentsView.Name = "instrumentsView";
 			this.instrumentsView.Size = new System.Drawing.Size(413, 240);
 			this.instrumentsView.Sorting = System.Windows.Forms.SortOrder.Ascending;
-			this.instrumentsView.TabIndex = 12;
+			this.instrumentsView.TabIndex = 6;
 			this.instrumentsView.UseCompatibleStateImageBehavior = false;
 			this.instrumentsView.View = System.Windows.Forms.View.Details;
+			this.instrumentsView.SelectedIndexChanged += new System.EventHandler(this.instrumentsView_SelectedIndexChanged);
 			// 
 			// AddInstrumentBtn
 			// 
 			this.AddInstrumentBtn.Location = new System.Drawing.Point(596, 12);
 			this.AddInstrumentBtn.Name = "AddInstrumentBtn";
 			this.AddInstrumentBtn.Size = new System.Drawing.Size(100, 23);
-			this.AddInstrumentBtn.TabIndex = 13;
-			this.AddInstrumentBtn.Text = "Add Instrument";
+			this.AddInstrumentBtn.TabIndex = 9;
+			this.AddInstrumentBtn.Text = "&Add Instrument";
 			this.AddInstrumentBtn.UseVisualStyleBackColor = true;
 			this.AddInstrumentBtn.Click += new System.EventHandler(this.AddInstrumentBtn_Click);
 			// 
-			// Form1
+			// OrderBuyBtn
+			// 
+			this.OrderBuyBtn.Enabled = false;
+			this.OrderBuyBtn.Location = new System.Drawing.Point(283, 12);
+			this.OrderBuyBtn.Name = "OrderBuyBtn";
+			this.OrderBuyBtn.Size = new System.Drawing.Size(75, 23);
+			this.OrderBuyBtn.TabIndex = 7;
+			this.OrderBuyBtn.Text = "&Buy";
+			this.toolTip1.SetToolTip(this.OrderBuyBtn, "Buy some of these...");
+			this.OrderBuyBtn.UseVisualStyleBackColor = true;
+			this.OrderBuyBtn.Click += new System.EventHandler(this.OrderBuyBtn_Click);
+			// 
+			// OrderSellBtn
+			// 
+			this.OrderSellBtn.Enabled = false;
+			this.OrderSellBtn.Location = new System.Drawing.Point(364, 12);
+			this.OrderSellBtn.Name = "OrderSellBtn";
+			this.OrderSellBtn.Size = new System.Drawing.Size(75, 23);
+			this.OrderSellBtn.TabIndex = 8;
+			this.OrderSellBtn.Text = "&Sell";
+			this.toolTip1.SetToolTip(this.OrderSellBtn, "Sell some of those...");
+			this.OrderSellBtn.UseVisualStyleBackColor = true;
+			this.OrderSellBtn.Click += new System.EventHandler(this.OrderSellBtn_Click);
+			// 
+			// OrderCancelBtn
+			// 
+			this.OrderCancelBtn.Enabled = false;
+			this.OrderCancelBtn.Location = new System.Drawing.Point(222, 12);
+			this.OrderCancelBtn.Name = "OrderCancelBtn";
+			this.OrderCancelBtn.Size = new System.Drawing.Size(55, 23);
+			this.OrderCancelBtn.TabIndex = 5;
+			this.OrderCancelBtn.Text = "Cancel";
+			this.toolTip1.SetToolTip(this.OrderCancelBtn, "Cancel this order!");
+			this.OrderCancelBtn.UseVisualStyleBackColor = true;
+			this.OrderCancelBtn.Click += new System.EventHandler(this.OrderCancelBtn_Click);
+			// 
+			// OrderModifyBtn
+			// 
+			this.OrderModifyBtn.Enabled = false;
+			this.OrderModifyBtn.Location = new System.Drawing.Point(193, 12);
+			this.OrderModifyBtn.Name = "OrderModifyBtn";
+			this.OrderModifyBtn.Size = new System.Drawing.Size(23, 23);
+			this.OrderModifyBtn.TabIndex = 4;
+			this.OrderModifyBtn.Text = "M";
+			this.toolTip1.SetToolTip(this.OrderModifyBtn, "Modify this order...");
+			this.OrderModifyBtn.UseVisualStyleBackColor = true;
+			this.OrderModifyBtn.Click += new System.EventHandler(this.OrderModifyBtn_Click);
+			// 
+			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(709, 462);
+			this.Controls.Add(this.OrderModifyBtn);
+			this.Controls.Add(this.OrderCancelBtn);
+			this.Controls.Add(this.OrderSellBtn);
+			this.Controls.Add(this.OrderBuyBtn);
 			this.Controls.Add(this.AddInstrumentBtn);
 			this.Controls.Add(this.instrumentsView);
 			this.Controls.Add(this.accountsView);
@@ -325,7 +385,7 @@
 			this.Controls.Add(this.DisconnectBtn);
 			this.Controls.Add(this.ConnectBtn);
 			this.MinimumSize = new System.Drawing.Size(725, 330);
-			this.Name = "Form1";
+			this.Name = "MainForm";
 			this.Text = "BossaAPI .NET Class Library - GUI Test Application";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
 			this.debugPanel.ResumeLayout(false);
@@ -365,6 +425,10 @@
 		private System.Windows.Forms.ColumnHeader insTradeVolColumn;
 		private System.Windows.Forms.ColumnHeader insTradePriceColumn;
 		private System.Windows.Forms.Button AddInstrumentBtn;
+		private System.Windows.Forms.Button OrderBuyBtn;
+		private System.Windows.Forms.Button OrderSellBtn;
+		private System.Windows.Forms.Button OrderCancelBtn;
+		private System.Windows.Forms.Button OrderModifyBtn;
 
 
 	}
