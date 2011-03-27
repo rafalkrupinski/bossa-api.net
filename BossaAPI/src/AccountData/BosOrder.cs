@@ -8,8 +8,8 @@ namespace pjank.BossaAPI
 {
 	/// <summary>
 	/// Konkretne zlecenie złożone przez użytkownika rachunku.
-	/// Na razie powinien działać odbiór informacji o bieżących zleceniach.
-	/// TODO: pozostało składanie nowych zleceń, ich modyfikacja i anulowanie...
+	/// Zarówno zlecenia wciąż aktywne, te wykonane, jak i odrzucone/anulowane
+	/// (z bieżącego dnia - bossaAPI nie udostępnia /na razie/ danych historycznych).
 	/// </summary>
 	public class BosOrder
 	{
@@ -256,7 +256,6 @@ namespace pjank.BossaAPI
 			Bossa.client.OrderCreate(data);
 			// TODO: Zastanawiam się jeszczcze m.in. co z ClientId, TradeDate... i czy w ogóle byłby sens
 			// od razu tworzyć taki nowy obiekt BosOrder (zamiast zaczekać aż sam się doda przy OrderUpdate).
-			// A ponieważ teraz nawet nie mogę tego przetestować (weekend), na razie zostawiam w takiej formie.
 		}
 
 		/// <summary>

@@ -314,6 +314,8 @@ namespace pjank.BossaAPI
 		{
 			Debug.WriteLine("\nLogout...");
 			loggedIn = false;  // <- nawet, jeśli niżej będzie błąd (żeby się nie powtarzał w destruktorze)
+			statusOn = false;  // resetujemy też zmienne informujące o włączonym stanie subskrypcji
+			mdReqId = null;    // (na wypadek ponownego połączenia - żeby mógł wtedy wznowić subkrypcję)
 			using (Socket socket = GetSyncSocket())
 			{
 				UserRequestMsg request = new UserRequestMsg();
@@ -541,6 +543,8 @@ namespace pjank.BossaAPI
 
 		#region TradingSessionStatus subscription
 
+		private bool statusOn = false;
+
 		/// <summary>
 		/// Aktywacja odbioru informacji o statusie sesji (komunikat "TrdgSesStat": 
 		/// informuje o zmianie fazy sesji, równoważeniu subskrybowanych instrumentów itp.).
@@ -548,6 +552,7 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public void TradingSessionStatusStart()
 		{
+			if (statusOn) return;
 			Debug.WriteLine("\nTradingSessionStatusStart...");
 			using (Socket socket = GetSyncSocket())
 			{
@@ -562,6 +567,7 @@ namespace pjank.BossaAPI
 					throw new FixmlException("TrdgSesStat rejected, reason = " + response.RejectReason);
 			}
 			Debug.WriteLine("TradingSessionStatusStart OK\n");
+			statusOn = true;
 		}
 
 		/// <summary>
@@ -569,6 +575,7 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public void TradingSessionStatusStop()
 		{
+			if (!statusOn) return;
 			Debug.WriteLine("\nTradingSessionStatusStop...");
 			using (Socket socket = GetSyncSocket())
 			{
@@ -583,6 +590,7 @@ namespace pjank.BossaAPI
 					throw new FixmlException("TrdgSesStat rejected, reason = " + response.RejectReason);
 			}
 			Debug.WriteLine("TradingSessionStatusStop OK\n");
+			statusOn = false;
 		}
 
 		#endregion
@@ -593,17 +601,17 @@ namespace pjank.BossaAPI
 		// metoda IBosClient do ustawiania "filtra" subskrybowanych notowań.
 		public void MarketUpdatesSubscription(Instrument[] instruments)
 		{
-			TradingSessionStatusStop();
 			MarketDataSubscriptionClear();
 			if (instruments != null && instruments.Length > 0)
 			{
 				var fixmlInstruments = instruments.Select(i => FixmlInstrument.Find(i)).ToArray();
 				MarketDataSubscriptionAdd(fixmlInstruments);
 				MarketDataSubscriptionAdd(MDEntryTypes.BasicBook);
-				MarketDataSubscriptionAdd(MDEntryTypes.BasicTrade);
+				MarketDataSubscriptionAdd(MDEntryType.Trade);
 				MarketDataStart();
 				TradingSessionStatusStart();
 			}
+			else TradingSessionStatusStop();
 		}
 
 		// funkcja pomocnicza konwertująca obiekt Fixml.MDEntry na DTO.MarketData

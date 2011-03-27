@@ -35,6 +35,13 @@ namespace pjank.BossaAPI
 
 		#region Internal library stuff
 
+		// konstruktor, wywoływany spod BosPapers.GetPaper()
+		// (tworzy tymczasowy obiekt z ilością papierów równą zeru)
+		internal BosPaper(BosInstrument instrument)
+		{
+			Instrument = instrument;
+		}
+
 		// konstruktor, wywoływany spod BosPapers.Update()
 		internal BosPaper(BosAccount account, DTO.Paper data)
 		{

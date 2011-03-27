@@ -25,12 +25,21 @@ namespace pjank.BossaAPI
 		}
 
 		/// <summary>
-		/// Szybki dostęp do ostatniej (najnowszej) transakcji.
+		/// Szybki dostęp do obiektu ostatniej (najnowszej znanej) transakcji.
 		/// Zwraca null, jeśli brak historii notowań dla tego instrumentu.
 		/// </summary>
 		public BosTrade Last
 		{
 			get { return (Count > 0) ? list[Count-1] : null; }
+		}
+
+		/// <summary>
+		/// Szybki dostęp do ceny ostatniej (najnowszej znanej) transakcji.
+		/// Zwraca null, jeśli brak historii notowań dla tego instrumentu.
+		/// </summary>
+		public decimal? LastPrice
+		{
+			get { return (Count > 0) ? Last.Price : (decimal?)null; }
 		}
 
 		#region Generic list stuff
@@ -58,6 +67,12 @@ namespace pjank.BossaAPI
 		internal void Update(DTO.MarketTradeData data)
 		{
 			list.Add(new BosTrade(data));
+		}
+
+		internal void Combine(BosTrades source)
+		{
+			if (list.Count == 0 && source.list.Count > 0)
+				list = source.list;
 		}
 
 		#endregion

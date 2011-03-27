@@ -34,23 +34,25 @@ namespace pjank.BossaAPI
 		public string Sym { get; private set; }
 
 		/// <summary>
-		/// TODO: Lista widocznych w arkuszu ofert kupna dla tego instrumentu.
+		/// Lista widocznych w arkuszu ofert kupna dla tego instrumentu.
 		/// </summary>
 		public BosOffers BuyOffers { get; private set; }
 
 		/// <summary>
-		/// TODO: Lista widocznych w arkuszu ofert sprzedaży dla tego instrumentu.
+		/// Lista widocznych w arkuszu ofert sprzedaży dla tego instrumentu.
 		/// </summary>
 		public BosOffers SellOffers { get; private set; }
 
 		/// <summary>
-		/// TODO: Zebrana do tej pory historia transakcji dla tego instrumentu.
+		/// Zebrana do tej pory historia transakcji dla tego instrumentu.
 		/// </summary>
 		public BosTrades Trades { get; private set; }
 
 		/// <summary>
 		/// Czy instrument ten uwzględniamy w subskrypcji aktualnych notowań rynkowych
-		/// (domyślnie "true" - włącza aktualizację list "BuyOffers", "SellOffers" oraz "Trades").
+		/// (domyślnie "true" - włącza aktualizację: BuyOffers, SellOffers oraz Trades).
+		/// Może wyłączyć, jeśli np. korzystamy z więcej niż 100 różnych instrumentów
+		/// (bossaAPI/NOL3 limituje tak liczbę jednocześnie aktualizowanych walorów).
 		/// </summary>
 		public bool UpdatesEnabled
 		{
@@ -65,6 +67,8 @@ namespace pjank.BossaAPI
 		// konstruktor wywoływany z klasy BosInstruments
 		internal BosInstrument(string isin, string symbol)
 		{
+			// TODO: "Persistent cache" dla pól: ISIN/Symbol/Sym/Type
+			// żebyśmy mogli np. od razu uzupełnić Symbol, gdy podano tylko ISIN
 			ISIN = isin;
 			Symbol = symbol;
 			Sym = GetInstrumentSym();
@@ -82,7 +86,9 @@ namespace pjank.BossaAPI
 			Symbol = Symbol ?? source.Symbol;
 			Sym = GetInstrumentSym();
 			Type = GetInstrumentType();
-			//TODO: BuyOffers, SellOffers, Trades
+			BuyOffers.Combine(source.BuyOffers);
+			SellOffers.Combine(source.SellOffers);
+			Trades.Combine(source.Trades);
 		}
 
 		// konwersja obiektu transportowego na instancję tej klasy (nową lub już istniejącą)
@@ -142,7 +148,7 @@ namespace pjank.BossaAPI
 			if (updatesEnabled != value)
 			{
 				updatesEnabled = value;
-				Bossa.Instruments.UpdateSubscription();
+				Bossa.Instruments.SubscriptionUpdate();
 			}
 		}
 
@@ -178,6 +184,7 @@ namespace pjank.BossaAPI
 		/// Skrócona wersja głównej metody "Order(...)", gdzie pozostałe parametry przyjmują wartość null/false.
 		/// <para>Zobacz też sąsiednie metody: "Buy(...)" i "Sell(...)" - które od razu precyzują, czy ma to być zlecenie kupna, czy sprzedaży.</para>
 		/// </summary>
+		/// <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
 		/// <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
 		/// <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
 		/// <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>

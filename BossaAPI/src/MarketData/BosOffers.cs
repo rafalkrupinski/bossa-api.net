@@ -34,6 +34,15 @@ namespace pjank.BossaAPI
 			get { return (Count > 0) ? list[0] : null; }
 		}
 
+		/// <summary>
+		/// Szybki dostęp do najlepszej oferty (cena z pierwszego "wiersza" tabeli).
+		/// Zwraca null, jeśli brak ofert (lub jeszcze ich nie dostaliśmy z serwera).
+		/// </summary>
+		public BosPrice BestPrice
+		{
+			get { return (Count > 0) ? Best.Price : null; }
+		}
+
 		#region Generic list stuff
 
 		private List<BosOffer> list = new List<BosOffer>();
@@ -58,7 +67,10 @@ namespace pjank.BossaAPI
 		// aktualizacja danych obiektu po odebraniu ich z sieci
 		internal void Update(DTO.MarketOfferData data)
 		{
-			if (data.Level > Count)
+			//TODO: NOL3 na razie przysyła zawsze Level=1 i bez określenia nowy/zmiana.
+			data.Update = (Count > 0);
+
+			if (data.Level > (data.Update ? Count : Count+1))
 			{
 				MyUtil.PrintWarning(string.Format("BosOffers.Update - unexpected level: {0} (current max: {1})", data.Level, Count));
 				while (list.Count < data.Level) list.Add(null);
@@ -73,6 +85,12 @@ namespace pjank.BossaAPI
 					list.Insert(n, offer);
 			}
 			else list.RemoveAt(n);
+		}
+
+		internal void Combine(BosOffers source)
+		{
+			if (list.Count == 0 && source.list.Count > 0)
+				list = source.list;
 		}
 
 		#endregion

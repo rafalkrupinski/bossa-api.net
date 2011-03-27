@@ -35,8 +35,8 @@ namespace pjank.BossaAPI.Fixml
 
 		internal MDEntry(XmlElement inc)
 		{
-			//TODO: na razie nie jest przesyłane??
-			//UpdateAction = MDUpdateActionUtil.Read(inc, "UpdtAct");
+			//TODO: NOL3 na razie nie przesyła wcale pola "UpdtAct".
+			UpdateAction = MDUpdateAction.Change; //MDUpdateActionUtil.Read(inc, "UpdtAct");
 			EntryType = MDEntryTypeUtil.Read(inc, "Typ");
 			Instrument = FixmlInstrument.Read(inc, "Instrmt");
 			if (EntryType.In(MDEntryTypes.HasPrice))

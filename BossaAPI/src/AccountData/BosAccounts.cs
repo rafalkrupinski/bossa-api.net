@@ -83,7 +83,7 @@ namespace pjank.BossaAPI
 		// odszukanie rachunku o podanym numerze, ewentualne utworzenie nowego
 		private BosAccount GetAccount(string number, bool tryCreate)
 		{
-			var account = list.Where(a => a.Number.Contains(number)).SingleOrDefault();
+			var account = list.SingleOrDefault(a => a.Number.Contains(number));
 			if (account == null)
 			{
 				if (!tryCreate)

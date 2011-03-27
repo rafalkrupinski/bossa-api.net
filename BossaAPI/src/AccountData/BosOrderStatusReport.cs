@@ -42,5 +42,11 @@ namespace pjank.BossaAPI
 			NetValue = data.NetValue;
 			Commission = data.Commission;
 		}
+
+		// automatyczna konwersja na string - zwraca bieżący "Status"
+		public override string ToString()
+		{
+			return Status.ToString();
+		}
 	}
 }

@@ -23,8 +23,7 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public uint Quantity { get; private set; }
 		/// <summary>
-		/// Liczba otwartych pozycji - LOP (dotyczy tylko instrumentów pochodnych).
-		/// TODO: Na razie nie jest wcale odbierane.
+		/// TODO: Liczba otwartych pozycji - LOP (dotyczy tylko instrumentów pochodnych).
 		/// </summary>
 		public uint? OpenInt { get; internal set; }
 

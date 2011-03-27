@@ -14,7 +14,7 @@ namespace pjank.BossaAPI
 		public readonly BosAccount Account;
 
 		/// <summary>
-		/// Liczba różnych papierów wartościowych na tym rachunku.
+		/// Liczba różnych papierów wartościowych znajdujących się na tym rachunku.
 		/// </summary>
 		public int Count
 		{
@@ -22,11 +22,21 @@ namespace pjank.BossaAPI
 		}
 
 		/// <summary>
-		/// Dostęp do konkretnego papieru wartościowego z listy.
+		/// Dostęp do obiektu konkretnego papieru wartościowego, po jego indeksie (licząc od zera).
 		/// </summary>
 		public BosPaper this[int index]
 		{
 			get { return list[index]; }
+		}
+
+		/// <summary>
+		/// Dostęp do obiektu konkretnego papieru wartościowego na rachunku, po jego symbolu.
+		/// Jeśli brak papieru o takim symbolu, zwraca tymczasowy obiekt z ilością równą zeru
+		/// (nie musimy więc sprawdzać "!= null" przed próbą odczytu np. właściwości Quantity).
+		/// </summary>
+		public BosPaper this[string symbol]
+		{
+			get { return GetPaper(symbol);  }
 		}
 
 		#region Generic list stuff
@@ -58,6 +68,21 @@ namespace pjank.BossaAPI
 		internal void Update(DTO.Paper[] dtoPapers)
 		{
 			list = dtoPapers.Select(p => new BosPaper(Account, p)).ToList();
+		}
+
+		#endregion
+
+		#region Private stuff
+
+		private BosPaper GetPaper(string symbol)
+		{
+			var paper = list.SingleOrDefault(p => p.Instrument.Symbol == symbol);
+			if (paper == null)
+			{
+				var instrument = Bossa.Instruments[symbol];
+				paper = new BosPaper(instrument);
+			}
+			return paper;
 		}
 
 		#endregion

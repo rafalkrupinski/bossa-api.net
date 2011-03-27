@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using pjank.BossaAPI.DTO;
+using System.Threading;
 
 namespace pjank.BossaAPI
 {
@@ -56,19 +57,48 @@ namespace pjank.BossaAPI
 
 		#region Subscription stuff
 
-		private BosInstrument[] subscription;
+		private Timer subscriptionTimer;
+		private BosInstrument[] newSubscription, oldSubscription;
 
-		// wywoływane po każdej zmianie listy utworzonych instrumentów
-		internal void UpdateSubscription()
+		// wywoływane po każdej zmianie listy instrumentów
+		internal void SubscriptionUpdate()
+		{
+			SubscriptionUpdate(false);
+		}
+
+		// j.w. z opcją wymuszenia ponownej subskrypcji (wywoływane po nawiązaniu połączenia)
+		internal void SubscriptionUpdate(bool forceRefresh)
 		{
 			if (Bossa.client == null) return;
-			var tmp = list.Where(i => i.UpdatesEnabled).ToArray();
-			if (subscription == null || tmp.Except(subscription).Any() || subscription.Except(tmp).Any())
+			if (subscriptionTimer == null)
+				subscriptionTimer = new Timer(new TimerCallback(SubscriptionTimerProc));
+			lock (this)
 			{
-				var dtoInstruments = tmp.Select(i => i.Convert()).ToArray();
-				Bossa.client.MarketUpdatesSubscription(dtoInstruments);
-				subscription = tmp;
+				if (forceRefresh) oldSubscription = null;
+				// kopia listy instrumentów (żeby nie blokować dłużej zmiennej "list")
+				newSubscription = list.Where(i => i.UpdatesEnabled).ToArray();
+				// restart timera wywołującego rzeczywisty update subskrypcji
+				subscriptionTimer.Change(500, Timeout.Infinite);
 			}
+		}
+
+		// wywołanie rzeczywistego update'a z drobnym opóźnieniem... 
+		// (agregujemy kolejne częstsze zmiany do jednego odświeżenia subskrypcji)
+		private void SubscriptionTimerProc(object state)
+		{
+			Instrument[] dtoInstruments;
+			lock (this)
+			{
+				if (oldSubscription == null ||
+					newSubscription.Except(oldSubscription).Any() ||
+					oldSubscription.Except(newSubscription).Any())
+				{
+					oldSubscription = newSubscription;
+					dtoInstruments = newSubscription.Select(i => i.Convert()).ToArray();
+				}
+				else return;
+			}
+			Bossa.client.MarketUpdatesSubscription(dtoInstruments);
 		}
 
 		#endregion
@@ -79,7 +109,7 @@ namespace pjank.BossaAPI
 		internal void Clear()
 		{
 			list.Clear();
-			UpdateSubscription();
+			SubscriptionUpdate();
 		}
 
 		// odszukanie pasującego instrumentu na liście lub utworzenie nowego
@@ -122,7 +152,7 @@ namespace pjank.BossaAPI
 				if (instrA != null && instrB != null) list.Remove(instrB);
 				if (instrA == null && instrB == null) list.Add(instrument);
 				else instrument = instrA ?? instrB;
-				UpdateSubscription();
+				SubscriptionUpdate();
 			}
 			return instrument;
 		}
@@ -140,7 +170,7 @@ namespace pjank.BossaAPI
 			{
 				instrument = new BosInstrument(null, symbol);
 				list.Add(instrument);
-				UpdateSubscription();
+				SubscriptionUpdate();
 			}
 			return instrument;
 		}
@@ -156,7 +186,7 @@ namespace pjank.BossaAPI
 			{
 				instrument = new BosInstrument(isin, null);
 				list.Add(instrument);
-				UpdateSubscription();
+				SubscriptionUpdate();
 			}
 			return instrument;
 		}
