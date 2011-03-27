@@ -29,7 +29,18 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			System.Windows.Forms.ColumnHeader columnHeader1;
+			this.accTextColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.accValueColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.accPriceColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.accStatusColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insSymbolColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insBidVolColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insBidPriceColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insAskPriceColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insAskVolColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insTradeTimeColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insTradeVolColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.insTradePriceColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.DisconnectBtn = new System.Windows.Forms.Button();
 			this.ConnectBtn = new System.Windows.Forms.Button();
 			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -43,19 +54,72 @@
 			this.debugScrollCheck = new System.Windows.Forms.CheckBox();
 			this.debugBox = new System.Windows.Forms.RichTextBox();
 			this.accountsView = new System.Windows.Forms.ListView();
-			this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.instrumentsView = new System.Windows.Forms.ListView();
-			columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.debugPanel.SuspendLayout();
 			this.debugOptions.SuspendLayout();
 			this.SuspendLayout();
 			// 
-			// columnHeader1
+			// accTextColumn
 			// 
-			columnHeader1.Text = "Item";
-			columnHeader1.Width = 90;
+			this.accTextColumn.Text = "Text";
+			// 
+			// accValueColumn
+			// 
+			this.accValueColumn.Text = "Value";
+			this.accValueColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			// 
+			// accPriceColumn
+			// 
+			this.accPriceColumn.Text = "Price";
+			this.accPriceColumn.Width = 80;
+			// 
+			// accStatusColumn
+			// 
+			this.accStatusColumn.Text = "Status";
+			// 
+			// insSymbolColumn
+			// 
+			this.insSymbolColumn.Text = "Symbol";
+			// 
+			// insBidVolColumn
+			// 
+			this.insBidVolColumn.Text = "";
+			this.insBidVolColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.insBidVolColumn.Width = 40;
+			// 
+			// insBidPriceColumn
+			// 
+			this.insBidPriceColumn.Text = "Bid";
+			this.insBidPriceColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.insBidPriceColumn.Width = 55;
+			// 
+			// insAskPriceColumn
+			// 
+			this.insAskPriceColumn.Text = "Ask";
+			this.insAskPriceColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.insAskPriceColumn.Width = 55;
+			// 
+			// insAskVolColumn
+			// 
+			this.insAskVolColumn.Text = "";
+			this.insAskVolColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.insAskVolColumn.Width = 40;
+			// 
+			// insTradeTimeColumn
+			// 
+			this.insTradeTimeColumn.Text = "";
+			this.insTradeTimeColumn.Width = 54;
+			// 
+			// insTradeVolColumn
+			// 
+			this.insTradeVolColumn.Text = "";
+			this.insTradeVolColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.insTradeVolColumn.Width = 45;
+			// 
+			// insTradePriceColumn
+			// 
+			this.insTradePriceColumn.Text = "Trade";
+			this.insTradePriceColumn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
 			// 
 			// DisconnectBtn
 			// 
@@ -133,10 +197,10 @@
 			this.debugPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
 			this.debugPanel.Controls.Add(this.debugOptions);
 			this.debugPanel.Controls.Add(this.debugBox);
-			this.debugPanel.Location = new System.Drawing.Point(12, 300);
+			this.debugPanel.Location = new System.Drawing.Point(12, 293);
 			this.debugPanel.Margin = new System.Windows.Forms.Padding(3, 9, 3, 3);
 			this.debugPanel.Name = "debugPanel";
-			this.debugPanel.Size = new System.Drawing.Size(660, 150);
+			this.debugPanel.Size = new System.Drawing.Size(685, 157);
 			this.debugPanel.TabIndex = 9;
 			// 
 			// debugOptions
@@ -151,7 +215,7 @@
 			this.debugOptions.Controls.Add(this.debugCheck4);
 			this.debugOptions.Controls.Add(this.debugScrollCheck);
 			this.debugOptions.ForeColor = System.Drawing.Color.Black;
-			this.debugOptions.Location = new System.Drawing.Point(381, 1);
+			this.debugOptions.Location = new System.Drawing.Point(406, 1);
 			this.debugOptions.Name = "debugOptions";
 			this.debugOptions.Size = new System.Drawing.Size(255, 23);
 			this.debugOptions.TabIndex = 9;
@@ -191,7 +255,7 @@
 			this.debugBox.Font = new System.Drawing.Font("Lucida Console", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
 			this.debugBox.Location = new System.Drawing.Point(0, 0);
 			this.debugBox.Name = "debugBox";
-			this.debugBox.Size = new System.Drawing.Size(658, 148);
+			this.debugBox.Size = new System.Drawing.Size(683, 155);
 			this.debugBox.TabIndex = 8;
 			this.debugBox.Text = "Welcome! Make sure NOL3 application is running and press \"Connect\"...\n";
 			this.debugBox.MouseEnter += new System.EventHandler(this.debugBox_MouseEnter);
@@ -200,55 +264,55 @@
 			// accountsView
 			// 
 			this.accountsView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            columnHeader1,
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4});
+            this.accTextColumn,
+            this.accValueColumn,
+            this.accPriceColumn,
+            this.accStatusColumn});
 			this.accountsView.FullRowSelect = true;
 			this.accountsView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
 			this.accountsView.Location = new System.Drawing.Point(12, 41);
+			this.accountsView.MultiSelect = false;
 			this.accountsView.Name = "accountsView";
-			this.accountsView.Size = new System.Drawing.Size(360, 247);
+			this.accountsView.Size = new System.Drawing.Size(265, 240);
 			this.accountsView.TabIndex = 10;
 			this.accountsView.UseCompatibleStateImageBehavior = false;
 			this.accountsView.View = System.Windows.Forms.View.Details;
-			// 
-			// columnHeader2
-			// 
-			this.columnHeader2.Text = "SubItem1";
-			this.columnHeader2.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-			this.columnHeader2.Width = 70;
-			// 
-			// columnHeader3
-			// 
-			this.columnHeader3.Text = "SubItem2";
-			this.columnHeader3.Width = 96;
-			// 
-			// columnHeader4
-			// 
-			this.columnHeader4.Text = "SubItem3";
-			this.columnHeader4.Width = 80;
 			// 
 			// instrumentsView
 			// 
 			this.instrumentsView.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.instrumentsView.Location = new System.Drawing.Point(378, 41);
+			this.instrumentsView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.insSymbolColumn,
+            this.insBidVolColumn,
+            this.insBidPriceColumn,
+            this.insAskPriceColumn,
+            this.insAskVolColumn,
+            this.insTradeVolColumn,
+            this.insTradePriceColumn,
+            this.insTradeTimeColumn});
+			this.instrumentsView.FullRowSelect = true;
+			this.instrumentsView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+			this.instrumentsView.Location = new System.Drawing.Point(283, 41);
+			this.instrumentsView.MultiSelect = false;
 			this.instrumentsView.Name = "instrumentsView";
-			this.instrumentsView.Size = new System.Drawing.Size(294, 247);
+			this.instrumentsView.Size = new System.Drawing.Size(413, 240);
+			this.instrumentsView.Sorting = System.Windows.Forms.SortOrder.Ascending;
 			this.instrumentsView.TabIndex = 12;
 			this.instrumentsView.UseCompatibleStateImageBehavior = false;
+			this.instrumentsView.View = System.Windows.Forms.View.Details;
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(684, 462);
+			this.ClientSize = new System.Drawing.Size(709, 462);
 			this.Controls.Add(this.instrumentsView);
 			this.Controls.Add(this.accountsView);
 			this.Controls.Add(this.debugPanel);
 			this.Controls.Add(this.DisconnectBtn);
 			this.Controls.Add(this.ConnectBtn);
+			this.MinimumSize = new System.Drawing.Size(725, 330);
 			this.Name = "Form1";
 			this.Text = "BossaAPI .NET Class Library - GUI Test Application";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
@@ -275,10 +339,19 @@
 		private System.Windows.Forms.CheckBox debugScrollCheck;
 		private System.Windows.Forms.RichTextBox debugBox;
 		private System.Windows.Forms.ListView accountsView;
-		private System.Windows.Forms.ColumnHeader columnHeader2;
-		private System.Windows.Forms.ColumnHeader columnHeader3;
-		private System.Windows.Forms.ColumnHeader columnHeader4;
 		private System.Windows.Forms.ListView instrumentsView;
+		private System.Windows.Forms.ColumnHeader accTextColumn;
+		private System.Windows.Forms.ColumnHeader accValueColumn;
+		private System.Windows.Forms.ColumnHeader accPriceColumn;
+		private System.Windows.Forms.ColumnHeader accStatusColumn;
+		private System.Windows.Forms.ColumnHeader insSymbolColumn;
+		private System.Windows.Forms.ColumnHeader insBidVolColumn;
+		private System.Windows.Forms.ColumnHeader insBidPriceColumn;
+		private System.Windows.Forms.ColumnHeader insAskPriceColumn;
+		private System.Windows.Forms.ColumnHeader insAskVolColumn;
+		private System.Windows.Forms.ColumnHeader insTradeTimeColumn;
+		private System.Windows.Forms.ColumnHeader insTradeVolColumn;
+		private System.Windows.Forms.ColumnHeader insTradePriceColumn;
 
 
 	}

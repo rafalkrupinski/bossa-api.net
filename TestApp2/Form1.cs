@@ -120,14 +120,9 @@ namespace pjank.BossaAPI.TestApp2
 					AddAccountPaperItem(group, paper);
 				foreach (var order in account.Orders)
 					if (order.IsActive) AddAccountOrderItem(group, order);
-				AddAccountFundItem(group, "Available Cash:", account.AvailableCash);
-				AddAccountFundItem(group, "Available Funds:", account.AvailableFunds);
-				if (account.DepositValue != null)
-				{
-					AddAccountFundItem(group, "Deposit Deficit:", account.DepositDeficit ?? 0);
-					AddAccountFundItem(group, "Deposit Value:", (decimal)account.DepositValue);
-				}
-				AddAccountFundItem(group, "Portfolio Value:", account.PortfolioValue);
+				AddAccountFundItem(group, "Total", account.PortfolioValue, null, null);
+				AddAccountFundItem(group, "Deposit", account.DepositBlocked, "deficit", account.DepositDeficit);
+				AddAccountFundItem(group, "Available", account.AvailableFunds, "cash", account.AvailableFunds);
 			}
 			finally
 			{
@@ -160,12 +155,15 @@ namespace pjank.BossaAPI.TestApp2
 			accountsView.Items.Add(item);
 		}
 
-		private void AddAccountFundItem(ListViewGroup group, string text, decimal value)
+		private void AddAccountFundItem(ListViewGroup group, string text, decimal? value, string text2, decimal? value2)
 		{
+			if (value == null) return;
 			var item = new ListViewItem(group);
 			item.ForeColor = Color.Brown;
-			item.Text = text;
+			item.Text = string.Format("{0}:", text);
 			item.SubItems.Add(value.ToString());
+			if (value2 != null && value2 != value) 
+				item.SubItems.Add(string.Format("{0}: {1}", text2, value2));
 			accountsView.Items.Add(item);
 		}
 
@@ -173,11 +171,47 @@ namespace pjank.BossaAPI.TestApp2
 		{
 			var item = new ListViewItem(group);
 			item.ForeColor = Color.Blue;
-			item.Text = order.Side.ToString() + " " + order.Instrument.ToString();
-			item.SubItems.Add(order.Quantity.ToString());
-			item.SubItems.Add(string.Format("x {0:0.00} {1:(0.00)}", order.Price, order.ActivationPrice));
+			item.Text = order.Instrument.ToString();
+			item.SubItems.Add(string.Format("{0}{1}  x", 
+				(order.Side == BosOrderSide.Buy) ? "+" : "- ", order.Quantity.ToString()));
+			item.SubItems.Add(string.Format("{0:0.00} {1:(0.00)}", order.Price, order.ActivationPrice));
 			item.SubItems.Add(order.StatusReport.Status.ToString());
 			accountsView.Items.Add(item);
+		}
+
+
+
+		// ----- ustawianie listview z notowaniami instrumentów ----- 
+
+		private void UpdateInstrumentInfo(BosInstrument instrument)
+		{
+			var item = GetInstrumentItem(instrument);
+			item.Name = instrument.ISIN ?? instrument.Symbol;
+			item.Text = instrument.Symbol ?? instrument.ISIN;
+			var bid = instrument.BuyOffers.Best;
+			item.SubItems.Add((bid != null) ? bid.Volume.ToString() : "");
+			item.SubItems.Add((bid != null) ? bid.Price.ToString() : "");
+			var ask = instrument.SellOffers.Best;
+			item.SubItems.Add((ask != null) ? ask.Price.ToString() : "");
+			item.SubItems.Add((ask != null) ? ask.Volume.ToString() : "");
+			var trd = instrument.Trades.Last;
+			item.SubItems.Add((trd != null) ? trd.Quantity.ToString() : "");
+			item.SubItems.Add((trd != null) ? trd.Price.ToString() : "");
+			item.SubItems.Add((trd != null) ? trd.Time.TimeOfDay.ToString() : "");
+		}
+
+		private ListViewItem GetInstrumentItem(BosInstrument instrument)
+		{
+			var item = instrumentsView.Items[instrument.ISIN];
+			if (item == null)
+				item = instrumentsView.Items[instrument.Symbol];
+			if (item == null)
+			{
+				item = new ListViewItem();
+				item.Tag = instrument;
+				instrumentsView.Items.Add(item);
+			}
+			return item;
 		}
 
 
@@ -186,6 +220,7 @@ namespace pjank.BossaAPI.TestApp2
 		void Bossa_OnUpdate(object obj, EventArgs e)
 		{
 			if (obj is BosAccount) UpdateAccountInfo((BosAccount)obj);
+			if (obj is BosInstrument) UpdateInstrumentInfo((BosInstrument)obj);
 		}
 	}
 }

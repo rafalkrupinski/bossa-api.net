@@ -82,7 +82,7 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public string TxtValue
 		{
-			get { return txtValue ?? numValue.ToString(); }
+			get { return txtValue ?? string.Format("{0:0.00}", numValue); }
 		}
 
 		/// <summary>

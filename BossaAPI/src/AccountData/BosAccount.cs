@@ -29,13 +29,17 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public decimal AvailableFunds { get; private set; }
 		/// <summary>
-		/// Wymagana dopłata depozytu (tylko przy rachunku kontraktowym).
-		/// </summary>
-		public decimal? DepositDeficit { get; private set; }
-		/// <summary>
 		/// Całkowita wartość depozytu (tylko przy rachunku kontraktowym).
 		/// </summary>
 		public decimal? DepositValue { get; private set; }
+		/// <summary>
+		/// Zablokowana wartość depozytu (tylko przy rachunku kontraktowym).
+		/// </summary>
+		public decimal? DepositBlocked { get; private set; }
+		/// <summary>
+		/// Wymagana dopłata do depozytu (tylko przy rachunku kontraktowym).
+		/// </summary>
+		public decimal? DepositDeficit { get; private set; }
 		/// <summary>
 		/// Aktualna wycena wszystkich papierów wartościowych plus gotówka
 		/// (dla kontraktów - liczymy wartość środków własnych, bez dźwigni).
@@ -69,6 +73,7 @@ namespace pjank.BossaAPI
 			AvailableCash = data.AvailableCash;
 			AvailableFunds = data.AvailableFunds;
 			DepositDeficit = data.DepositDeficit;
+			DepositBlocked = data.DepositBlocked;
 			DepositValue = data.DepositValue;
 			PortfolioValue = data.PortfolioValue;
 			Papers.Update(data.Papers);

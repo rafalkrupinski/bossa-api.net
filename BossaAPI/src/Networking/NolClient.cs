@@ -894,6 +894,7 @@ namespace pjank.BossaAPI
 						account.AvailableFunds = account.AvailableCash + statement.Funds[StatementFundType.DepositFree];
 						if (statement.Funds.ContainsKey(StatementFundType.DepositDeficit))
 							account.DepositDeficit = statement.Funds[StatementFundType.DepositDeficit];
+						account.DepositBlocked = statement.Funds[StatementFundType.DepositBlocked];
 						account.DepositValue = statement.Funds[StatementFundType.Deposit];
 					}
 					account.PortfolioValue = statement.Funds[StatementFundType.PortfolioValue];

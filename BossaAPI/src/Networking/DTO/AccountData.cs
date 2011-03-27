@@ -15,8 +15,9 @@ namespace pjank.BossaAPI.DTO
 		public Paper[] Papers;
 		public decimal AvailableCash;
 		public decimal AvailableFunds;
-		public decimal? DepositDeficit;
 		public decimal? DepositValue;
+		public decimal? DepositBlocked;
+		public decimal? DepositDeficit;
 		public decimal PortfolioValue;
 	}
 }
