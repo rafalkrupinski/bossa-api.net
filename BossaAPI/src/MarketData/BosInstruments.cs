@@ -98,7 +98,8 @@ namespace pjank.BossaAPI
 				}
 				else return;
 			}
-			Bossa.client.MarketUpdatesSubscription(dtoInstruments);
+			try { Bossa.client.MarketUpdatesSubscription(dtoInstruments); }
+			catch (Exception ex) { ex.PrintError(); /* np. błędny symbol.. tylko który? */ }
 		}
 
 		#endregion

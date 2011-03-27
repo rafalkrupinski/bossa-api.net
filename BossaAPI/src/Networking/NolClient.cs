@@ -656,7 +656,7 @@ namespace pjank.BossaAPI
 			var trade = new MarketTradeData();
 			trade.Time = entry.DateTime;
 			trade.Price = (decimal)entry.Price;
-			trade.Quantity = (uint)entry.Size;
+			trade.Quantity = entry.Size ?? 0;  // może być null dla notowań indeksów
 			return trade;
 		}
 

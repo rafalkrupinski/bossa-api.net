@@ -12,11 +12,11 @@ using pjank.BossaAPI.Fixml;
 
 namespace pjank.BossaAPI.TestApp2
 {
-	public partial class Form1 : Form
+	public partial class MainForm : Form
 	{
 		TextBoxTraceListener myTraceListener;
 
-		public Form1()
+		public MainForm()
 		{
 			InitializeComponent();
 			debugCheck1.Checked = FixmlMsg.DebugInternals.Enabled;
@@ -107,6 +107,16 @@ namespace pjank.BossaAPI.TestApp2
 			}
 		}
 
+		private void AddInstrumentBtn_Click(object sender, EventArgs e)
+		{
+			var symbol = InputForm.GetString("Instrument Symbol");
+			if (symbol != null && symbol != "")
+			{
+				var instrument = Bossa.Instruments[symbol];
+				UpdateInstrumentInfo(instrument);
+			}
+		}
+
 
 		// ----- ustawianie listview z informacjami o rachunkach ----- 
 
@@ -186,6 +196,8 @@ namespace pjank.BossaAPI.TestApp2
 		private void UpdateInstrumentInfo(BosInstrument instrument)
 		{
 			var item = GetInstrumentItem(instrument);
+			var oldText = item.Text;
+			item.SubItems.Clear();
 			item.Name = instrument.ISIN ?? instrument.Symbol;
 			item.Text = instrument.Symbol ?? instrument.ISIN;
 			var bid = instrument.BuyOffers.Best;
@@ -198,13 +210,13 @@ namespace pjank.BossaAPI.TestApp2
 			item.SubItems.Add((trd != null) ? trd.Quantity.ToString() : "");
 			item.SubItems.Add((trd != null) ? trd.Price.ToString() : "");
 			item.SubItems.Add((trd != null) ? trd.Time.TimeOfDay.ToString() : "");
+			if (item.Text != oldText) instrumentsView.Sort();
 		}
 
 		private ListViewItem GetInstrumentItem(BosInstrument instrument)
 		{
-			var item = instrumentsView.Items[instrument.ISIN];
-			if (item == null)
-				item = instrumentsView.Items[instrument.Symbol];
+			var item = instrumentsView.Items[instrument.ISIN] ??
+						instrumentsView.Items[instrument.Symbol];
 			if (item == null)
 			{
 				item = new ListViewItem();
