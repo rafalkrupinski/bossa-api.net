@@ -1,72 +1,98 @@
-﻿ "BossaAPI .NET Class Library"
+ "BossaAPI .NET Class Library"
 -------------------------------------------------------
 
 Biblioteka "pjank.BossaAPI.dll" - napisana w C# (.NET 3.5) - powstała, by
 ułatwić korzystanie z możliwości API udostępnionego niedawno przez DM BOSSA.
-Docelowo biblioteka będzie udostępniała czytelne klasy reprezentujące m.in.:
-rachunek maklerski, poszczególne papiery na nim zgromadzone, ich notowania
-oraz aktywne zlecenia. Wszystko w takiej formie, by nawet laik, który dopiero
-zaczyna przygodę z tworzeniem np. makr w Visual Basicu, był w stanie z nich
-efektywnie korzystać. I to korzystać zawsze tak samo, niezależnie od użytego
-"w środku" rozwiązania komunikacyjnego. Na dzień dzisiejszy wszystko wewnątrz
-opiera się na współpracy z aplikacją NOL3 Comarchu, ale kiedyś pewnie będziemy
-mogli łączyć się bezpośrednio z domem maklerskim... albo jeszcze inną metodą.
+Udostęnia ona czytelne klasy reprezentujące m.in.: poszczególne rachunki 
+użytkownika, papiery tam zgromadzone, ich notowania oraz aktywne zlecenia.
+Wszystko w takiej formie, by nawet laik, który dopiero zaczyna programować,
+był w stanie z nich efektywnie korzystać. I to korzystać *zawsze tak samo* -
+niezależnie czy sama komunikacja opiera się na współpracy z aplikacją NOL3
+(jak dzisiaj), czy może bezpośrednio z serwerami DM (w przyszłości) albo
+jeszcze inaczej (np. z komórki do własnego serwera w domu, gdzie działa NOL3).
 
 Bibliotekę udostępniam na licencji Apache v2.0 - wraz z pełnym, otwartym
 kodem źródłowym. W ten sposób każdy może ją wykorzystać w swoich projektach -
 nieważne, czy to projekt komercyjny, czy darmowy, otwarty czy też nie... 
-Obowiązuje jedynie zasada, by nie zabrakło tam nigdy wzmianki o jej pierwotnym
-autorze (czyli o mnie :)), jak i wszystkich kolejnych (jeśli tacy się pojawią
+Obowiązuje jedynie zasada, by nie zabrakło tam nigdy wzmianki o pierwotnym
+autorze (czyli o mnie :)) i wszystkich kolejnych (jeśli tacy się pojawią
 i będą udostepniać swoje modyfikacje, do czego oczywiście zachęcam).
 
                                                 Przemysław Jankowski
 -------------------------------------------------------------------------------
   http://www.pjank.net/bossa.api/             e-mail: bossa.api@pjank.net      
+-------------------------------------------------------------------------------
+
+
+Szybki start:
+
+ -> uruchom aplikację "TestApp2.exe" -
+     tak zobaczysz jak (i czy w ogóle :)) to wszystko działa...
+ -> przejrzyj opis (z przykładami) na początku pliku "src\Bossa.cs" !!!
+ -> podlinkuj do swojego projektu "pjank.BossaAPI.dll" i korzystaj ;-)
+
+
+Mamy tu obecnie trzy projekty (podkatalogi):
+
+1) "BossaAPI" - kod samej biblioteki, podzielony na kilka warstw:
+
+  a) "zewnętrzna", udostępniająca w prostej formie większość funkcji API
+     Obejmuje najważniejszą klasę "Bossa" i dostępne z niej potem kolejne: 
+     "BosAccount", "BosPaper", "BosOrder", "BosInstrument", "BosTrade" itd. 
+     (wszystko w podkatalogach "src\AccountData\" i "src\MarketData\").
+
+  b) niskopoziomowa obsługa protokołu FIXML
+     Komplet klas znajdujący się w katalogu "src\Networking\Fixml\". 
+     Dla każdego rodzaju komunikatu (tych wysyłanych, jak i odbieranych)
+     mamy indywidualną klasę C# oferującą wszystkie możliwe parametry
+     w formie łatwo dostępnych pól obiektu (reprezentowanych przez kolejne
+     klasy albo typy wyliczeniowe odpowiednie do rodzaju danego parametru).
+     Jeśli z jakiegoś powodu chcesz samodzielnie oprogramować komunikację
+     np. bezpośrednio z aplikacją NOL3, to będzie najlepsze rozwiązanie - 
+     pozwala skupić się na treści komunikatów zamiast obsłudze samego XML'a
+     i zmniejsza ryzyko popełniania błędów.
+     Możesz też użyć dodatkowej klasy "NolClient" (katalog "src\Networking"),
+     która wspomaga całą komunikację z NOLem - zajmuje się ustalaniem numeru
+     portu do nawiązania połączenia, zalogowaniem użytkownika, obsługą kanału
+     asynchronicznego w oddzielnym wątku itp. itd.     
+
+  c) warstwa pośrednia - łącząca dwie powyższe i zaprojektowana w taki sposób,
+     by umożliwić bardzo szybką podmianę protokołu FIXML czymś zupełnie innym.
+     Obejmuje interfejs "IBosClient" (którego jedyną na razie implementację
+     stanowi wspomniana klasa "NolClient") oraz klasy transportowe (DTO) 
+     służące do przekazywania danych między kolejnymi warstwami biblioteki.
+
+2) TestApp1 - przykładowa aplikacja konsolowa
+
+  Demonstruje sposób bezpośredniego wykorzystania m.in. klasy "NolClient", 
+  a więc tej bardziej "niskopoziomowej" warstwy niniejszej biblioteki.
+
+3) TestApp2 - przykładowa aplikacja GUI 
+
+  Tutaj wykorzystano już "zewnętrzną" warstwę biblioteki - klasę "Bossa". 
+  Aplikacja demonstruje większość dostępnych funkcji, włącznie z możliwością
+  oglądania tabeli z aktualnymi notowaniami i składania zleceń. Jednocześnie
+  w okienku logu umożliwia podgląd wszystkiego, co się dzieje "pod maską".      
 
 
 
-"Instrukcja obsługi" (w skrócie)
 
-1. Mamy tu obecnie dołączone dwa projekty: "BossaAPI" oraz "TestApp1".
-   Pierwszy z nich to kod samej biblioteki, drugi - prosta aplikacja konsolowa
-   demonstrująca najważniejsze z dostępnych na tę chwilę funkcji biblioteki.
+===== 2011-03-28 == wersja 0.3 ================================================
 
-   Zaczynamy więc najlepiej od przyjrzenia się plikowi "TestApp1\Program.cs",
-   sam kod jak i dołączone do niego komentarze powinny już sporo wyjaśnić.
-
-2. Jeśli chodzi o samą dll-kę, składa się ona w tej chwili z dwóch części:
-     "namespace pjank.BossaAPI" - to sam szkielet biblioteki
-     "namespace pjank.BossaAPI.Fixml" - cała obsługa protokołu FIXML
-
-   Sam układ folderów jest bardziej złożony... dość jednak zaznaczyć, że klasy
-   należące do "namespace pjank.BossaAPI.Fixml" znajdziemy wewnątrz folderu
-   "BossaAPI\src\Networking\Fixml" (pogrupowane dalej wg typów komunikatów).
-
-   Reszta folderów poza tym "Fixml" należy do głównego "namespace" i stąd,
-   jak na razie, interesuje nas tylko "BossaAPI\src\Networking\NolClient.cs".
-   Na pozostałe proszę póki co nawet nie zwracać uwagi ;-)
-
-
-
-
-
+W miarę zamknięta "zewnętrzna warstwa" biblioteki w postaci klasy "Bossa"
+i tego, co się z niej dalej wywodzi (lista rachunków, dane dotyczące tych
+rachunków, lista instrumentów, ich notowania, składanie zleceń itp.).
+Dodano też drugą przykładową aplikację - tym razem z interfejsem graficznym -
+która pozwala niemal całkowicie zarządzać swoim rachunkiem podczas sesji (może
+nieco surowa forma, ale to w końcu głównie prezentacja możliwości biblioteki).      
 
 ===== 2011-02-01 == wersja 0.2 ================================================
 
-   Pierwsza upubliczniona wersja biblioteki.
-
-   Generalnie ukończony (na ile to możliwe, przy dostępnej na dzień dzisiejszy 
+Pierwsza upubliczniona wersja biblioteki.
+Generalnie ukończony (na ile to możliwe, przy dostępnej na dzień dzisiejszy 
 wersji protokołu/aplikacji/dokumentacji oferowanych przez ludzi z Bossy) szereg 
 "niskopoziomowych" klas odpowiedzialnych za komunikację FIXML z aplikacją NOL3.
-Dla każdego rodzaju komunikatu (zarówno tych wysyłanych, jak i odbieranych)
-mamy indywidualną klasę C#/.NET udostępniającą wszystkie parametry komunikatu
-w formie łatwo dostępnych właściwości (które same w sobie też są najczęściej
-reprezentowane inną klasą lub typem wyliczeniowym odpowiednim dla konkretnego
-typu danego parametru).
-
-   Do tego klasa "NolClient" wspomagająca komunikację z NOLem (ustalenie portu
-dla połączenia, zalogowanie użytkownika, obsługa kanału asynchronicznego itd.)
-oraz umożliwiająca już teraz zbieranie bieżących notowań wybranych instrumentów
-w postaci łatwej do dalszego przetwarzania.
+Do tego klasa "NolClient" umożliwiająca już teraz zbieranie bieżących notowań 
+wybranych instrumentów w postaci łatwej do dalszego przetwarzania.
 
 ===============================================================================

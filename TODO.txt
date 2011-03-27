@@ -1,0 +1,43 @@
+Poza oznaczonymi w samym kodzie źródłowym znacznikiem "TODO:",
+poniżej wymieniam inne większe tematy, które również miałem w planie.
+Dzięki temu wiesz, w jakim kierunku to się będzie prawdopodobnie rozwijać...
+==============================================================================
+
+
+-----
+
+Kolejna "warstwa" opakowująca klasę "Bossa" w komponent COM, umożliwiająca 
+wykorzystanie biblioteki np. w Excelu (VBA) - i to nie tylko do wyświetlania 
+aktualnych notowań (serwer RTD), ale też info o rachunku i składanie zleceń.  
+
+----- 
+
+Wersja biblioteki pozwalająca na wykorzystanie bossaAPI w wielu aplikacjach
+jednocześnie (np. jeden do obsługi rachunku, inny notowania/wykresy, jeszcze
+inny np. w Excelu itp.) Do realizacji wystarczy stworzyć kolejną implementację 
+interfejsu "IBosClient" w formie 2 komponentów:
+1) serwer, który trzyma połączenie z aplikacją NOL3 i udostępnia je dalej,
+2) klienci, którzy łączą się z tym naszym "serwerem".
+
+----- 
+
+Rozszerzenie powyższego o możliwość połączenia zdalnego, z innego komputera
+(może inny komputer w domu, może taki w pracy albo gdziekolwiek z Internetu). 
+Oczywiście przy zachowaniu odpowiednich procedur dla zabezpieczenia się przed 
+niepowołanym dostępem i ochrony naszego rachunku. Sam protokół komunikacyjny 
+powinien też być zoptymalizowany pod kątem rozmiaru przesyłanych danych
+(FIXML jest tego dokładnym przeciwieństwem), aby ułatwić kontakt z urządzeń
+mobilnych (telefony komórkowe, czy inne tablety - łączność choćby po GPRS).   
+
+-----
+
+
+==============================================================================
+Masz jeszcze inne pomysły? Daj znać - dopiszemy je tutaj. 
+A może chcesz się zająć którymś z tematów? No to do boju! ;-) 
+Sam nie wiem kiedy dam radę, pomoc zawsze się przyda...
+
+PS. Specjalnie nie wymieniam tu pomysłów na aplikacje wykorzystujące
+bibliotekę do konkretnych zastosowań, bo tutaj możliwości są niezliczone.
+Skupiamy się tylko na tym, co dotyczy biblioteki samej w sobie, jako 
+platformy uniwersalnego dostępu do bossaAPI.  
