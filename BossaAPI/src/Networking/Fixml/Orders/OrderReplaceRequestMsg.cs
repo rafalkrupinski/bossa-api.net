@@ -52,7 +52,7 @@ namespace pjank.BossaAPI.Fixml
 			if (Account != null) xml.SetAttribute("Acct", Account);
 			if (MinimumQuantity != null) xml.SetAttribute("MinQty", FixmlUtil.WriteDecimal(MinimumQuantity));
 			if (DisplayQuantity != null)
-				AddElement(xml, "DisplyInstr").SetAttribute("DisplayQty", FixmlUtil.WriteDecimal(DisplayQuantity));
+				AddElement(xml, "DsplyInstr").SetAttribute("DisplayQty", FixmlUtil.WriteDecimal(DisplayQuantity));
 			if (Instrument != null) Instrument.Write(xmlDoc, xml, "Instrmt");
 			if (Side != null) xml.SetAttribute("Side", OrderSideUtil.Write(Side));
 			if (CreateTime != null) xml.SetAttribute("TxnTm", FixmlUtil.WriteDateTime((DateTime)CreateTime));
