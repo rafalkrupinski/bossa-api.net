@@ -1,0 +1,1330 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>pjank.BossaAPI</name>
+    </assembly>
+    <members>
+        <member name="T:pjank.BossaAPI.Fixml.FixmlMsg">
+            <summary>
+            Klasa bazowa dla wszystkich (wysyłanych/odbieranych) komunikatów FIXML.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.Fixml.FixmlMsg.#ctor">
+            <summary>
+            Konstruktor używany dla komunikatów wychodzących.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.Fixml.FixmlMsg.#ctor(System.Net.Sockets.Socket)">
+            <summary>
+            Konstruktor używany dla komunikatów przychodzących.
+            </summary>
+            <param name="socket">Socket, z którego chcemy odebrać komunikat.</param>
+        </member>
+        <member name="M:pjank.BossaAPI.Fixml.FixmlMsg.GetParsedMsg(pjank.BossaAPI.Fixml.FixmlMsg)">
+            <summary>
+            Funkcja zamieniająca komunikat odebrany z socketa (klasy bazowej FixmlMsg)
+            na konkretną klasę pochodną FixmlMsg - odpowiednią dla typu danego komunikatu.
+            Obecnie przystosowane tylko dla komunikatów nadsyłanych w kanale asynchronicznym
+            (raczej tylko tam ma to sens, normalnie wiemy jakiego komunikatu się spodziewać).
+            </summary>
+            <param name="msg">Obiekt klasy bazowej FixmlMsg</param>
+            <returns>Obiekt konkretnej klasy pochodnej FixmlMsg, zależnej od typu komunikatu.
+            Jeśli trafi na nieznany komunikat, zwraca ten sam obiekt bazowy FixmlMsg.
+            </returns>
+        </member>
+        <member name="M:pjank.BossaAPI.Fixml.FixmlMsg.Send(System.Net.Sockets.Socket)">
+            <summary>
+            Wysyłka niniejszego komunikatu do serwera.
+            </summary>
+            <param name="socket">Socket, przez który chcemy wysłać komunikat.</param>
+        </member>
+        <member name="P:pjank.BossaAPI.Fixml.FixmlMsg.Xml">
+            <summary>
+            Bezpośredni dostęp do komunikatu w formie drzewa XML (zwraca pierwszy element *wewnątrz* głównego "FIXML").
+            Tylko do zastosowań "specjalnych" - zwykle powinny nam wystarczyć właściwości udostępniane przez klasy pochodne, 
+            stworzone do konkretnych rodzajów komunikatów. 
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosOrderTradeReports">
+            <summary>
+            Lista raportów z wykonania kolejnych transakcji dla naszego zlecenia.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosPapers.Account">
+            <summary>
+            Rachunek, na którym znajdują się te papiery.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPapers.Count">
+            <summary>
+            Liczba różnych papierów wartościowych znajdujących się na tym rachunku.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPapers.Item(System.Int32)">
+            <summary>
+            Dostęp do obiektu konkretnego papieru wartościowego, po jego indeksie (licząc od zera).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPapers.Item(System.String)">
+            <summary>
+            Dostęp do obiektu konkretnego papieru wartościowego na rachunku, po jego symbolu.
+            Jeśli brak papieru o takim symbolu, zwraca tymczasowy obiekt z ilością równą zeru
+            (nie musimy więc sprawdzać "!= null" przed próbą odczytu np. właściwości Quantity).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Fixml.CustomMsg">
+            <summary>
+            Klasa ułatwiająca tworzenie/wysyłanie własnych komunikatów FIXML, 
+            dla których nie zaimplementowano żadnej specjalnej, odrębnej klasy.
+            Ewentualnie do wykorzystania przy testowaniu protokołu komunikacyjnego...
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.MarketData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki) aktualizacji stanu notowań rynkowych.
+            Dotyczy zawsze konkretnego instrumentu, a pozostałe pola - wypełnione zależnie od rodzaju danego update'a.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosOffer">
+            <summary>
+            Reprezentuje konkretną ofertę w tabeli ofert bieżących notowań instrumentu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOffer.Price">
+            <summary>
+            Cena danej oferty.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOffer.Volume">
+            <summary>
+            Liczba walorów po danej cenie.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOffer.Count">
+            <summary>
+            Liczba różnych zleceń po danej cenie.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstruments.FindBySymbol(System.String)">
+            <summary>
+            Dostęp do konkretnego instrumentu z listy - po jego symbolu.
+            Jeśli takiego instrumentu nie ma jeszcze na liście, to go utworzy.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstruments.FindByISIN(System.String)">
+            <summary>
+            Dostęp do konkretnego instrumentu z listy - po jego kodzie ISIN.
+            Jeśli takiego instrumentu nie ma jeszcze na liście, to go utworzy.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstruments.Count">
+            <summary>
+            Liczba dostępnych na liście instrumentów.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstruments.Item(System.Int32)">
+            <summary>
+            Dostęp do konkretnego instrumentu z listy - po jego indeksie (licząc od zera).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstruments.Item(System.String)">
+            <summary>
+            Dostęp do konkretnego instrumentu z listy - po jego symbolu
+            (dokładnie, jak metoda "BySymbol()", ale przy krótszym zapisie).
+            Jeśli takiego instrumentu nie ma jeszcze na liście, to go utworzy.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.MyUtil">
+            <summary>
+            Extension methods używane w projekcie, głównie przy debugowaniu. 
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.PriceType">
+            <summary>
+            Typ wyliczeniowy używany w obiektach transportowych do przekazywania 
+            (między modułami biblioteki) informacji o rodzaju zastosowanej w zleceniu ceny.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.Instrument">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki)
+            symbolu papieru wartościowego (pełnego, skróconego, ISIN - jaki tam akurat mamy pod ręką...)
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.IBosClient.OrderCreate(pjank.BossaAPI.DTO.OrderData)">
+            <summary>
+            Utworzenie nowego zlecenia.
+            </summary>
+            <param name="data">Obiekt z danymi nowego zlecenia.
+            Wypełnić należy: Nr rachunku i komplet informacji o zleceniu (MainData).</param>
+            <returns>Zwraca ClientId, jakie zostało przypisane przez bibliotekę do tego zlecenia.</returns>
+        </member>
+        <member name="M:pjank.BossaAPI.IBosClient.OrderReplace(pjank.BossaAPI.DTO.OrderData)">
+            <summary>
+            Modyfikacja wcześniejszego zlecenia.
+            </summary>
+            <param name="data">Obiekt ze zmodyfikowanymi danymi zlecenia.
+            Wypełnić należy: Nr rachunku, obecne Id zlecenia i nowy komplet informacji o nim (MainData).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.IBosClient.OrderCancel(pjank.BossaAPI.DTO.OrderData)">
+            <summary>
+            Anulowanie podanego zlecenia.
+            </summary>
+            <param name="data">Obiekt z danymi zlecenia do anulowania.
+            Wypełnić należy: Nr rachunku, obecne Id zlecenia i jego podstawowe dane (instrument, strona, ilość).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.IBosClient.MarketUpdatesSubscription(pjank.BossaAPI.DTO.Instrument[])">
+            <summary>
+            Ustawienie "filtra" papierów wartościowych, dla których chcemy otrzymywać bieżące notowania rynkowe.
+            </summary>
+            <param name="instruments">Wykaz interesujących nas papierów wartościowych, null - wyłącza subskrypcję.</param>
+        </member>
+        <member name="E:pjank.BossaAPI.IBosClient.AccountUpdateEvent">
+            <summary>
+            Zdarzenie informujące o aktualizacji danych rachunku.
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.IBosClient.OrderUpdateEvent">
+            <summary>
+            Zdarzenie informujące o aktualizacji informacji o zleceniu na rachunku.
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.IBosClient.MarketUpdateEvent">
+            <summary>
+            Zdarzenie informujące o aktualizacji stanu notowań rynkowych.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Fixml.FixmlException">
+            <summary>
+            Każdy błąd wywodzący się z tej biblioteki (zw. z komunikacją FIXML)
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.MarketTradeData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki) aktualizacji stanu notowań rynkowych.
+            Używany jako "podobiekt" w MarketData - informuje o realizacji nowej transakcji dla danego instrumentu.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosInstrumentType">
+            <summary>
+            Typ wyliczeniowy określający rodzaj instrumentu.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosInstrumentType.Default">
+            <summary>
+            Instrumenty pierwotne (zwykłe akcje).
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosInstrumentType.Futures">
+            <summary>
+            Instrumenty pochodne (m.in. kontrakty).
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosInstrumentType.Index">
+            <summary>
+            Indeksy giełdowe (np. WIG, WIG20 itp.)
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosTrade">
+            <summary>
+            Reprezentuje konkretną transakcję w historii notowań instrumentu. 
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrade.Time">
+            <summary>
+            Czas realizacji danej transakcji.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrade.Price">
+            <summary>
+            Cena, po jakiej zrealizowano transakcję.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrade.Quantity">
+            <summary>
+            Liczba walorów, jakie zmieniły właściciela w tej transakcji.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrade.OpenInt">
+            <summary>
+            TODO: Liczba otwartych pozycji - LOP (dotyczy tylko instrumentów pochodnych).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.OrderMainData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki)
+            podstawowych informacji nt. konkretnego zlecenia złożonego przez klienta.
+            Używany jako "podobiekt" w OrderData (tam precyzujemy, o które zlecenie chodzi).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosPrice">
+            <summary>
+            Klasa reprezentująca cenę podaną w naszym zleceniu lub w arkuszu ofert
+            (tj. po prostu zwykła kwota *albo* wartość specjalna, jak: PKC, PCR, PCRO)
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosPrice.ToString">
+            <summary>
+            Standardowa konwersja na string -> dokładnie, jak "TxtValue".
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosPrice.Parse(System.String)">
+            <summary>
+            Zamienia podanego stringa na odpowiedni obiekt klasy BosPrice.
+            Rozpoznaje: "PKC", "PCR", "PCRO", jak i dowolną liczbę (decimal)
+            zapisaną zgodnie z formatowaniem dla danego systemu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPrice.NumValue">
+            <summary>
+            Kwota w standardowej postaci liczbowej.
+            Jeśli ustawiono cenę typu PKC, PCR - zwraca tutaj null.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPrice.TxtValue">
+            <summary>
+            Kwota w postaci tekstowej.
+            Np. "PKC", "PCR" albo po prostu liczba zamieniona na stringa.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosAccount">
+            <summary>
+            Konkretny rachunek danego użytkownika BOSSy (np. akcyjny lub kontraktowy)
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.Number">
+            <summary>
+            Numer rachunku.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.UpdateTime">
+            <summary>
+            Czas ostatniej aktualizacji stanu tego rachunku.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.AvailableCash">
+            <summary>
+            Środki dostępne do wypłaty.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.AvailableFunds">
+            <summary>
+            Środki dostępne dla nowych zleceń (wolna gotówka + należności lub niewykorzystany depozyt).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.DepositValue">
+            <summary>
+            Całkowita wartość depozytu (tylko przy rachunku kontraktowym).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.DepositBlocked">
+            <summary>
+            Zablokowana wartość depozytu (tylko przy rachunku kontraktowym).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.DepositDeficit">
+            <summary>
+            Wymagana dopłata do depozytu (tylko przy rachunku kontraktowym).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.PortfolioValue">
+            <summary>
+            Aktualna wycena wszystkich papierów wartościowych plus gotówka
+            (dla kontraktów - liczymy wartość środków własnych, bez dźwigni).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.Papers">
+            <summary>
+            Lista papierów wartościowych na rachunku (otwartych pozycji).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccount.Orders">
+            <summary>
+            Lista złożonych zleceń (nowych, dziś zrealizowanych itp.).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Fixml.FixmlSocketException">
+            <summary>
+            Błąd wynikający z przerwania kanału komunikacyjnego w trakcie przesyłania komunikatu.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Fixml.FixmlErrorMsgException">
+            <summary>
+            Błąd wynikający z otrzymania komunikatu FIXML o błędzie (m.in. BizMsgReject)
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Fixml.MDResults">
+            <summary>
+            Klasa używana na razie przy zbieraniu historii notowań w klasie NolClient.
+            Ostatecznie będzie prawdopodobnie zastąpiona przez src/MarketData/BosTrades.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOffers.Count">
+            <summary>
+            Liczba widocznych w tabeli ofert kupna/sprzedaży danego instrumentu.
+            Zależnie od pakietu będzie to max: 1, 3, 5. Pełnego arkusza API chyba nie przewiduje.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOffers.Item(System.Int32)">
+            <summary>
+            Dostęp do konkretnego "wiersza" tej tabeli (0..4, gdzie 0 = oferta najlepsza).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOffers.Best">
+            <summary>
+            Szybki dostęp do najlepszej oferty w tej tabeli (jej pierwszy "wiersz").
+            Zwraca null, jeśli brak ofert (lub jeszcze ich nie dostaliśmy z serwera).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOffers.BestPrice">
+            <summary>
+            Szybki dostęp do najlepszej oferty (cena z pierwszego "wiersza" tabeli).
+            Zwraca null, jeśli brak ofert (lub jeszcze ich nie dostaliśmy z serwera).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Bossa">
+            <summary>
+            Podstawowa klasa biblioteki oferująca łatwy dostęp do większości funkcji API -
+            za pośrednictwem statycznych metod/właściwości (nie trzeba tworzyć żadnej instancji).
+            </summary>
+            <example>
+            
+            <code>
+              // nawiązanie połączenia z aplikacją NOL3
+              Bossa.ConnectNOL3();
+            </code>
+            <para>
+            Najpierw niestety należy się zalogować do rachunku na stronie www i uruchomić NOL'a
+            (wszystko na tym samym komputerze). W przyszłości mogą się pojawić inne metody połączenia
+            - wtedy będziemy korzystali z innej metody "Connect", a cała reszta pozostanie bez zmian.
+            Po pomyślnym połączeniu powinniśmy zaraz otrzymać aktualny stan wszystkich naszych rachunków
+            (dostępne spod <c>Bossa.Accounts[]</c>), jak i bieżące notowania wszystkich instrumentów,
+            jakie się znajdowały na tych rachunkach (dostępne spod <c>Bossa.Instruments[]</c>).
+            </para>
+            
+            <code>
+              // odczyt stanu rachunku
+              var stan_konta = Bossa.Accounts["nr-rachunku"].PortfolioValue;
+              var wolne_srodki = Bossa.Accounts["nr-rachunku"].AvailableFunds;
+            </code>
+            <para>
+            Poza ogólnymi kwotami jw. (pełen wykaz - patrz opis klasy <c>BosAccount</c>), możemy
+            też sprawdzić stan poszczególnych papierów wartościowych znajdujących się na tym rachunku
+            (obiekty klasy <c>BosPaper</c> dostępne spod właściwości <c>Papers[]</c>) oraz odczytać 
+            aktualny stan wszystkich bieżących zleceń (obiekty <c>BosOrder</c> spod <c>Orders[]</c>).
+            </para>
+            <code>
+              // sprawdzenie liczby otwartych pozycji danego kontraktu
+              // (przy okazji: jak w miejsce numeru rachunku wystarczy podać jego fragment)
+              var ile = Bossa.Accounts["00-22-"].Papers["FW20M11"].Quantity;
+            </code>
+            <code>
+              // wylistowanie aktywnych zleceń z danego rachunku
+              foreach (var order in Bossa.Accounts["00-55-"].Orders)
+                if (order.IsActive)
+                  Console.WriteLine("{0}: {1} {2} x {3} - {4}", order.Instrument, 
+                    order.Side, order.Quantity, order.Price, order.StatusReport);
+            </code>
+            <para>
+            W przykładzie wymieniono tylko najważniejsze z właściwości klasy <c>BosOrder</c>... 
+            w rzeczywistości mamy dostęp do praktycznie wszystkich opcji zleceń obsługiwanych
+            przez Bossę (za wyjątkiem póki co zleceń OTP i DDM+, ale i to się w końcu pojawi),
+            jak i szczegółowych raportów ich wykonania (również kolejne cząstkowe transakcje).
+            Z poziomu obiektu <c>BosOrder</c> możemy też zmodyfikować lub anulować dane zlecenie.
+            </para>
+            
+            <code>
+              // szybki odczyt kursu danego instrumentu
+              var kurs = Bossa.Instruments["KGHM"].Trades.LastPrice;
+            </code>
+            <para>
+            Za pośrednictwem <c>Bossa.Instruments</c> mamy dostęp do wszystkich notowań rynkowych.
+            Nie musimy tu nic deklarować, ustawiać żadnych "filtrów"... wystarczy się tylko odwołać
+            do interesującego nas instrumentu. A jeśli jeszcze takiego nie było, zostanie stworzony
+            (i od tego też momentu biblioteka automatycznie odbiera notowania dla tego instrumentu).
+            </para>
+            <code>
+              // tym razem po kodzie ISIN zamiast Symbolu - możemy ich używać zamiennie
+              var kghm = Bossa.Instruments.FindByISIN("PLKGHM000017");
+              // odczyt całej znanej historii notowań
+              foreach (var trade in kghm.Trades)
+                Console.WriteLine("{0}  {1,7} x {2,-5}",
+                  trade.Time.TimeOfDay, trade.Price, trade.Quantity);
+              // odczyt najlepszych pozycji w tabeli ofert
+              var bid = kghm.BuyOffers.BestPrice;
+              var ask = kghm.SellOffers.BestPrice;
+            </code>
+            <para>
+            Przy pierwszym odwołaniu do danego instrumentu może się zdarzyć, że takie pola,
+            jak przytoczone w przykładzie: LastPrice, BestPrice - zwrócą "null". Wystarczy
+            wtedy chwilę zaczekać, aż otrzymamy pierwszą aktualizację danych rynkowych 
+            (albo jeszcze lepiej - podłączyć się pod zdarzenie <c>Bossa.OnUpdate</c>).
+            </para>
+            
+            <code>
+              // złożenie zlecenia kupna 10 sztuk po 175.50 zł
+              Bossa.Instruments["KGHM"].Buy(175.50, 10);
+              // zlecenie sprzedaży 10 sztuk StopLoss z aktywacją po 170.00 zł
+              Bossa.Instruments["KGHM"].Sell(BosPrice.PKC, 170, 10);
+            </code>
+            <para>
+            O ile wspomniana wcześniej klasa <c>BosOrder</c> również posiada (statyczne) metody 
+            do generowania nowych zleceń - dużo wygodniej jest użyć jednej z dostępnych metod na
+            konkretnej instancji klasy <c>BosInstrument</c>. Mamy do dyspozycji po kilka wariantów
+            metod "Buy" i "Sell", jak i bardziej ogólne "Order". Składać można zlecenia z limitem
+            aktywacji (jak w przykładzie), z przedłużoną ważnością, w trybie WiA, z WUJ itp. itd.
+            </para>
+            <para>
+            TODO: Każda z ww. metod do składania zleceń powinna zwrocić nowy obiekt <c>BosOrder</c>, 
+            który możemy sobie zapamiętać "na boku" i łatwo potem kontrolować stan tego konkretnego
+            zlecenia, a nawet je zmodyfikować (metoda "Modify") albo anulować (metoda "Cancel").
+            Póki co pozostaje samodzielne odszukanie nowego zlecenia na liście BosAccount.Orders[].
+            </para>
+            
+            </example>
+        </member>
+        <member name="M:pjank.BossaAPI.Bossa.Connect(pjank.BossaAPI.IBosClient)">
+            <summary>
+            Podłączenie wskazanego obiektu komunikującego się z serwerem.
+            </summary>
+            <param name="client">Obiekt realizujący konkretną formę komunikacji.
+            Jedyna dostępna na tę chwilę implementacja tego interfejsu to klasa "NolClient".
+            </param>
+        </member>
+        <member name="M:pjank.BossaAPI.Bossa.ConnectNOL3">
+            <summary>
+            Otwarcie połączenia z lokalnie uruchomioną aplikacją NOL3 (Bossa).
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.Bossa.Disconnect">
+            <summary>
+            Zamknięcie bieżącego połączenia.
+            Wszelkie dane (stan rachunku, notowania) jakie zdążyliśmy zebrać, zostają nadal w pamięci...
+            i można z nich korzystać (tylko odczyt). Aby wyczyścić wszystkie dane, używamy metody "Reset".
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.Bossa.Reset">
+            <summary>
+            Wyczyszczenie zebranych dotąd informacji o stanie naszych rachunków, historii notowań itd.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.Bossa.IsConnected">
+            <summary>
+            Czy jesteśmy połączeni z serwerem (wywołano wcześniej "Connect")?
+            Jeśli nie, wszelkie operacje które wymagają tego połączenia, zwrócą teraz wyjątek.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.Bossa.Accounts">
+            <summary>
+            Dostęp do naszych rachunków w biurze maklerskim Bossa
+            (ich saldo, obecne papiery wartościowe, bieżące zlecenia).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.Bossa.Instruments">
+            <summary>
+            Dostęp do informacji o notowaniach poszczególnych instrumentów na rynku
+            (historia ostatnich transakcji, bieżąca tabela ofert kupna/sprzedaży).
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.Bossa.OnUpdate">
+            <summary>
+            Zdarzenie wywoływane po każdej aktualizacji danych.
+            Automatycznie przenosi zdarzenie do wątku odbiorcy, jeśli zajdzie taka potrzeba (BeginInvoke).
+            Jako parametr "source" przekazywany jest obiekt, który uległ zaktualizowaniu
+            (obiekt klasy "BosAccount" - jeśli zmiana dotyczy stanu rachunku, bieżących zleceń...
+            albo "BosInstrument" - jeśli nastąpiła aktualizacja notowań dla danego instrumentu).
+            TODO: Dokładniejsze przekazywanie w argumentach zdarzenia co konkretnie się zmieniło.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosAccounts">
+            <summary>
+            Lista rachunków danego klienta.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccounts.Count">
+            <summary>
+            Liczba dostępnych na tę chwilę rachunków.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccounts.Item(System.Int32)">
+            <summary>
+            Dostęp do konkretnego rachunku z listy, po jego indeksie (licząc od zera).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccounts.Item(System.String)">
+            <summary>
+            Dostęp do konkretnego rachunku, po jego numerze.
+            Można podać fragment numeru (np. tylko początek "00-55" dla rachunku akcyjnego,
+            "00-22" dla kontraktowego... albo też samą końcówkę) - zakładając tylko, że będzie
+            to unikalny fragment numeru, biblioteka zwróci ten odpowiedni rachunek (o ile istnieje). 
+            Jeśli podaliśmy pełen numer rachunku (w formacie "xx-xx-xxxxx"), a taki na naszej
+            liście jeszcze nie istnieje - zostanie automatycznie utworzony dla niego nowy obiekt.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosAccounts.Item(pjank.BossaAPI.BosInstrumentType)">
+            <summary>
+            Dostęp do konkretnego rachunku, odpowiedniego dla danego typu instrumentów.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.Paper">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki) informacji 
+            o otwartej pozycji (posiadanych papierach wartościowych) na rachunku klienta. 
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosInstrument">
+            <summary>
+            Identyfikuje intrument (papier wartościowy), którego dotyczy jakaś oferta, zlecenie, transakcja.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Order(pjank.BossaAPI.BosOrderSide,pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Boolean,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na zakup/sprzedaż bieżącego instrumentu.
+            <para>Preferowana metoda - zamiast "BosOrder.Create(...)" - bo od razu określa, jakiego instrumentu dotyczy.
+            Nr rachunku, na który zostaje przeznaczone to zlecenie, wybierany jest automatycznie na podstawie typu instrumentu.</para>
+            <para>Zobacz też sąsiednie metody: "Buy(...)" i "Sell(...)" - które od razu precyzują, czy ma to być zlecenie kupna, czy sprzedaży.</para>
+            </summary>
+            <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+            <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+            <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+            <param name="minimumQuantity">Minimalna liczba walorów, jaka musi się zrealizować, albo zlecenie będzie anulowane.
+            Podając tutaj to samo, co w polu "quantity", uzyskujemy zlecenie typu "WuA".</param>
+            <param name="visibleQuantity">Liczba walorów ujawniana w arkuszu ofert ("WUJ").</param>
+            <param name="immediateOrCancel">Czy to zlecenie typu "WiA" (to, co nie wykona się natychmiast, jest od razu anulowane).</param>
+            <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Order(pjank.BossaAPI.BosOrderSide,pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na zakup/sprzedaż bieżącego instrumentu.
+            Skrócona wersja głównej metody "Order(...)", gdzie pozostałe parametry przyjmują wartość null/false.
+            <para>Zobacz też sąsiednie metody: "Buy(...)" i "Sell(...)" - które od razu precyzują, czy ma to być zlecenie kupna, czy sprzedaży.</para>
+            </summary>
+            <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+            <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+            <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Buy(pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na zakup bieżącego instrumentu.
+            </summary>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+            <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić.</param>
+            <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Sell(pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na sprzedaż bieżącego instrumentu.
+            </summary>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+            <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy sprzedać.</param>
+            <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Buy(pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32)">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na zakup bieżącego instrumentu.
+            </summary>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+            <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić.</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Sell(pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32)">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na sprzedaż bieżącego instrumentu.
+            </summary>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+            <param name="activationPrice">Ewentualny limit aktywacji (null, jeśli bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy sprzedać.</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Buy(pjank.BossaAPI.BosPrice,System.UInt32)">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na zakup bieżącego instrumentu.
+            </summary>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić.</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.Sell(pjank.BossaAPI.BosPrice,System.UInt32)">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na sprzedaż bieżącego instrumentu.
+            </summary>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy sprzedać.</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosInstrument.ToString">
+            <summary>
+            Standardowa konwersja na stringa.
+            Zwraca Symbol albo kod ISIN, jeśli nie znamy tego pierwszego.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.Type">
+            <summary>
+            Rodzaj instrumentu (akcje, kontrakty, indeks).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.ISIN">
+            <summary>
+            Unikalny kod ISIN tego instrumentu.
+            Może być null, dopóki nie uda się skojarzyć ze sobą pary: Symbol-ISIN.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.Symbol">
+            <summary>
+            Stosowany normalnie symbol instrumentu - jego pełna wersja.
+            Może występować kilka razy, z różnymi kodami ISIN (kolejne emisje akcji).
+            Może też być null, dopóki nie uda się skojarzyć ze sobą pary: Symbol-ISIN.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.Sym">
+            <summary>
+            TODO: Wersja skrócona (3-znakowa) stosowanego normalnie symbolu instrumentu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.BuyOffers">
+            <summary>
+            Lista widocznych w arkuszu ofert kupna dla tego instrumentu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.SellOffers">
+            <summary>
+            Lista widocznych w arkuszu ofert sprzedaży dla tego instrumentu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.Trades">
+            <summary>
+            Zebrana do tej pory historia transakcji dla tego instrumentu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosInstrument.UpdatesEnabled">
+            <summary>
+            Czy instrument ten uwzględniamy w subskrypcji aktualnych notowań rynkowych
+            (domyślnie "true" - włącza aktualizację: BuyOffers, SellOffers oraz Trades).
+            Może wyłączyć, jeśli np. korzystamy z więcej niż 100 różnych instrumentów
+            (bossaAPI/NOL3 limituje tak liczbę jednocześnie aktualizowanych walorów).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosOrderTradeReport">
+            <summary>
+            Raport z wykonania pojedynczej transakcji dla naszego zlecenia
+            (może to być całe zlecenie albo jedna z wielu części wykonania danego zlecenia).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderTradeReport.Time">
+            <summary>
+            Godzina realizacji danej transakcji.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderTradeReport.Price">
+            <summary>
+            Cena, po jakiej zrealizowano daną transakcję.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderTradeReport.Quantity">
+            <summary>
+            Liczba walorów zrealizowana w danej transakcji.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderTradeReport.NetValue">
+            <summary>
+            Całkowita wartość danej transakcji, po(!) uwzględenieniu prowizji.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderTradeReport.Commission">
+            <summary>
+            Wartość samej prowizji pobranej przy danej transakcji.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Fixml.FixmlUtil">
+            <summary>
+            Wewnętrzne funkcje pomocnicze. Głównie do parsowania parametrów FIXML'a. 
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.OrderTradeData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki)
+            raportu o wykonaniu transakcji związanej ze zleceniem złożonym przez klienta.
+            Używany jako "podobiekt" w OrderData (tam precyzujemy, o które zlecenie chodzi).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.MarketOfferData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki) aktualizacji stanu notowań rynkowych.
+            Używany jako "podobiekt" w MarketData - informuje o pojedynczej zmianie w tabeli ofert dla danego instrumentu.
+            Możliwe są trzy warianty:
+            - wstawienie nowego "wiersza" w tabeli: Update = false, wszystkie pola wypełnione
+            - aktualizacja istniejącego "wiersza" w tabeli: Update = true, wszystkie pola wypełnione
+            - usunięcie istniejącego "wiersza" w tabeli: Level = nr wiersza, reszta pusta (null, zero itp.)
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosOrderStatusReport">
+            <summary>
+            Raport na temat aktualnego stanu naszego zlecenia.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderStatusReport.Time">
+            <summary>
+            Czas ostatniej zmiany statusu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderStatusReport.Status">
+            <summary>
+            Aktualny status zlecenia (aktywne, wykonane, anulowane itp.)
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderStatusReport.Quantity">
+            <summary>
+            Dotychczas zrealizowana liczba walorów.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderStatusReport.NetValue">
+            <summary>
+            Teoretyczna wartość całkowita zlecenia, po(!) uwzględenieniu prowizji.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrderStatusReport.Commission">
+            <summary>
+            Teoretyczna wartość całkowita prowizji naliczonej dla tego zlecenia.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.PendingReplace">
+            <summary>
+            Zlecenie w trakcie modyfikacji... a póki co jest (chyba?) wciąż aktywne.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.PendingCancel">
+            <summary>
+            Zlecenie w trakcie anulaty... a póki co jest (chyba?) wciąż aktywne.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.Active">
+            <summary>
+            Przyjęte nowe zlecenie, oczekujące w arkuszu ofert na realizację.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.ActiveFilled">
+            <summary>
+            Zlecenie częściowo zrealizowane, reszta wciąż oczekuje w arkuszu ofert.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.Cancelled">
+            <summary>
+            Zlecenie anulowane, nie zdążyło się wcale zrealizować.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.CancelledFilled">
+            <summary>
+            Zlecenie częściowo zrealizowane, reszta została anulowana.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.Filled">
+            <summary>
+            Zlecenie w całości zrealizowane.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.Expired">
+            <summary>
+            Zlecenie archiwalne (nie zrealizowane, któremu skończył się termin ważności).
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrderStatus.Rejected">
+            <summary>
+            Zlecenie odrzucone przez system (DM lub Giełdę).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.NolClient">
+            <summary>
+            Klasa obsługująca połączenie z aplikacją NOL3 
+            - lokalna komunikacja z wykorzystaniem protokołu FIXML
+            - nawiązywanie połączenia, logowanie, wylogowanie
+            - odbiór komunikatów w kanale asynchronicznym
+            - zbieranie bieżących notowań podczas sesji
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.#ctor">
+            <summary>
+            Domyślny konstruktor. Automatycznie loguje się do NOL'a i otwiera połączenie asynchroniczne. 
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.#ctor(System.Boolean)">
+            <summary>
+            Dodatkowy konstruktor pozwalający wyłaczyć automatyczne zalogowanie (i obsługę kanału asynchronicznego).
+            </summary>
+            <param name="login">Podając "false" wyłączamy automatyczną próbę zalogowania... 
+            możemy się zalogować potem sami wywołując jawnie metodę "Login". </param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            Dodatkowy konstruktor pozwalający wciąż automatycznie zalogować się do NOL'a 
+            ale z ewentualnym pominięciem automatycznego otwierania kanału asynchronicznego.
+            </summary>
+            <param name="login">Czy ma się od razu zalogować? Jeśli "false", należy potem jawnie wywołać metodę "Login".</param>
+            <param name="thread">Czy ma uruchomić wewnętrzną obsługę kanału asynchronicznego? Jeśli "false" (tutaj, lub przy
+            pierwszym argumencie - oba są wymagane), o otwarcie socketu i odbiór komunikatów tam wysyłanych musimy zadbać sami.</param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.GetSyncSocket">
+            <summary>
+            Otwarcie nowego połączenia z aplikacją NOL3 na porcie do komunikacji *synchronicznej*.
+            </summary>
+            <returns>Zwraca nowy "socket", do którego zapisujemy/odczytujemy komunikaty synchroniczne.
+            UWAGA: NOL3 wymaga, by dla każdej nowej operacji otworzyć nowe połączenie synchroniczne.
+            </returns>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.GetAsyncSocket">
+            <summary>
+            Otwarcie nowego połączenia z aplikacją NOL3 na porcie do komunikacji *asynchronicznej*.
+            </summary>
+            <returns>Zwraca nowy "socket", z którego możemy odbierać przesyłane asynchronicznie komunikaty.
+            UWAGA: Kanał asynchroniczny otwieramy tylko raz, *po* zalogowaniu się w aplikacji.
+            </returns>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.Login">
+            <summary>
+            Próba zalogowania się w aplikacji NOL3. 
+            Normalnie metoda ta jest wywoływana automatycznie już przy utworzeniu obiektu NolClient...
+            chyba że skorzystaliśmy z jednego z dodatkowych konstruktorów, pomijając automatyczne zalogowanie.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.Logout">
+            <summary>
+            Próba wylogowania się z aplikacji NOL3. 
+            Normalnie metoda ta jest wywoływana automatycznie przy zwalnianiu obiektu NolClient...
+            ale nic nie szkodzi wywołać ją wcześniej jawnie (poza tym, że połączenie przestanie działać).
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataStart">
+            <summary>
+            Aktywacja odbioru (subskrypcji) informacji o bieżących notowaniach giełdowych.
+            Treść tych informacji ustalamy (najlepiej wcześniej) korzystając z metod "MarketDataSubscription*".
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataStop">
+            <summary>
+            Deaktywacja odbioru (subskrypcji) informacji o bieżących notowaniach giełdowych.
+            To, co się udało do tej pory zebrać, pozostaje nadal w pamięci - dostępne przez "MarketDataResults".
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataResults">
+            <summary>
+            Odczyt wszystkich zebranych informacji o bieżących notowaniach giełdowych.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataResults(pjank.BossaAPI.Fixml.FixmlInstrument)">
+            <summary>
+            Odczyt zebranych informacji o bieżących notowaniach wskazanego instrumentu.
+            </summary>
+            <param name="instrument"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataResults(System.String)">
+            <summary>
+            Odczyt zebranych informacji o bieżących notowaniach wskazanego instrumentu (po symbolu).
+            </summary>
+            <param name="symbol"></param>
+            <returns></returns>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataSubscriptionClear">
+            <summary>
+            Całkowite wyczyszczenie zakresu subskrypcji. 
+            Po tej operacji wszystko (typ informacji oraz listę instrumentów) ustawiamy od nowa.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataSubscriptionAdd(pjank.BossaAPI.Fixml.MDEntryType[])">
+            <summary>
+            Dodanie do subskrypcji wskazanych typów rekordów.
+            </summary>
+            <param name="types"></param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataSubscriptionRemove(pjank.BossaAPI.Fixml.MDEntryType[])">
+            <summary>
+            Usunięcie z subskrypcji wskazanych typów rekordów.
+            </summary>
+            <param name="types"></param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataSubscriptionAdd(pjank.BossaAPI.Fixml.FixmlInstrument[])">
+            <summary>
+            Dodanie do subskrypcji wskazanych instrumentów.
+            </summary>
+            <param name="instruments"></param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataSubscriptionRemove(pjank.BossaAPI.Fixml.FixmlInstrument[])">
+            <summary>
+            Usunięcie z subskrypcji wskazanych instrumentów.
+            </summary>
+            <param name="instruments"></param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataSubscriptionAdd(System.String[])">
+            <summary>
+            Dodanie do subskrypcji wskazanych instrumentów (po ich symbolach). 
+            </summary>
+            <param name="symbols"></param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.MarketDataSubscriptionRemove(System.String[])">
+            <summary>
+            Usunięcie z subskrypcji wskazanych instrumentów (po ich symbolach).
+            </summary>
+            <param name="symbols"></param>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.TradingSessionStatusStart">
+            <summary>
+            Aktywacja odbioru informacji o statusie sesji (komunikat "TrdgSesStat": 
+            informuje o zmianie fazy sesji, równoważeniu subskrybowanych instrumentów itp.).
+            Aby na te zmiany reagować, należy się podłączyć pod zdarzenie "SessionStatusMsgEvent".
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.NolClient.TradingSessionStatusStop">
+            <summary>
+            Deaktywacja odbioru informacji o statusie sesji.
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.AsyncMessageEvent">
+            <summary>
+            Zdarzenie odbioru dowolnego komunikatu w kanale asynchronicznym
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.AppReportMsgEvent">
+            <summary>
+            Zdarzenie odbioru komunikatu "ApplMsgRpt"
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.ExecReportMsgEvent">
+            <summary>
+            Zdarzenie odbioru komunikatu "ExecRpt"
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.MarketDataMsgEvent">
+            <summary>
+            Zdarzenie odbioru komunikatu "MktDataInc"
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.SessionStatusMsgEvent">
+            <summary>
+            Zdarzenie odbioru komunikatu "TrdgSesStat"
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.NewsMsgEvent">
+            <summary>
+            Zdarzenie odbioru komunikatu "News"
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.StatementMsgEvent">
+            <summary>
+            Zdarzenie odbioru komunikatu "Statement"
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.UserResponseMsgEvent">
+            <summary>
+            Zdarzenie odbioru asynchronicznego(!) komunikatu "UserRsp" 
+            (np. info o utracie połączenia, nie dotyczy normalnej odpowiedzi po UserRequestMsg)
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.AccountUpdateEvent">
+            <summary>
+            Zdarzenie (IBosClient) informujące o aktualizacji danych rachunku. 
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.OrderUpdateEvent">
+            <summary>
+            Zdarzenie (IBosClient) informujące o aktualizacji informacji o zleceniu na rachunku.
+            </summary>
+        </member>
+        <member name="E:pjank.BossaAPI.NolClient.MarketUpdateEvent">
+            <summary>
+            Zdarzenie (IBosClient) informujące o aktualizacji stanu notowań rynkowych.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.OrderStatusData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki)
+            informacji nt. aktualnego statusu konkretnego zlecenia na rachunku klienta.
+            Używany jako "podobiekt" w OrderData (tam precyzujemy, o które zlecenie chodzi).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.AccountData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki)
+            podstawowych danych nt. konkretnego rachunku klienta. 
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.Fixml.FixmlInstrument">
+            <summary>
+            Klasa opisujący konkretny papier wartościowy przekazywany w parametrach komunikatu FIXML.
+            Implementuje wewnętrznie słownik poznanych dotąd odwzorowań kodów ISIN na zwykłe symbole papierów.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.DTO.OrderData">
+            <summary>
+            Obiekt transportowy do przekazywania (między modułami biblioteki)
+            ogólnych informacji nt. jednego ze zleceń na rachunku klienta. 
+            Dalsze dane - zależnie od potrzeb - przekazujemy w kolejnych "podobiektach".
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrades.Count">
+            <summary>
+            Liczba dostępnych w historii transakcji dla tego instrumentu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrades.Item(System.Int32)">
+            <summary>
+            Dostęp do konkretnej transakcji w historii, licząc od zera (0 = najstarsza, Count-1 = najnowsza).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrades.Last">
+            <summary>
+            Szybki dostęp do obiektu ostatniej (najnowszej znanej) transakcji.
+            Zwraca null, jeśli brak historii notowań dla tego instrumentu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosTrades.LastPrice">
+            <summary>
+            Szybki dostęp do ceny ostatniej (najnowszej znanej) transakcji.
+            Zwraca null, jeśli brak historii notowań dla tego instrumentu.
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosPaper">
+            <summary>
+            Reprezentuje jeden z papierów na rachunku użytkownika (jego ilość, bieżącą wycenę itd.)
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosPaper.Account">
+            <summary>
+            Rachunek, na którym znajdują się te papiery.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosPaper.Release(pjank.BossaAPI.BosPrice)">
+            <summary>
+            Wysłanie do systemu nowego zlecenia na "oddanie" wszystkich dostępnych na rachunku papierów po wskazanej cenie
+            (sprzedaż, jeśli to akcje lub otwarte długie pozycje... lub przeciwstawne zlecenie kupna, jeśli to otwarte krótkie pozycje).
+            </summary>
+            <param name="price">Limit ceny: BosPrice.PKC/PCR/PCRO... lub po prostu kwota.</param>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPaper.Instrument">
+            <summary>
+            Instrument, którego dotyczy ten wpis na rachunku użytkownika.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPaper.Quantity">
+            <summary>
+            Łączna liczba sztuk tego instrumentu znajdujących się na rachunku (wolne + zablokowane).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPaper.Quantity110">
+            <summary>
+            Liczba sztuk znajdujących się na koncie "110" - wolne do dyspozycji (sprzedaży).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosPaper.Quantity120">
+            <summary>
+            Liczba sztuk znajdujących się na koncie "120" - zablokowane (wystawione na sprzedaż).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosOrders">
+            <summary>
+            Lista bieżących zleceń na danym rachunku.
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrders.Account">
+            <summary>
+            Rachunek, którego dotyczą te zlecenia.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrders.Count">
+            <summary>
+            Liczba bieżących zleceń dostępnych na tym rachunku.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrders.Item(System.Int32)">
+            <summary>
+            Dostęp do konkretnego zlecenia z listy, po jego indeksie (licząc od zera).
+            </summary>
+        </member>
+        <member name="T:pjank.BossaAPI.BosOrder">
+            <summary>
+            Konkretne zlecenie złożone przez użytkownika rachunku.
+            Zarówno zlecenia wciąż aktywne, te wykonane, jak i odrzucone/anulowane
+            (z bieżącego dnia - bossaAPI nie udostępnia /na razie/ danych historycznych).
+            </summary>
+        </member>
+        <member name="F:pjank.BossaAPI.BosOrder.Account">
+            <summary>
+            Rachunek, na którym złożono to zlecenie.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Cancel">
+            <summary>
+            Wysłanie do systemu prośby o anulowanie tego zlecenia.
+            </summary>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Modify(pjank.BossaAPI.BosPrice,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu prośby o modyfikację tego zlecenia (wszystkie możliwe do zmiany parametry).
+            </summary>
+            <param name="newPrice">nowy limit ceny</param>
+            <param name="newExpirationDate">nowa data ważności</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Modify(pjank.BossaAPI.BosPrice)">
+            <summary>
+            Wysłanie do systemu prośby o modyfikację tego zlecenia (tylko limit ceny).
+            </summary>
+            <param name="newPrice">nowy limit ceny</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Modify(System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu prośby o modyfikację tego zlecenia (tylko data ważności).
+            </summary>
+            <param name="newExpirationDate">nowa data ważności</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Create(pjank.BossaAPI.BosAccount,pjank.BossaAPI.BosInstrument,pjank.BossaAPI.BosOrderSide,pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Boolean,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu nowego zlecenia z podanymi parametrami. 
+            <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+            którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+            </summary>
+            <param name="account">Rachunek, na który zostaje przeznaczone to zlecenie.</param>
+            <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+            <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+            <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+            <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+            <param name="minimumQuantity">Minimalna liczba walorów, jaka musi się zrealizować, albo zlecenie będzie anulowane.
+            Podając tutaj to samo, co w polu "quantity", uzyskujemy zlecenie typu "WuA".</param>
+            <param name="visibleQuantity">Liczba walorów ujawniana w arkuszu ofert ("WUJ").</param>
+            <param name="immediateOrCancel">Czy to zlecenie typu "WiA" (to, co nie wykona się natychmiast, jest od razu anulowane).</param>
+            <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Create(pjank.BossaAPI.BosInstrument,pjank.BossaAPI.BosOrderSide,pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32,System.Nullable{System.UInt32},System.Nullable{System.UInt32},System.Boolean,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu nowego zlecenia z podanymi parametrami. W tej wersji metody numer rachunku,
+            na który zostaje przeznaczone to zlecenie, wybierany jest automatycznie na podstawie typu instrumentu.
+            <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+            którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+            </summary>
+            <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+            <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+            <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+            <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+            <param name="minimumQuantity">Minimalna liczba walorów, jaka musi się zrealizować, albo zlecenie będzie anulowane.
+            Podając tutaj to samo, co w polu "quantity", uzyskujemy zlecenie typu "WuA".</param>
+            <param name="visibleQuantity">Liczba walorów ujawniana w arkuszu ofert ("WUJ").</param>
+            <param name="immediateOrCancel">Czy to zlecenie typu "WiA" (to, co nie wykona się natychmiast, jest od razu anulowane).</param>
+            <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Create(pjank.BossaAPI.BosInstrument,pjank.BossaAPI.BosOrderSide,pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32,System.Nullable{System.DateTime})">
+            <summary>
+            Wysłanie do systemu nowego zlecenia z podanymi parametrami (pozostałe przyjmują 
+            domyślną wartość null/false, a numer rachunku wyznaczany jest na podstawie typu instrumentu).
+            <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+            którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+            </summary>
+            <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+            <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+            <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+            <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+            <param name="expirationDate">Data ważności zlecenia (null, jeśli tylko na bieżącą sesję).</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Create(pjank.BossaAPI.BosInstrument,pjank.BossaAPI.BosOrderSide,pjank.BossaAPI.BosPrice,System.Nullable{System.Decimal},System.UInt32)">
+            <summary>
+            Wysłanie do systemu nowego zlecenia z podanymi parametrami (pozostałe przyjmują 
+            domyślną wartość null/false, a numer rachunku wyznaczany jest na podstawie typu instrumentu).
+            <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+            którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+            </summary>
+            <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+            <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+            <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+            <param name="activationPrice">Ewentualny limit aktywacji zlecenia (null, jeśli aktywowane od razu, bez stop'a).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+        </member>
+        <member name="M:pjank.BossaAPI.BosOrder.Create(pjank.BossaAPI.BosInstrument,pjank.BossaAPI.BosOrderSide,pjank.BossaAPI.BosPrice,System.UInt32)">
+            <summary>
+            Wysłanie do systemu nowego zlecenia z podanymi parametrami (pozostałe przyjmują 
+            domyślną wartość null/false, a numer rachunku wyznaczany jest na podstawie typu instrumentu).
+            <para>Zobacz też metody klasy BosInstrument: Order, Buy, Sell - które od razu określają, 
+            którego instrumentu dane zlecenie ma dotyczyć i ewentualnie prezyzują też stronę transakcji (kupno/sprzedaż)</para>
+            </summary>
+            <param name="instrument">Instrument, którego walory chcemy kupić/sprzedać.</param>
+            <param name="side">Zlecenie kupna (BosOrderSide.Buy) czy sprzedaży (BosOrderSide.Sell).</param>
+            <param name="price">Limit ceny, jaki wstawiamy do zlecenia (BosPrice.PKC/PCR/PCRO... lub po prostu kwota).</param>
+            <param name="quantity">Liczba walorów, jaką zamierzamy kupić/sprzedać.</param>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.Id">
+            <summary>
+            Identyfikator (numer) zlecenia nadany przez Dom Maklerski.
+            Jeśli to nowe, wysyłane stąd zlecenie - null, dopóki nie zostanie przyjęte w DM.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.CreateTime">
+            <summary>
+            Data/godzina utworzenia zlecenia.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.Instrument">
+            <summary>
+            Instrument, którego zlecenie dotyczy.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.Side">
+            <summary>
+            Czy to zlecenie kupna czy sprzedaży...
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.Price">
+            <summary>
+            Limit ceny podany w zleceniu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.ActivationPrice">
+            <summary>
+            Limit aktywacji (null, jeśli bez stop'a).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.Quantity">
+            <summary>
+            Liczba papierów podana w zleceniu.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.MinimumQuantity">
+            <summary>
+            Minimalna liczba papierów, jaka musi się zrealizować (albo zlecenie będzie anulowane).
+            Podanie "MinimumQuantity == Quantity" jest jednoznaczne z typem zlecenia "WuA".
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.VisibleQuantity">
+            <summary>
+            Liczba papierów ujawniana w arkuszu ofert (WUJ).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.ImmediateOrCancel">
+            <summary>
+            Zlecenie musi być wykonane natychmiast - chociaż na tyle, ile to możliwe... 
+            Jeśli zabraknie przeciwstawnych zleceń, ew. "reszta" zostaje od razu anulowana (WiA).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.ExpirationDate">
+            <summary>
+            Ważność zlecenia (null - ważne tylko na bieżącą sesję).
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.StatusReport">
+            <summary>
+            Raport na temat aktualnego stanu zlecenia (czy wykonane, w jakim zakresie itp.)
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.TradeReports">
+            <summary>
+            Szczegółowe raporty z wykonania kolejnych transakcji dla tego zlecenia.
+            </summary>
+        </member>
+        <member name="P:pjank.BossaAPI.BosOrder.IsActive">
+            <summary>
+            Zwraca true, jeśli bieżący status zlecenia oznacza, że zlecenie jest aktywne
+            (jeszcze nie wykonane albo wykonane częściowo i wciąż coś w arkuszu zleceń zostało).
+            </summary>
+        </member>
+    </members>
+</doc>
