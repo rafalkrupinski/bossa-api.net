@@ -256,6 +256,7 @@
 			// debugBox
 			// 
 			this.debugBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.debugBox.DetectUrls = false;
 			this.debugBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.debugBox.Font = new System.Drawing.Font("Lucida Console", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
 			this.debugBox.Location = new System.Drawing.Point(0, 0);

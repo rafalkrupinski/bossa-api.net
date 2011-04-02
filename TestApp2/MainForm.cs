@@ -201,7 +201,7 @@ namespace pjank.BossaAPI.TestApp2
 					if (order.IsActive) AddAccountOrderItem(group, order);
 				AddAccountFundItem(group, "Total", account.PortfolioValue, null, null);
 				AddAccountFundItem(group, "Deposit", account.DepositBlocked, "deficit", account.DepositDeficit);
-				AddAccountFundItem(group, "Available", account.AvailableFunds, "cash", account.AvailableFunds);
+				AddAccountFundItem(group, "Available", account.AvailableFunds, "cash", account.AvailableCash);
 			}
 			finally
 			{

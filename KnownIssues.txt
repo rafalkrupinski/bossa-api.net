@@ -1,0 +1,45 @@
+﻿Poniżej znane problemy/utrudnienia, których rozwiązanie na razie odroczono...
+======================================================================================== 
+
+---
+
+Wznawianie połączenia z NOL'em po jego utracie.
+Temat czeka m.in. na konkretniejsze sprecyzowanie, jak NOL3 się w takiej sytuacji 
+zachowa i co my możemy na to poradzić... 
+
+---
+
+W przypadku większego obciążenia NOLa może nastąpić timeout i też przerywa połączenie.
+Najprościej zwiększyć timeout użyty na socketach, ale to raczej połowiczne rozwiązanie...
+
+---
+
+Po dodaniu do BosInstruments nieprawidłowego symbolu, blokuje się odbieranie notowań
+(NOL3 odrzuca subskrypcję, ale nie mówi który symbol z listy mu nie pasuje...).
+Brak też możliwości ręcznego usunięcia wybranego symbolu, pozostaje jedynie "Reset".
+
+---
+
+Odbiór większej liczby pozycji z arkusza ofert. Czeka na implementację po stronie NOL'a.
+
+---
+
+Odbiór pozostałych informacji z notowań (Vol, LOP, OHLC, kurs odniesienia).
+Co do Vol/LOP - tu się wstrzymuję do ustalenia ich ostatecznej specyfikacji.
+
+--- 
+
+Obsługa w klasie "BosOrder" zleceń typu OTP, DDM+.
+Sam tego nie używam, dokumentacja bossaAPI-fixml też niezbyt sprawę opisuje, więc 
+na razie temat zostawiam... Jak ktoś bardzo potrzebuje, klasy pjank.BossaAPI.Fixml 
+teoretycznie te wszystkie parametry obsługują.
+
+---
+
+Przydałoby się synchronizować dostęp z wielu wątków do obiektu BosAccounts itp.
+(jeden wątek to ten odbierający komunikaty asynchroniczne z sieci, a drugi - ten
+nasz, np. z GUI, w którym odczytujemy aktualne dane - teoretycznie może się trafić
+próba takiego odczytu w momencie, kiedy drugi wątek akurat tam coś aktualizuje).
+Problem na razie pominięty z racji niskiego(?) prawdopodobieństwa wystąpienia ;)  
+
+---
