@@ -153,7 +153,7 @@ namespace pjank.BossaAPI
 		{
 			if (OnUpdate != null)
 			{
-				var args = new[] { updatedObject };
+				var args = new[] { updatedObject, null };
 				foreach (var handler in OnUpdate.GetInvocationList())
 				{
 					ISynchronizeInvoke invokeTarget = handler.Target as ISynchronizeInvoke;
