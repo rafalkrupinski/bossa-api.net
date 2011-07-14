@@ -143,7 +143,7 @@ namespace pjank.BossaAPI.Fixml
 			if (name2 != null)
 				str += "-" + ReadString(xml, name2, false);
 			DateTime date;
-			string[] formats = new[] { "yyyyMMdd-HH:mm:ss", "yyyyMMdd-HH:mm" };
+			string[] formats = new[] { "yyyyMMdd-HH:mm:ss", "yyyyMMdd-HH:mm", "yyyyMMdd" };
 			IFormatProvider provider = CultureInfo.InvariantCulture;
 			DateTimeStyles styles = DateTimeStyles.None;
 			if (!DateTime.TryParseExact(str, formats, provider, styles, out date))
