@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BossaAPI .NET - TestApp3: basic instrument monitoring example")]
+[assembly: AssemblyTitle("BossaAPI .NET - TestApp4: 'NolClient' with 'Bossa' combined")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("www.pjank.net")]
-[assembly: AssemblyProduct("pjank.BossaAPI.TestApp3")]
+[assembly: AssemblyProduct("pjank.BossaAPI.TestApp4")]
 [assembly: AssemblyCopyright("Copyright © 2011 Przemysław Jankowski")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("d3e43cc1-1ff8-4c8f-b460-bc55c5c766f5")]
+[assembly: Guid("2e9ef7f4-fa7c-417d-88c1-6e47b29ad022")]
 
 // Version information for an assembly consists of the following four values:
 //

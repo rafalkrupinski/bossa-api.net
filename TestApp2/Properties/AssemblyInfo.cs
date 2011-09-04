@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BossaAPI .NET Library TestApp2")]
-[assembly: AssemblyDescription("BossaAPI .NET - GUI Test Application")]
+[assembly: AssemblyTitle("BossaAPI .NET - TestApp2: GUI Test Application")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("www.pjank.net")]
 [assembly: AssemblyProduct("pjank.BossaAPI.TestApp2")]

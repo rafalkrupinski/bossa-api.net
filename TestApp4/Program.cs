@@ -1,18 +1,17 @@
 ﻿using System;
 using pjank.BossaAPI;
+using pjank.BossaAPI.Fixml;
 
-namespace pjank.BossaAPI.TestApp3
+namespace pjank.BossaAPI.TestApp4
 {
 	/// <summary>
 	/// 
-	/// Poniżej najprostszy przykład odbioru bieżących notowań za pośrednictwem tej biblioteki.
+	/// Poniższy przykład pokazuje, jak łączyć używanie klasy "Bossa" z bardziej niskopoziomowym dostępem do FIXML.
 	/// 
-	/// W tych kilku linijkach (nie licząc komentarzy ;)) mamy w pełni funkcjonalny program konsolowy,
-	/// wyświetlający bieżące notowania dowolnych instrumentów (podanych w argumentach wywołania programu).
+	/// Jest to prosta rozbudowa przykładu z "TestApp3" o równoległy odczyt również bieżącego statusu sesji,
+	/// który nie jest (póki co) dostępny bezpośrednio z "zewnętrznej" warstwy biblioteki (z klasy "Bossa"), 
+	/// ale można go uzyskać wpinając się głębiej do "NolClient", otwierającej dostęp do całego protokołu FIXML.
 	/// 
-	/// Przykład użycia:
-	///  TestApp3.exe PKOBP PEKAO GETIN BRE BZWBK WIG20
-	///  
 	/// </summary>
 	class Program
 	{
@@ -22,7 +21,7 @@ namespace pjank.BossaAPI.TestApp3
 		/// <param name="args">
 		/// lista przekazanych parametrów: podawane po spacji symbole kolejnych intrumentów
 		/// </param>
-		public static void Main(string[] args)
+		static void Main(string[] args)
 		{
 			if (args.Length == 0)
 			{
@@ -41,8 +40,14 @@ namespace pjank.BossaAPI.TestApp3
 				foreach (var symbol in args)
 					Bossa.Instruments[symbol].UpdatesEnabled = true;
 
+				// własnoręczne przygotowanie obiektu IBosClient do komunikacji z NOL'em...
+				var client = new NolClient();
+				// i podpięcie się bezpośrednio do jednego z wielu jego wewnętrznych zdarzeń
+				client.SessionStatusMsgEvent += new Action<TradingSessionStatusMsg>(NolClient_SessionStatusMsgEvent);
+				client.TradingSessionStatusStart();
+
 				// uruchomienie połączenia z NOL'em
-				Bossa.ConnectNOL3();
+				Bossa.Connect(client);
 
 				// czekamy na naciśnięcie dowolnego klawisza (w tle będzie odpalał Bossa_OnUpdate)
 				Console.ReadKey(true);
@@ -69,6 +74,16 @@ namespace pjank.BossaAPI.TestApp3
 			if (ins != null)  // wyświetlenie w kolejnym wierszu bieżących notowań
 				Console.WriteLine("{0,-10} [ {1,-8} {2,8} ] {3}", ins.Symbol,
 				  ins.BuyOffers.BestPrice, ins.SellOffers.BestPrice, ins.Trades.Last);
+		}
+
+		/// <summary>
+		/// Zdarzenie wywoływane przez NolClient po zmianie statusu konkretnego instrumentu (lub całego rynku?)
+		/// </summary>
+		/// <param name="msg">komunikat FIXML "TrdgSesStat"</param>
+		private static void NolClient_SessionStatusMsgEvent(TradingSessionStatusMsg msg)
+		{
+			var symbol = msg.Instrument != null ? msg.Instrument.Symbol : null;
+			Console.WriteLine("{0,-10} : {1}", symbol, msg.SessionPhase);
 		}
 	}
 }
