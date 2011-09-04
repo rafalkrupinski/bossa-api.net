@@ -249,7 +249,7 @@ namespace pjank.BossaAPI.TestApp1
 					// definiujemy filtr subskrybowanych danych 
 					nol.MarketDataSubscriptionAdd(MDEntryTypes.BasicBook);
 					nol.MarketDataSubscriptionAdd(MDEntryTypes.BasicTrade);
-					FixmlInstrument fw20 = FixmlInstrument.FindBySym("FW20H11");
+					FixmlInstrument fw20 = FixmlInstrument.FindBySym("FW20H12");
 					nol.MarketDataSubscriptionAdd(fw20);
 
 					// tutaj rozpoczynamy odbieranie notowań
@@ -268,7 +268,7 @@ namespace pjank.BossaAPI.TestApp1
 					nol.MarketDataStop();
 					nol.MarketDataSubscriptionClear();
 					nol.MarketDataSubscriptionAdd(MDEntryTypes.All);
-					nol.MarketDataSubscriptionAdd("WIG20", "FW20M11", "FW20H11");
+					nol.MarketDataSubscriptionAdd("WIG20", "FW20M12", "FW20H12");
 					nol.MarketDataStart();
 
 					if (Console.ReadKey(true).Key == ConsoleKey.Escape) return;
@@ -338,7 +338,7 @@ namespace pjank.BossaAPI.TestApp1
 					NewOrderSingleMsg newRequest = new NewOrderSingleMsg();
 					newRequest.Account = accountNumber;
 					newRequest.Side = OrderSide.Buy;
-					newRequest.Instrument = FixmlInstrument.FindBySym("FW20H11");
+					newRequest.Instrument = FixmlInstrument.FindBySym("FW20H12");
 					newRequest.Quantity = 1;
 					newRequest.Price = 1000;
 					using (Socket socket = NolClient.GetSyncSocket())

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("BossaAPI .NET Library TestApp2")]
-[assembly: AssemblyDescription("BossaAPI .NET Class Library - GUI Test Application")]
+[assembly: AssemblyDescription("BossaAPI .NET - GUI Test Application")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("www.pjank.net")]
 [assembly: AssemblyProduct("pjank.BossaAPI.TestApp2")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.3.0.0")]
-[assembly: AssemblyFileVersion("0.3.0.0")]
+[assembly: AssemblyVersion("0.3.1.0")]
+[assembly: AssemblyFileVersion("0.3.1.0")]
