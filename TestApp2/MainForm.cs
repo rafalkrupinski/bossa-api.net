@@ -25,7 +25,7 @@ namespace pjank.BossaAPI.TestApp2
 			debugCheck4.Checked = FixmlMsg.DebugParsedMessage.Enabled = true;
 			myTraceListener = new RichTextBoxTraceListener(debugBox);
 			Debug.Listeners.Add(myTraceListener);
-			Bossa.OnUpdate += new EventHandler(Bossa_OnUpdate);
+			Bossa.OnUpdate += Bossa_OnUpdate;
 		}
 
 		private void Form1_FormClosed(object sender, FormClosedEventArgs e)
@@ -77,7 +77,7 @@ namespace pjank.BossaAPI.TestApp2
 		{
 			try
 			{
-				if (Bossa.IsConnected)
+				if (Bossa.Connected)
 				{
 					Debug.WriteLine("\nAlready connected!");
 					return;
@@ -94,7 +94,7 @@ namespace pjank.BossaAPI.TestApp2
 		{
 			try
 			{
-				if (!Bossa.IsConnected)
+				if (!Bossa.Connected)
 				{
 					Debug.WriteLine("\nNot connected!");
 					return;

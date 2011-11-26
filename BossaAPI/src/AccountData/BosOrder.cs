@@ -176,7 +176,7 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public void Cancel()
 		{
-			Bossa.client.OrderCancel(GetData());
+			Account.api.Connection.OrderCancel(GetData());
 		}
 
 		#endregion
@@ -194,7 +194,7 @@ namespace pjank.BossaAPI
 			data.MainData.PriceType = newPrice.Type;
 			data.MainData.PriceLimit = newPrice.NumValue;
 			data.MainData.ExpirationDate = newExpirationDate;
-			Bossa.client.OrderReplace(data);
+			Account.api.Connection.OrderReplace(data);
 		}
 
 		/// <summary>
@@ -253,7 +253,7 @@ namespace pjank.BossaAPI
 			data.MainData.VisibleQuantity = visibleQuantity;
 			data.MainData.ImmediateOrCancel = immediateOrCancel;
 			data.MainData.ExpirationDate = expirationDate;
-			Bossa.client.OrderCreate(data);
+			account.api.Connection.OrderCreate(data);
 			// TODO: Zastanawiam się jeszczcze m.in. co z ClientId, TradeDate... i czy w ogóle byłby sens
 			// od razu tworzyć taki nowy obiekt BosOrder (zamiast zaczekać aż sam się doda przy OrderUpdate).
 		}

@@ -33,7 +33,7 @@ namespace pjank.BossaAPI.TestApp3
 			try
 			{
 				// podłączenie naszego handlera pod zdarzenie aktualizacji danych
-				Bossa.OnUpdate += new EventHandler(Bossa_OnUpdate);
+				Bossa.OnUpdate += Bossa_OnUpdate;
 
 				// aktywacja subskrypcji dla wybranych instrumentów
 				// (praktycznie wystarczy dowolne odwołanie do danego symbolu na liście Instruments[...],

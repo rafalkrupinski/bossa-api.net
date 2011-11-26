@@ -32,7 +32,7 @@ namespace pjank.BossaAPI.TestApp4
 			try
 			{
 				// podłączenie naszego handlera pod zdarzenie aktualizacji danych
-				Bossa.OnUpdate += new EventHandler(Bossa_OnUpdate);
+				Bossa.OnUpdate += Bossa_OnUpdate;
 
 				// aktywacja subskrypcji dla wybranych instrumentów
 				// (praktycznie wystarczy dowolne odwołanie do danego symbolu na liście Instruments[...],
@@ -43,7 +43,7 @@ namespace pjank.BossaAPI.TestApp4
 				// własnoręczne przygotowanie obiektu IBosClient do komunikacji z NOL'em...
 				var client = new NolClient();
 				// i podpięcie się bezpośrednio do jednego z wielu jego wewnętrznych zdarzeń
-				client.SessionStatusMsgEvent += new Action<TradingSessionStatusMsg>(NolClient_SessionStatusMsgEvent);
+				client.SessionStatusMsgEvent += NolClient_SessionStatusMsgEvent;
 				client.TradingSessionStatusStart();
 
 				// uruchomienie połączenia z NOL'em

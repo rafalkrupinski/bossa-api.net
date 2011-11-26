@@ -57,6 +57,8 @@
     <Compile Include="src\AccountData\BosOrderTradeReport.cs" />
     <Compile Include="src\AccountData\BosOrderTradeReports.cs" />
     <Compile Include="src\Bossa.cs" />
+    <Compile Include="src\BossaApi.cs" />
+    <Compile Include="src\IBossaApi.cs" />
     <Compile Include="src\MarketData\BosInstrument.cs" />
     <Compile Include="src\MarketData\BosInstruments.cs" />
     <Compile Include="src\MarketData\BosOffer.cs" />

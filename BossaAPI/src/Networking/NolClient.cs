@@ -44,10 +44,10 @@ namespace pjank.BossaAPI
 		/// pierwszym argumencie - oba są wymagane), o otwarcie socketu i odbiór komunikatów tam wysyłanych musimy zadbać sami.</param>
 		public NolClient(bool login, bool thread)
 		{
-			StatementMsgEvent += new Action<StatementMsg>(StatementMsgHandler);
-			ExecReportMsgEvent += new Action<ExecutionReportMsg>(ExecReportMsgHandler);
-			MarketDataMsgEvent += new Action<MarketDataIncRefreshMsg>(MarketDataMsgHandler);
-			UserResponseMsgEvent += new Action<UserResponseMsg>(AsyncUserResponseMsgHandler);
+			StatementMsgEvent += StatementMsgHandler;
+			ExecReportMsgEvent += ExecReportMsgHandler;
+			MarketDataMsgEvent += MarketDataMsgHandler;
+			UserResponseMsgEvent += AsyncUserResponseMsgHandler;
 			FixmlInstrument.DictionaryLoad();
 			if (login) Login();
 			if (login && thread) ThreadStart();

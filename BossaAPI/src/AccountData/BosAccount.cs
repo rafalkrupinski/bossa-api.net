@@ -59,9 +59,12 @@ namespace pjank.BossaAPI
 
 		#region Internal library stuff
 
+		internal readonly IBossaApi api;
+
 		// konstruktor wywoływany w klasie BosAccounts, gdy pojawia się nowy numer rachunku 
-		internal BosAccount(string number)
+		internal BosAccount(IBossaApi api, string number)
 		{
+			this.api = api;
 			Number = number;
 			Papers = new BosPapers(this);
 			Orders = new BosOrders(this);

@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using pjank.BossaAPI.DTO;
-using System.ComponentModel;
 
 namespace pjank.BossaAPI
 {
 	/// <summary>
 	/// Podstawowa klasa biblioteki oferująca łatwy dostęp do większości funkcji API -
-	/// za pośrednictwem statycznych metod/właściwości (nie trzeba tworzyć żadnej instancji).
+	/// za pośrednictwem wywoływanych bezpośrednio statycznych metod i właściwości.
+	/// Uwaga: jeśli przeszkadza Ci taki model statyczny - patrz: klasa <c>BossaApi</c>.
 	/// </summary>
 	/// <example>
 	/// 
@@ -108,26 +104,27 @@ namespace pjank.BossaAPI
 	/// </example>
 	public static class Bossa
 	{
+		// instancja klasy, do której tak na prawdę przekazujemy wewnętrznie wszystkie operacje
+		private static IBossaApi api = new BossaApi();
+
+
 		/// <summary>
 		/// Czy jesteśmy połączeni z serwerem (wywołano wcześniej "Connect")?
 		/// Jeśli nie, wszelkie operacje które wymagają tego połączenia, zwrócą teraz wyjątek.
 		/// </summary>
-		public static bool IsConnected
-		{
-			get { return (client != null); }
-		}
+		public static bool Connected { get { return api.Connected; } }
 
 		/// <summary>
 		/// Dostęp do naszych rachunków w biurze maklerskim Bossa
 		/// (ich saldo, obecne papiery wartościowe, bieżące zlecenia).
 		/// </summary>
-		public static BosAccounts Accounts { get; private set; }
+		public static BosAccounts Accounts { get { return api.Accounts; } }
 
 		/// <summary>
 		/// Dostęp do informacji o notowaniach poszczególnych instrumentów na rynku
 		/// (historia ostatnich transakcji, bieżąca tabela ofert kupna/sprzedaży).
 		/// </summary>
-		public static BosInstruments Instruments { get; private set; }
+		public static BosInstruments Instruments { get { return api.Instruments; } }
 
 		/// <summary>
 		/// Zdarzenie wywoływane po każdej aktualizacji danych.
@@ -137,62 +134,11 @@ namespace pjank.BossaAPI
 		/// albo "BosInstrument" - jeśli nastąpiła aktualizacja notowań dla danego instrumentu).
 		/// TODO: Dokładniejsze przekazywanie w argumentach zdarzenia co konkretnie się zmieniło.
 		/// </summary>
-		public static event EventHandler OnUpdate;
-
-		#region Internal library stuff...
-
-		// inicjalizacja klasy
-		static Bossa()
+		public static event EventHandler OnUpdate 
 		{
-			Accounts = new BosAccounts();
-			Instruments = new BosInstruments();
+			add { api.OnUpdate += value; }
+			remove { api.OnUpdate -= value; }
 		}
-
-		// wywołanie handlerów podpiętych pod zdarzenie OnUpdate
-		private static void DoUpdate(object updatedObject)
-		{
-			if (OnUpdate != null)
-			{
-				var args = new[] { updatedObject, null };
-				foreach (var handler in OnUpdate.GetInvocationList())
-				{
-					ISynchronizeInvoke invokeTarget = handler.Target as ISynchronizeInvoke;
-					if (invokeTarget != null)
-						invokeTarget.BeginInvoke(handler, args);
-					else
-						handler.DynamicInvoke(args);
-				}
-			}
-		}
-
-		// obiekt realizujący komunikację z serwerem
-		internal static IBosClient client;
-
-		// aktualizacja stanu jednego z rachunków
-		private static void AccountUpdateHandler(AccountData acccountData)
-		{
-			var account = Accounts[acccountData.Number];
-			account.Update(acccountData);
-			DoUpdate(account);
-		}
-
-		// aktualizacja informacji o bieżących zleceniach
-		private static void OrderUpdateHandler(OrderData orderData)
-		{
-			var account = Accounts[orderData.AccountNumber];
-			account.Orders.Update(orderData);
-			DoUpdate(account);
-		}
-
-		// aktualizacja informacji o bieżących notowaniach
-		private static void MarketUpdateHandler(MarketData marketData)
-		{
-			var instrument = BosInstrument.Create(marketData.Instrument);
-			instrument.Update(marketData);
-			DoUpdate(instrument);
-		}
-
-		#endregion
 
 		/// <summary>
 		/// Podłączenie wskazanego obiektu komunikującego się z serwerem.
@@ -202,11 +148,7 @@ namespace pjank.BossaAPI
 		/// </param>
 		public static void Connect(IBosClient client)
 		{
-			Bossa.client = client;
-			client.AccountUpdateEvent += new Action<AccountData>(AccountUpdateHandler);
-			client.OrderUpdateEvent += new Action<OrderData>(OrderUpdateHandler);
-			client.MarketUpdateEvent += new Action<MarketData>(MarketUpdateHandler);
-			Instruments.SubscriptionUpdate(true);
+			api.Connect(client);
 		}
 
 		/// <summary>
@@ -214,27 +156,25 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public static void ConnectNOL3()
 		{
-			Connect(new NolClient());
+			api.Connect(new NolClient());
 		}
 
 		/// <summary>
 		/// Zamknięcie bieżącego połączenia.
 		/// Wszelkie dane (stan rachunku, notowania) jakie zdążyliśmy zebrać, zostają nadal w pamięci...
-		/// i można z nich korzystać (tylko odczyt). Aby wyczyścić wszystkie dane, używamy metody "Reset".
+		/// i można z nich korzystać (tylko odczyt). Aby wyczyścić wszystkie dane, używamy metody "Clear".
 		/// </summary>
 		public static void Disconnect()
 		{
-			Bossa.client.Dispose();
-			Bossa.client = null;
+			api.Disconnect();
 		}
 
 		/// <summary>
 		/// Wyczyszczenie zebranych dotąd informacji o stanie naszych rachunków, historii notowań itd.
 		/// </summary>
-		public static void Reset()
+		public static void Clear()
 		{
-			Accounts.Clear();
-			Instruments.Clear();
+			api.Clear();
 		}
 	}
 }

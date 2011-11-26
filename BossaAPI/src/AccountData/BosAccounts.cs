@@ -70,7 +70,14 @@ namespace pjank.BossaAPI
 
 		#region Internal library stuff
 
-		// wywoływane z Bossa.Reset() - usuwa z pamięci wszystkie rachunki i ich zawartość
+		private readonly IBossaApi api;
+
+		internal BosAccounts(IBossaApi api)
+		{
+			this.api = api;
+		}
+
+		// wywoływane z Bossa.Clear() - usuwa z pamięci wszystkie rachunki i ich zawartość
 		internal void Clear()
 		{
 			list.Clear();
@@ -90,7 +97,7 @@ namespace pjank.BossaAPI
 					throw new ArgumentException("Account matching '" + number + "' not found!");
 				if (!Regex.IsMatch(number, @"\d\d-\d\d-\d+"))
 					throw new ArgumentException("Invalid account number: " + number);
-				account = new BosAccount(number);
+				account = new BosAccount(api, number);
 				list.Add(account);
 			}
 			return account;

@@ -116,7 +116,7 @@ namespace pjank.BossaAPI.TestApp1
 			using (NolClient nol = new NolClient())
 			{
 				// podpinamy się pod konkretny rodzaj komunikatów, tutaj - wyciąg z rachunku
-				nol.StatementMsgEvent += new Action<StatementMsg>(nol_StatementMsgHandler);
+				nol.StatementMsgEvent += nol_StatementMsgHandler;
 
 				// po zalogowaniu NOL3 od razu przysyła info o złożonych zleceniach, komunikaty z wizjera itp.
 				Console.WriteLine("\n... async connection thread working in background ... \n");

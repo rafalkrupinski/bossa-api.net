@@ -69,7 +69,7 @@ namespace pjank.BossaAPI
 		// j.w. z opcją wymuszenia ponownej subskrypcji (wywoływane po nawiązaniu połączenia)
 		internal void SubscriptionUpdate(bool forceRefresh)
 		{
-			if (Bossa.client == null) return;
+			if (!api.Connected) return;
 			if (subscriptionTimer == null)
 				subscriptionTimer = new Timer(new TimerCallback(SubscriptionTimerProc));
 			lock (this)
@@ -98,7 +98,7 @@ namespace pjank.BossaAPI
 				}
 				else return;
 			}
-			try { Bossa.client.MarketUpdatesSubscription(dtoInstruments); }
+			try { api.Connection.MarketUpdatesSubscription(dtoInstruments); }
 			catch (Exception ex) { ex.PrintError(); /* np. błędny symbol.. tylko który? */ }
 		}
 
@@ -106,7 +106,14 @@ namespace pjank.BossaAPI
 
 		#region Internal library stuff
 
-		// wywoływane z Bossa.Reset() - usuwa z pamięci wszystkie instrumenty, historię transakcji itp.
+		private readonly IBossaApi api;
+
+		internal BosInstruments(IBossaApi api)
+		{
+			this.api = api;
+		}
+
+		// wywoływane z Bossa.Clear() - usuwa z pamięci wszystkie instrumenty, historię transakcji itp.
 		internal void Clear()
 		{
 			list.Clear();
