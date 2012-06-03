@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using pjank.BossaAPI.DTO;
+using System.Collections.Generic;
 
 namespace pjank.BossaAPI
 {
@@ -81,11 +82,19 @@ namespace pjank.BossaAPI
 		}
 
 		// aktualizacja informacji o bieżących notowaniach
-		private void MarketUpdateHandler(MarketData marketData)
+		private void MarketUpdateHandler(MarketData[] marketData)
 		{
-			var instrument = BosInstrument.Create(marketData.Instrument);
-			instrument.Update(marketData);
-			InvokeUpdate(instrument);
+			var updatedInstruments = new HashSet<BosInstrument>();
+			foreach (var data in marketData)
+			{
+				var instrument = BosInstrument.Create(data.Instrument);
+				instrument.Update(data);
+				updatedInstruments.Add(instrument);
+			}
+			foreach (var instrument in updatedInstruments)
+			{
+				InvokeUpdate(instrument);
+			}
 		}
 
 		// wywołanie handlerów podpiętych pod zdarzenie OnUpdate

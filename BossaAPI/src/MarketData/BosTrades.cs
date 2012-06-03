@@ -30,7 +30,7 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public BosTrade Last
 		{
-			get { return (Count > 0) ? list[Count-1] : null; }
+			get { return (Count > 0) ? list[Count - 1] : null; }
 		}
 
 		/// <summary>
@@ -63,10 +63,30 @@ namespace pjank.BossaAPI
 
 		#region Internal library stuff
 
+		// zapamiętana tymczasowo wartość liczby otwartych pozycji - zanim ją przepiszę do odpowiedniego BosTrade
+		private uint? savedLop;
+
+		// BOSSA wciąż nie precyzuje, której transakcji dotyczy zmiana LOP. Stąd takie kombinacje i zgadywanki...
+		// Przyjmuję, że dotyczy ostatnio odebranej transakcji, chyba że takiej jeszcze nie ma, albo ona już dostała swój LOP.
+		internal void UpdateLop(uint openInterest)
+		{
+			var lastTrade = Last;
+			if (lastTrade != null && lastTrade.OpenInt == null)
+				lastTrade.OpenInt = openInterest;
+			else
+				savedLop = openInterest;
+		}
+
 		// aktualizacja danych obiektu po odebraniu ich z sieci
 		internal void Update(DTO.MarketTradeData data)
 		{
-			list.Add(new BosTrade(data));
+			var newTrade = new BosTrade(data);
+			list.Add(newTrade);
+			if (savedLop != null)
+			{
+				newTrade.OpenInt = savedLop;
+				savedLop = null;
+			}
 		}
 
 		internal void Combine(BosTrades source)

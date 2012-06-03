@@ -19,7 +19,7 @@ namespace pjank.BossaAPI
 		/// <summary>
 		/// Zdarzenie informujące o aktualizacji stanu notowań rynkowych.
 		/// </summary>
-		event Action<MarketData> MarketUpdateEvent;
+		event Action<MarketData[]> MarketUpdateEvent;
 
 		/// <summary>
 		/// Utworzenie nowego zlecenia.

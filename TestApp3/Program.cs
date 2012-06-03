@@ -1,5 +1,7 @@
 ﻿using System;
 using pjank.BossaAPI;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace pjank.BossaAPI.TestApp3
 {
@@ -11,7 +13,7 @@ namespace pjank.BossaAPI.TestApp3
 	/// wyświetlający bieżące notowania dowolnych instrumentów (podanych w argumentach wywołania programu).
 	/// 
 	/// Przykład użycia:
-	///  TestApp3.exe PKOBP PEKAO GETIN BRE BZWBK WIG20
+	///  TestApp3.exe PKOBP PEKAO GETIN BRE BZWBK WIG20 FW20M12
 	///  
 	/// </summary>
 	class Program
@@ -24,10 +26,10 @@ namespace pjank.BossaAPI.TestApp3
 		/// </param>
 		public static void Main(string[] args)
 		{
-			if (args.Length == 0)
+            if (args.Length == 0)
 			{
 				Console.WriteLine("Nie podano parametrów, włączam przykładową listę instrumentów...");
-				args = new[] { "WIG20", "KGHM", "FW20H12" };
+				args = new[] { "WIG20", "KGHM", "FW20M12" };
 			}
 
 			try
@@ -39,7 +41,11 @@ namespace pjank.BossaAPI.TestApp3
 				// (praktycznie wystarczy dowolne odwołanie do danego symbolu na liście Instruments[...],
 				// automatycznie uwzględnia również wszelkie instrumenty znajdujące się już na rachunku)
 				foreach (var symbol in args)
+				{
+					Console.WriteLine("dodaję: {0}", symbol);
 					Bossa.Instruments[symbol].UpdatesEnabled = true;
+				}
+				Console.WriteLine();
 
 				// uruchomienie połączenia z NOL'em
 				Bossa.ConnectNOL3();
@@ -58,6 +64,9 @@ namespace pjank.BossaAPI.TestApp3
 			}
 		}
 
+		// Czy wyświetlać przy każdej aktualizacji aktualne wartości OHLC itp.
+		private static bool showStats = true;
+
 		/// <summary>
 		/// Zdarzenie wywoływane przy aktualizacji danych rynkowych lub stanu rachunku.
 		/// </summary>
@@ -66,9 +75,25 @@ namespace pjank.BossaAPI.TestApp3
 		private static void Bossa_OnUpdate(object obj, EventArgs e)
 		{
 			var ins = obj as BosInstrument;
-			if (ins != null)  // wyświetlenie w kolejnym wierszu bieżących notowań
+			// wyświetlenie bieżących notowań: nalepsze oferty, parametry ostatniej transakcji
+			if (ins != null)  
+			{
 				Console.WriteLine("{0,-10} [ {1,-8} {2,8} ] {3}", ins.Symbol,
 				  ins.BuyOffers.BestPrice, ins.SellOffers.BestPrice, ins.Trades.Last);
+			}
+
+			// ewentualne dalsze szczegóły...
+			if (ins != null && showStats)
+			{
+				var s = ins.Session;
+				Console.WriteLine(" open  = {0} ({1:0.0}mln)", s.OpeningPrice, s.OpeningTurnover / 1000000);
+				Console.WriteLine(" close = {0} ({1:0.0}mln)", s.ClosingPrice, s.ClosingTurnover / 1000000);
+				Console.WriteLine(" high  = {0}", s.HighestPrice);
+				Console.WriteLine(" low   = {0}", s.LowestPrice);
+				Console.WriteLine(" ref   = {0}", s.ReferencePrice);
+				Console.WriteLine(" vol   = {0} ({1:0.0}mln)", s.TotalVolume, s.TotalTurnover / 1000000);
+				Console.WriteLine();
+			}
 		}
 	}
 }

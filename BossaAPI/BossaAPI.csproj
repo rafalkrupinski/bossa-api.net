@@ -64,10 +64,12 @@
     <Compile Include="src\MarketData\BosOffer.cs" />
     <Compile Include="src\MarketData\BosOffers.cs" />
     <Compile Include="src\MarketData\BosPrice.cs" />
+    <Compile Include="src\MarketData\BosSessionStats.cs" />
     <Compile Include="src\MarketData\BosTrade.cs" />
     <Compile Include="src\MarketData\BosTrades.cs" />
     <Compile Include="src\MarketData\BosInstrumentType.cs" />
     <Compile Include="src\Networking\DTO\AccountData.cs" />
+    <Compile Include="src\Networking\DTO\MarketStatsData.cs" />
     <Compile Include="src\Networking\DTO\MarketTradeData.cs" />
     <Compile Include="src\Networking\DTO\MarketOfferData.cs" />
     <Compile Include="src\Networking\DTO\MarketData.cs" />

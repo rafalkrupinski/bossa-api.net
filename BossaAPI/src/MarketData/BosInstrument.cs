@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using pjank.BossaAPI.src.MarketData;
 
 namespace pjank.BossaAPI
 {
@@ -49,6 +50,11 @@ namespace pjank.BossaAPI
 		public BosTrades Trades { get; private set; }
 
 		/// <summary>
+		/// Informacje "statystyczne" z bieżącej sesji (OHLC, Wolumen itp.).
+		/// </summary>
+		public BosSessionStats Session { get; private set; }
+
+		/// <summary>
 		/// Czy instrument ten uwzględniamy w subskrypcji aktualnych notowań rynkowych
 		/// (domyślnie "true" - włącza aktualizację: BuyOffers, SellOffers oraz Trades).
 		/// Może wyłączyć, jeśli np. korzystamy z więcej niż 100 różnych instrumentów
@@ -76,6 +82,7 @@ namespace pjank.BossaAPI
 			BuyOffers = new BosOffers();
 			SellOffers = new BosOffers();
 			Trades = new BosTrades();
+			Session = new BosSessionStats();
 			updatesEnabled = true;
 		}
 
@@ -89,6 +96,7 @@ namespace pjank.BossaAPI
 			BuyOffers.Combine(source.BuyOffers);
 			SellOffers.Combine(source.SellOffers);
 			Trades.Combine(source.Trades);
+			Session.Combine(source.Session);
 		}
 
 		// konwersja obiektu transportowego na instancję tej klasy (nową lub już istniejącą)
@@ -109,6 +117,8 @@ namespace pjank.BossaAPI
 			if (data.BuyOffer != null) BuyOffers.Update(data.BuyOffer);
 			if (data.SellOffer != null) SellOffers.Update(data.SellOffer);
 			if (data.Trade != null) Trades.Update(data.Trade);
+			if (data.Stats != null) Session.Update(data.Stats);
+			if (data.OpenInt != null) Trades.UpdateLop(data.OpenInt.Value);
 		}
 
 		#endregion

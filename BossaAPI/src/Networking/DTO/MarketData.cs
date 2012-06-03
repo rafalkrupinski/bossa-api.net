@@ -15,5 +15,7 @@ namespace pjank.BossaAPI.DTO
 		public MarketOfferData BuyOffer;
 		public MarketOfferData SellOffer;
 		public MarketTradeData Trade;
+		public MarketStatsData Stats;
+		public uint? OpenInt;
 	}
 }

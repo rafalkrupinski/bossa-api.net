@@ -22,39 +22,40 @@ namespace pjank.BossaAPI.Fixml
 	public static class MDEntryTypes
 	{
 		public static readonly MDEntryType[] All = {
-            MDEntryType.Buy, MDEntryType.Sell, 
-            MDEntryType.Trade, MDEntryType.Vol, MDEntryType.Lop, 
-            MDEntryType.Index,
-            MDEntryType.Open, MDEntryType.Close, 
-            MDEntryType.High, MDEntryType.Low, 
-            MDEntryType.Ref
-        };
+			MDEntryType.Buy, MDEntryType.Sell,
+			MDEntryType.Trade, MDEntryType.Vol, MDEntryType.Lop,
+			MDEntryType.Index,
+			MDEntryType.Open, MDEntryType.Close,
+			MDEntryType.High, MDEntryType.Low,
+			MDEntryType.Ref
+		};
 		public static readonly MDEntryType[] BasicBook = {
-            MDEntryType.Buy, MDEntryType.Sell
-        };
+			MDEntryType.Buy, MDEntryType.Sell
+		};
 		public static readonly MDEntryType[] BasicTrade = {
-            MDEntryType.Trade, MDEntryType.Vol, MDEntryType.Lop
-        };
+			MDEntryType.Trade, MDEntryType.Vol, MDEntryType.Lop
+		};
 		public static readonly MDEntryType[] OpenClose = {
-            MDEntryType.Open, MDEntryType.Close
-        };
+			MDEntryType.Open, MDEntryType.Close
+		};
+		public static readonly MDEntryType[] SessionStats = {
+			MDEntryType.Open, MDEntryType.Close,
+			MDEntryType.High, MDEntryType.Low,
+			MDEntryType.Ref
+		};
 
-		public static readonly MDEntryType[] HasPrice = All.
-			Except(new[]{ 
-                MDEntryType.Vol, MDEntryType.Lop 
-            }).ToArray();
-		public static readonly MDEntryType[] HasCurrency = HasPrice.
-			Except(new[]{ 
-                MDEntryType.Index 
-            }).ToArray();
+		public static readonly MDEntryType[] HasPrice =
+			All.Except(new[] { MDEntryType.Vol, MDEntryType.Lop }).ToArray();
+		public static readonly MDEntryType[] HasCurrency =
+			HasPrice.Except(new[] { MDEntryType.Index }).ToArray();
 		public static readonly MDEntryType[] HasSize = {
-            MDEntryType.Buy, MDEntryType.Sell, 
-            MDEntryType.Trade, MDEntryType.Vol, MDEntryType.Lop, 
-        };
+			MDEntryType.Buy, MDEntryType.Sell, 
+			MDEntryType.Trade, MDEntryType.Vol, MDEntryType.Lop,
+		};
 		public static readonly MDEntryType[] HasTurnover = {
-            MDEntryType.Vol, MDEntryType.Index,
-            MDEntryType.Open, MDEntryType.Close
-        };
+			MDEntryType.Vol, MDEntryType.Index,
+			MDEntryType.Open, MDEntryType.Close
+		};
 
 		public static bool In(this MDEntryType type, MDEntryType[] array)
 		{

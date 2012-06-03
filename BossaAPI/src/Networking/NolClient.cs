@@ -181,7 +181,7 @@ namespace pjank.BossaAPI
 						try
 						{
 							if (AsyncMessageEvent != null) AsyncMessageEvent(msg);
-							if (msg is AppMessageReportMsg) 
+							if (msg is AppMessageReportMsg)
 								if (AppReportMsgEvent != null) AppReportMsgEvent((AppMessageReportMsg)msg);
 							if (msg is ExecutionReportMsg)
 								if (ExecReportMsgEvent != null) ExecReportMsgEvent((ExecutionReportMsg)msg);
@@ -258,7 +258,7 @@ namespace pjank.BossaAPI
 		/// <summary>
 		/// Zdarzenie (IBosClient) informujące o aktualizacji stanu notowań rynkowych.
 		/// </summary>
-		public event Action<MarketData> MarketUpdateEvent;
+		public event Action<MarketData[]> MarketUpdateEvent;
 
 		#endregion
 
@@ -417,16 +417,23 @@ namespace pjank.BossaAPI
 				// komunikat z poprzednim Id - ignorujemy, by nie powstały duplikaty w historii transakcji
 				if (msg.RequestId != mdReqId) return;
 
-				MarketData data;
 				if (MarketUpdateEvent != null)
+				{
+					var list = new List<MarketData>();
 					foreach (MDEntry entry in msg.Entries)
-						if (MarketData_GetData(entry, out data)) MarketUpdateEvent(data);
-
-				// TODO: MDResults zastąpić nowymi klasami DTO(?) albo całkiem wyrzucić...
-				// a na razie pomijamy, jeśli włączono "MarketUpdates" - żeby nie dublować danych w pamięci
-				if (MarketUpdateEvent == null)
-				foreach (MDEntry entry in msg.Entries)
-					MarketDataResults(entry.Instrument).AddEntry(entry);
+					{
+						var data = MarketData_GetData(entry);
+						if (data != null) list.Add(data);
+					}
+					if (list.Count > 0) MarketUpdateEvent(list.ToArray());
+				}
+				else
+				{
+					// TODO: MDResults zastąpić nowymi klasami DTO(?) albo całkiem wyrzucić...
+					// a na razie - zbierane tylko, jeśli nie włączono "MarketUpdateEvent"
+					foreach (MDEntry entry in msg.Entries)
+						MarketDataResults(entry.Instrument).AddEntry(entry);
+				}
 			}
 		}
 
@@ -607,7 +614,8 @@ namespace pjank.BossaAPI
 				var fixmlInstruments = instruments.Select(i => FixmlInstrument.Find(i)).ToArray();
 				MarketDataSubscriptionAdd(fixmlInstruments);
 				MarketDataSubscriptionAdd(MDEntryTypes.BasicBook);
-				MarketDataSubscriptionAdd(MDEntryType.Trade);
+				MarketDataSubscriptionAdd(MDEntryTypes.BasicTrade);
+				MarketDataSubscriptionAdd(MDEntryTypes.SessionStats);
 				MarketDataStart();
 				TradingSessionStatusStart();
 			}
@@ -615,18 +623,25 @@ namespace pjank.BossaAPI
 		}
 
 		// funkcja pomocnicza konwertująca obiekt Fixml.MDEntry na DTO.MarketData
-		private static bool MarketData_GetData(MDEntry entry, out MarketData data)
+		private static MarketData MarketData_GetData(MDEntry entry)
 		{
-			data = new MarketData();
+			var data = new MarketData();
 			data.Instrument = entry.Instrument.Convert();
 			switch (entry.EntryType)
 			{
 				case MDEntryType.Buy: data.BuyOffer = MarketData_GetOfferData(entry); break;
 				case MDEntryType.Sell: data.SellOffer = MarketData_GetOfferData(entry); break;
 				case MDEntryType.Trade: data.Trade = MarketData_GetTradeData(entry); break;
-				default: return false;   // pozostałe na razie pomijamy
+				case MDEntryType.Lop: data.OpenInt = entry.Size; break;
+				case MDEntryType.Vol:
+				case MDEntryType.Open:
+				case MDEntryType.Close:
+				case MDEntryType.High:
+				case MDEntryType.Low:
+				case MDEntryType.Ref: data.Stats = MarketData_GetStatsData(entry); break;
+				default: return null;   // pozostałe pomijamy
 			}
-			return true;
+			return data;
 		}
 
 		// funkcja pomocnicza konwertująca dane z Fixml.MDEntry na DTO.MarketOfferData
@@ -658,6 +673,37 @@ namespace pjank.BossaAPI
 			trade.Price = (decimal)entry.Price;
 			trade.Quantity = entry.Size ?? 0;  // może być null dla notowań indeksów
 			return trade;
+		}
+
+		// funkcja pomocnicza konwertująca dane z Fixml.MDEntry na DTO.MarketStatsData
+		private static MarketStatsData MarketData_GetStatsData(MDEntry entry)
+		{
+			var stats = new MarketStatsData();
+			switch (entry.EntryType)
+			{
+				case MDEntryType.Vol:
+					stats.TotalVolume = entry.Size;
+					stats.TotalTurnover = entry.Turnover;
+					break;
+				case MDEntryType.Open:
+					stats.OpeningPrice = entry.Price;
+					stats.OpeningTurnover = entry.Turnover ?? 0;
+					break;
+				case MDEntryType.Close:
+					stats.ClosingPrice = entry.Price;
+					stats.ClosingTurnover = entry.Turnover ?? 0;
+					break;
+				case MDEntryType.High:
+					stats.HighestPrice = entry.Price;
+					break;
+				case MDEntryType.Low:
+					stats.LowestPrice = entry.Price;
+					break;
+				case MDEntryType.Ref:
+					stats.ReferencePrice = entry.Price;
+					break;
+			}
+			return stats;
 		}
 
 		#endregion

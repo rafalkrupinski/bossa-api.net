@@ -23,7 +23,7 @@ namespace pjank.BossaAPI
 		/// </summary>
 		public uint Quantity { get; private set; }
 		/// <summary>
-		/// TODO: Liczba otwartych pozycji - LOP (dotyczy tylko instrumentów pochodnych).
+		/// Liczba otwartych pozycji (LOP), dotyczy tylko instrumentów pochodnych.
 		/// </summary>
 		public uint? OpenInt { get; internal set; }
 
@@ -33,11 +33,12 @@ namespace pjank.BossaAPI
 			Time = data.Time;
 			Price = data.Price;
 			Quantity = data.Quantity;
+			//OpenInt uzupełniamy w BosInstrument.Update
 		}
 
 		public override string ToString()
 		{
-			return string.Format("{2}  {0,7} x {1,-5}  {3,8:(0)}", Price, Quantity, Time.TimeOfDay, OpenInt);
+			return string.Format("{0}  {1,7} x {2,-5}  {3,8:(0)}", Time.TimeOfDay, Price, Quantity, OpenInt);
 		}
 	}
 }
