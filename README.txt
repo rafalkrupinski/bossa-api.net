@@ -26,13 +26,14 @@ i będą udostepniać swoje modyfikacje, do czego oczywiście zachęcam).
 
 Szybki start:
 
- -> uruchom aplikację "TestApp2.exe" -
+ -> uruchom aplikację "DemoApp.exe" -
      tak zobaczysz jak (i czy w ogóle :)) to wszystko działa...
- -> przejrzyj opis (z przykładami) na początku pliku "src\Bossa.cs" !!!
+ -> przejrzyj opis (z przykładami) na początku pliku "BossaAPI\src\Bossa.cs"
+ -> uruchom "DemoConsole" i obejrzyj jej kod źródłowy, m.in. katalog 'Modules'
  -> podlinkuj do swojego projektu "pjank.BossaAPI.dll" i korzystaj ;-)
 
 
-Mamy tu obecnie trzy projekty (podkatalogi):
+Mamy tu obecnie 4 projekty (biblioteka + kilka przykładów jej użycia):
 
 1) "BossaAPI" - kod samej biblioteki, podzielony na kilka warstw:
 
@@ -62,20 +63,35 @@ Mamy tu obecnie trzy projekty (podkatalogi):
      stanowi wspomniana klasa "NolClient") oraz klasy transportowe (DTO) 
      służące do przekazywania danych między kolejnymi warstwami biblioteki.
 
-2) TestApp1 - przykładowa aplikacja konsolowa
+2) DemoApp - przykładowa aplikacja GUI 
 
-  Demonstruje sposób bezpośredniego wykorzystania m.in. klasy "NolClient", 
-  a więc tej bardziej "niskopoziomowej" warstwy niniejszej biblioteki.
-
-3) TestApp2 - przykładowa aplikacja GUI 
-
-  Tutaj wykorzystano już "zewnętrzną" warstwę biblioteki - klasę "Bossa". 
   Aplikacja demonstruje większość dostępnych funkcji, włącznie z możliwością
   oglądania tabeli z aktualnymi notowaniami i składania zleceń. Jednocześnie
-  w okienku logu umożliwia podgląd wszystkiego, co się dzieje "pod maską".      
+  w okienku logu umożliwia podgląd wszystkiego, co się dzieje "pod maską".
+  Całość wykorzystuje "zewnętrzną" warstwę biblioteki - klasę "Bossa".
+
+3) DemoConsole - aplikacja konsolowa obejmująca całą serię przykładów
+
+  Demonstruje sposób wykorzystania wybranych elementów biblioteki - zarówno
+  prostszej klasy "Bossa", jak i mniej lub bardziej zaawansowane użycie klasy
+  "NolClient"... a nawet połączenie obu tych metod w jednej aplikacji.
+  Każdy z przykładów zapisano w formie samodzielnego "modułu", których lista
+  wyświetla się w formie menu po uruchomieniu aplikacji.
+  Polecam zajrzenie do kodu źródłowego interesujących nas modułów.
+
+4) MarketMonitor - bardziej "praktyczna" przykładowa aplikacja konsolowa
+
+  Programik, który możemy wywołać z parametrami - listą instrumentów...
+  a na wyjściu otrzymamy bieżące notowania tych wybranych instrumentów.
 
 
 
+===== 2012-06-03 == wersja 0.4 ================================================
+
+Rozbudowa klasy "Bossa" o obsługę takich danych, jak: LOP, wolumen sesji,
+cena otwarcia/zamknięcia itp.
+Rozszerzenie i uporządkowanie dołączonych aplikacji przykładowych.
+I szereg drobniejszych poprawek zrealizowanych w ciągu ostatniego roku.
 
 ===== 2011-03-28 == wersja 0.3 ================================================
 
