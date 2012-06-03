@@ -1,7 +1,5 @@
 ﻿using System;
 using pjank.BossaAPI;
-using System.Diagnostics;
-using System.Collections.Generic;
 
 namespace pjank.BossaAPI.TestApp3
 {
@@ -26,7 +24,7 @@ namespace pjank.BossaAPI.TestApp3
 		/// </param>
 		public static void Main(string[] args)
 		{
-            if (args.Length == 0)
+			if (args.Length == 0)
 			{
 				Console.WriteLine("Nie podano parametrów, włączam przykładową listę instrumentów...");
 				args = new[] { "WIG20", "KGHM", "FW20M12" };
@@ -76,7 +74,7 @@ namespace pjank.BossaAPI.TestApp3
 		{
 			var ins = obj as BosInstrument;
 			// wyświetlenie bieżących notowań: nalepsze oferty, parametry ostatniej transakcji
-			if (ins != null)  
+			if (ins != null)
 			{
 				Console.WriteLine("{0,-10} [ {1,-8} {2,8} ] {3}", ins.Symbol,
 				  ins.BuyOffers.BestPrice, ins.SellOffers.BestPrice, ins.Trades.Last);

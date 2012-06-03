@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace pjank.BossaAPI.src.MarketData
+namespace pjank.BossaAPI
 {
 	/// <summary>
 	/// Przechowuje informacje "statystyczne" z bieżącej sesji dla konkretnego instrumentu. 
