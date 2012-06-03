@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BossaAPI .NET Class Library")]
+[assembly: AssemblyTitle("BossaAPI DemoApp - Sample GUI Application")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("www.pjank.net")]
-[assembly: AssemblyProduct("pjank.BossaAPI")]
+[assembly: AssemblyProduct("pjank.BossaAPI.DemoApp")]
 [assembly: AssemblyCopyright("Copyright © 2011-2012 Przemysław Jankowski")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a65366d7-65d5-4211-b9b9-def50aba3523")]
+[assembly: Guid("4bb9775e-ab69-469d-aac5-e1112f534b9a")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -29,5 +29,8 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
+// You can specify all the values or you can default the Build and Revision Numbers 
+// by using the '*' as shown below:
+// [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.4.0.0")]
 [assembly: AssemblyFileVersion("0.4.0.0")]
